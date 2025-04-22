@@ -39,7 +39,6 @@ class MenuController extends Controller
     {    
         $nroinventario = $request->input('nroinventario');
         $registros = Expedientes::where('nro_inventario', $nroinventario)->get();
-
         if ($registros->isNotEmpty()) {
             $estado = $registros[0]->estado;
 
@@ -206,20 +205,25 @@ class MenuController extends Controller
 
     public function seguimientoInventario()
     {
-        // Obtener todos los usuarios de la tabla 'usuarios'
-        //$usuarios = Usuarios::all();
-        //$usuarios = Usuarios::orderBy('nombreusuario', 'asc')->get();
-	//$usuarios = Usuarios::orderBy('nombreusuario', 'asc')->paginate(10);
-
-        $segdatos = DB::table('expediente')
+        $usuario = auth()->user();
+        if ($usuario->perfil->descri_perfil !== 'Admin') {
+            $segdatos = DB::table('expediente')
             ->leftJoin('usuarios', 'expediente.id_usuario', '=', 'usuarios.id_usuario')
             ->leftJoin('dependencia', 'expediente.paq_dependencia', '=', 'dependencia.id_dependencia')
-            ->select('usuario', 'nro_inventario', 'archivo', 'nro_paquete', 'paq_dependencia', 'descripcion', 'despacho', DB::raw('count(*) as total'), DB::raw('MAX(id_expediente) as id_maximo'))
+            ->select('usuario', 'nro_inventario', 'archivo', 'nro_paquete', 'paq_dependencia', 'descripcion', 'despacho', DB::raw('count(*) as total'), DB::raw('MAX(id_expediente) as id_maximo'), DB::raw('MIN(fecha_inventario) as fecha_inv'))
+            ->where('expediente.id_usuario', $usuario->id_usuario)  // filtro para solo devolver lo del usuario
             ->groupBy('usuario', 'nro_inventario', 'archivo', 'nro_paquete', 'paq_dependencia', 'descripcion', 'despacho')
             ->orderBy('id_maximo', 'desc')           
             ->get();
-
-        // Pasar los datos a la vista 'usuarios.index'
+        } else {
+            $segdatos = DB::table('expediente')
+            ->leftJoin('usuarios', 'expediente.id_usuario', '=', 'usuarios.id_usuario')
+            ->leftJoin('dependencia', 'expediente.paq_dependencia', '=', 'dependencia.id_dependencia')
+            ->select('usuario', 'nro_inventario', 'archivo', 'nro_paquete', 'paq_dependencia', 'descripcion', 'despacho', DB::raw('count(*) as total'), DB::raw('MAX(id_expediente) as id_maximo'), DB::raw('MIN(fecha_inventario) as fecha_inv'))
+            ->groupBy('usuario', 'nro_inventario', 'archivo', 'nro_paquete', 'paq_dependencia', 'descripcion', 'despacho')
+            ->orderBy('id_maximo', 'desc')           
+            ->get();
+        }
         return view('inventario.seginventario', compact('segdatos'));
     }
     public function mostrarDetalle(Request $request)

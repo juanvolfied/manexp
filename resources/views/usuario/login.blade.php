@@ -65,20 +65,21 @@
 }
 
 .btn-custom:hover {
-  background-color: #343a40; /* Un tono más oscuro al hacer hover */
+  background-color: #343a40; /* Un tono mï¿½s oscuro al hacer hover */
 }
   </style>
 </head>
 <body>
-    @if($errors->any())
-        <div>{{ $errors->first() }}</div>
-    @endif
 
   <!-- Imagen tipo marca de agua -->
   <div class="background-image"></div>
   <div class="overlay"></div>
   
   <div class="login-card">
+    @if($errors->any())
+        <div class="alert alert-danger">{{ $errors->first() }}</div>
+    @endif
+   
     <h3 class="text-center mb-4">Iniciar Sesi&oacute;n</h3>
     <form method="POST" action="{{ route('usuario.login') }}" autocomplete="off">
     @csrf

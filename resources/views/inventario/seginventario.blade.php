@@ -40,6 +40,7 @@ function numeroAOrdinal($numero) {
 <!--        <h1 class="mb-4">Seguimiento de Registro de Inventario</h1>-->
 
         <!-- Tabla con clases Bootstrap -->
+        <span class="d-none d-md-inline">
         <table id="tablaseguimiento" class="table table-striped table-bordered">
             <thead class="thead-dark">
                 <tr>
@@ -50,6 +51,7 @@ function numeroAOrdinal($numero) {
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Dependencia</th>
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Despacho</th>
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Total Registros</th>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Fec. Inventario</th>
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Ver Detalle</th>
                 </tr>
             </thead>
@@ -63,18 +65,41 @@ function numeroAOrdinal($numero) {
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->descripcion}}</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ numeroAOrdinal($datos->despacho) }} Despacho</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;" align="center">{{ $datos->total}}</td>
+                        <td style="padding: 5px 10px!important; font-size: 11px !important;" align="center">{{ $datos->fecha_inv}}</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;" align="center">
                         <!--<a href="{{ route('seguimiento.detalle', ['nro_inv' => $datos->nro_inventario]) }}" title="Ver detalle">🔍</a>-->
-                        <a href="#" onclick="mostrardetalle({{ $datos->nro_inventario }}, event)" title="Ver detalle">🔍</a>
-                        
-                        
+                        <a href="#" onclick="mostrardetalle({{ $datos->nro_inventario }}, event)" title="Ver detalle">🔍</a>                        
                         </td>
                         <!--fas fa-search-->
                     </tr>
                 @endforeach
             </tbody>
         </table>
+        </span>
         
+        <span class="d-inline d-md-none">
+        <table id="tablaseguimiento2" class="table table-striped table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Usuario</th>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Nro Inventario</th>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Total Registros</th>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Fec. Inventario</th>                    
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($segdatos as $datos)
+                    <tr>
+                        <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->usuario }}</td>
+                        <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->nro_inventario}}</td>
+                        <td style="padding: 5px 10px!important; font-size: 11px !important;" align="center">{{ $datos->total}}</td>
+                        <td style="padding: 5px 10px!important; font-size: 11px !important;" align="center">{{ $datos->fecha_inv}}</td>                        
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+        </span>
+
         
                   </div>
                 </div>
@@ -98,22 +123,22 @@ function numeroAOrdinal($numero) {
       </div>
       
       <div class="modal-body" id="detalleseguimiento">
-	              <table id="scanned-list" class="table table-striped table-sm">
-		          <thead class="thead-dark">
-			      <tr>
-			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">C&oacute;digo de Barras</th>			      
-			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Dependencia</th>
-			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">A&ntilde;o</th>
-			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Nro Exp</th>
-			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Tipo</th>
-			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Fecha Lectoreo</th>
-			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Fecha Inventariado</th>
-		              </tr>
-		          </thead>
-		          <tbody style="font-size:12px;" >
-		        	<!-- Los datos escaneados se irán añadiendo aquí -->
-		          </tbody>
-		      </table>        
+          <table id="scanned-list" class="table table-striped table-sm">
+              <thead class="thead-dark">
+                  <tr>
+                      <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">C&oacute;digo de Barras</th>			      
+                      <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Dependencia</th>
+                      <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">A&ntilde;o</th>
+                      <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Nro Exp</th>
+                      <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Tipo</th>
+                      <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Fecha Lectoreo</th>
+                      <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Fecha Inventariado</th>
+                  </tr>
+              </thead>
+              <tbody style="font-size:12px;" >
+		<!-- Los datos escaneados se irán añadiendo aquí -->
+              </tbody>
+          </table>        
       </div>
       
       <div class="modal-footer">
@@ -253,10 +278,37 @@ var nroreg=0;
       
             // Personaliza el texto de "Showing entries"
             "emptyTable": "No hay datos disponibles en la tabla", // Mensaje si no hay datos
-      }
-      
-      
+      }      
     });
+
+
+    $('#tablaseguimiento2').DataTable({
+      "pageLength": 10,  // Número de filas por página
+      "lengthMenu": [10, 25, 50, 100],  // Opciones de paginación
+      "searching": true,  // Habilitar búsqueda
+      "ordering": true,   // Habilitar ordenación
+      "info": true,       // Mostrar información de la tabla
+      "autoWidth": false,  // Ajustar automáticamente el ancho de las columnas
+      "lengthChange": false,
+      "language": {
+            "search": "Buscar",                         // Cambia "Search" por "Buscar"
+            "lengthMenu": "Mostrar _MENU_ entradas",    // Cambia "Show entries" por "Mostrar entradas"
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas", // Cambia el texto de la información
+            "zeroRecords": "No se encontraron registros", // Mensaje cuando no hay resultados
+            "infoEmpty": "Mostrando 0 a 0 de 0 entradas", // Cuando la tabla está vacía
+            "infoFiltered": "(filtrado de _MAX_ entradas totales)", // Cuando hay filtros activos
+      
+            // Personaliza "Previous" y "Next" en la paginación
+            "paginate": {
+              "previous": "Anterior",   // Cambia "Previous" por "Anterior"
+              "next": "Siguiente"       // Cambia "Next" por "Siguiente"
+            },
+      
+            // Personaliza el texto de "Showing entries"
+            "emptyTable": "No hay datos disponibles en la tabla", // Mensaje si no hay datos
+      }      
+    });
+
   });
 </script>
 @endpush

@@ -420,9 +420,9 @@ document.getElementById("grabarBtn").addEventListener("click", function(event) {
 
 function buscanroinventa(event) {
     let codigo = document.getElementById("nroinventario").value;
-    codigo = codigo.replace(/^[^0-9]+|[^0-9]+$/g, ''); 
+codigo = codigo.replace(/^[^A-Za-z0-9-]+|[^A-Za-z0-9-]+$/g, '');
     codigo = codigo.trim();
-    document.getElementById("nroinventario").value = codigo;
+
     scannedItems = [];
     var nroreg=0;
 	if (event.keyCode === 13) {

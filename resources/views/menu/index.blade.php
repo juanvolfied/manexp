@@ -79,14 +79,20 @@
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#dashboard" >
                   <i class="fas fa-home"></i>
-                  <p>Archivo</p>
+                  <p>INVENTARIO</p>
                   <span class="caret"></span>
                 </a>
                 <div class="collapse" id="dashboard">
                   <ul class="nav nav-collapse">
+@auth
+    @php
+        $perfil = Auth::user()->perfil->descri_perfil;
+    @endphp
+    @if(in_array($perfil, ['Admin', 'Inventario']))
+
                     <li>
                       <a href="{{ route('inventario') }}">
-                        <span class="sub-item">Inventario</span>
+                        <span class="sub-item">Registro de Inventario</span>
                       </a>
                     </li>
                     <li>
@@ -94,31 +100,52 @@
                         <span class="sub-item">Seguimiento</span>
                       </a>
                     </li>
+    @endif
+@endauth
+                    
                   </ul>
                 </div>
               </li>
+<!--
               <li class="nav-section">
                 <span class="sidebar-mini-icon">
                   <i class="fa fa-ellipsis-h"></i>
                 </span>
-                <h4 class="text-section">Mov. Expedientes</h4>
+                <h4 class="text-section">Accesos</h4>
               </li>
+-->
+
+@auth
+    @if(in_array($perfil, ['Admin']))
               <li class="nav-item">
-                <a data-bs-toggle="collapse" href="#movs">
+                <a data-bs-toggle="collapse" href="#accesos">
                   <i class="fas fa-layer-group"></i>
-                  <p>Solicitudes</p>
+                  <p>ACCESOS</p>
                   <span class="caret"></span>
                 </a>
-                <div class="collapse" id="movs">
+                <div class="collapse" id="accesos">
                   <ul class="nav nav-collapse">
                     <li>
-                      <a href="#">
-                        <span class="sub-item">Opcion1</span>
+                      <a href="{{ route('personal.index') }}">
+                        <span class="sub-item">Personal</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{{ route('usuarios.index') }}">
+                        <span class="sub-item">Usuarios</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{{ route('perfilusuario.index') }}">
+                        <span class="sub-item">Asigna Perfil a Usuarios</span>
                       </a>
                     </li>
                   </ul>
                 </div>
               </li>
+    @endif
+@endauth
+
 
             </ul>
           </div>
@@ -230,7 +257,7 @@
           <!-- End Navbar -->
         </div>
 
-        <div class="container">
+        <div class="container" >
           <div class="page-inner">
             <!--
             <div class="page-header">
@@ -256,7 +283,9 @@
               </ul>
             </div>
             -->
-            
+            <!--@auth
+               <p>Rol: {{ auth()->user()->perfil->id_perfil }} {{ auth()->user()->perfil->descri_perfil ?? 'Sin rol asignado' }}</p>
+            @endauth-->
             @yield('content')
             
 
