@@ -41,10 +41,12 @@
 
 
 
-<!-- Incluir el CSS de Choices.js -->
-<link href="http://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" rel="stylesheet" />
-<!-- Incluir el JS de Choices.js -->
-<script src="http://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+<!-- CSS de Selectize -->
+<link rel="stylesheet" href="{{ asset('css/selectize.css') }}">
+
+
+
 
 
 
@@ -86,7 +88,7 @@
                   <ul class="nav nav-collapse">
 @auth
     @php
-        $perfil = Auth::user()->perfil->descri_perfil;
+        $perfil = optional(Auth::user()->perfil)->descri_perfil;        
     @endphp
     @if(in_array($perfil, ['Admin', 'Inventario']))
 
@@ -98,6 +100,14 @@
                     <li>
                       <a href="{{ route('seginventario') }}">
                         <span class="sub-item">Seguimiento</span>
+                      </a>
+                    </li>
+    @endif
+    @if(in_array($perfil, ['Admin']))
+
+                    <li>
+                      <a href="{{ route('grafico') }}">
+                        <span class="sub-item">Gr&aacute;fico de Avance</span>
                       </a>
                     </li>
     @endif
@@ -146,6 +156,15 @@
     @endif
 @endauth
 
+              <li class="nav-item">
+                <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                  <i class="fas fa-sign-out-alt"></i>
+                  <p>CERRAR LA SESION</p>
+                </a>
+                <form id="logout-form" action="{{ route('usuario.logout') }}" method="POST" style="display: none;">
+                @csrf
+                </form>
+              </li>
 
             </ul>
           </div>
@@ -199,9 +218,8 @@
                       <img src="{{ asset('img/user.png') }}" alt="..." class="avatar-img rounded-circle" />
                     </div>
                     <span class="profile-username">
-                      <!--<span class="op-7">Hi,</span>-->
-                      <!-- <span class="fw-bold">Bienvenido, {{ Auth::user()->usuario }}  {{ Auth::user()->id_usuario }}  {{ Auth::user()->id_personal }}!</span>-->
-                      <span class="fw-bold">{{ Auth::user()->personal->apellido_paterno }} {{ Auth::user()->personal->apellido_materno }} <br> {{ Auth::user()->personal->nombres }}</span>
+
+                      <span class="fw-bold">{{ optional(Auth::user()->personal)->apellido_paterno }} {{ optional(Auth::user()->personal)->apellido_materno }} <br> {{ optional(Auth::user()->personal)->nombres }}</span>
                       
 
                     </span>
@@ -240,13 +258,9 @@
                         <a class="dropdown-item" href="#">Account Setting</a>
                         <div class="dropdown-divider"></div>
                         -->
-                          <form method="POST" action="{{ route('usuario.logout') }}">
-			      @csrf
-			      <button type="submit" class="dropdown-item" style="background: none; border: none; padding: 5px; margin: 0;">
-			          <i class="fas fa-sign-out-alt me-2"></i> CERRAR LA SESION
-			      </button>
-                           </form>
-                        <!--<a class="dropdown-item" href="{{ route('usuario.logout') }}"><i class="fas fa-sign-out-alt me-2"></i>CERRAR LA SESION</a>-->
+                        <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            <i class="fas fa-sign-out-alt me-2"></i>CERRAR LA SESION
+                        </a>
                       </li>
                     </div>
                   </ul>
@@ -315,13 +329,18 @@
       </div>
 
     </div>
-    
-    
+     
 
     <!--   Core JS Files   -->
     <script src="{{ asset('js/core/popper.min.js') }}"></script>
     <script src="{{ asset('js/core/bootstrap.min.js') }}"></script>
     <script src="{{ asset('js/core/jquery-3.7.1.min.js') }}"></script>
+
+
+
+<!-- JS de Selectize -->
+<script src="{{ asset('js/plugin/selectize/selectize.js') }}"></script>
+
 
     <!-- jQuery Scrollbar -->
     <script src="{{ asset('js/plugin/jquery-scrollbar/jquery.scrollbar.min.js') }}"></script>
@@ -358,6 +377,10 @@
     <script src="../assets/js/setting-demo2.js"></script>-->
 
     @stack('scripts')
+
+
+@yield('scripts')
+
 
   </body>
 </html>

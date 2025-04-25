@@ -4,8 +4,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Acceso de Usuarios</title>
-  <link href="http://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="http://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}" />
+
+    <!-- Fonts and icons -->
+    <script src="{{ asset('js/plugin/webfont/webfont.min.js') }}"></script>
+    <script>
+      WebFont.load({
+        google: { families: ["Public Sans:300,400,500,600,700"] },
+        custom: {
+          families: [
+            "Font Awesome 5 Solid",
+            "Font Awesome 5 Regular",
+            "Font Awesome 5 Brands",
+            "simple-line-icons",
+          ],
+          urls: ["{{ asset('css/fonts.min.css') }}"],
+        },
+        active: function () {
+          sessionStorage.fonts = true;
+        },
+      });
+    </script>
+
   <style>
     body {
       position: relative;
@@ -87,14 +107,14 @@
       <div class="mb-3">
         <label for="usuario" class="form-label">Usuario</label>
         <div class="input-group">
-          <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+          <span class="input-group-text"><i class="fas fa-user"></i></span>
           <input type="text" class="form-control" name="usuario" id="usuario" placeholder="Usuario" required>
         </div>      
       </div>
       <div class="mb-4">
         <label for="password" class="form-label">Contrase&ntilde;a</label>
         <div class="input-group">
-          <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+          <span class="input-group-text"><i class="fas fa-lock"></i></span>
           <input type="password" class="form-control" name="password" id="password" placeholder="********" required>
         </div>      </div>
       <div class="d-grid mb-3">

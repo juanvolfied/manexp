@@ -5,6 +5,7 @@
 <?php
 function numeroAOrdinal($numero) {
     $ordinales = [
+        0 => '',
         1 => '1er',
         2 => '2do',
         3 => '3er',
@@ -41,10 +42,18 @@ function numeroAOrdinal($numero) {
 
         <!-- Tabla con clases Bootstrap -->
         <span class="d-none d-md-inline">
+@auth
+    @php
+        $perfil = Auth::user()->perfil->descri_perfil;
+    @endphp
+
         <table id="tablaseguimiento" class="table table-striped table-bordered">
             <thead class="thead-dark">
                 <tr>
+    @if(in_array($perfil, ['Admin']))                
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Usuario</th>
+    @endif
+
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Nro Inventario</th>
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Archivo</th>
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Nro Paquete</th>
@@ -58,7 +67,9 @@ function numeroAOrdinal($numero) {
             <tbody>
                 @foreach ($segdatos as $datos)
                     <tr>
+    @if(in_array($perfil, ['Admin']))                
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->usuario }}</td>
+    @endif
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->nro_inventario}}</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">Archivo 00{{ $datos->archivo}}</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->nro_paquete}}</td>
@@ -68,7 +79,7 @@ function numeroAOrdinal($numero) {
                         <td style="padding: 5px 10px!important; font-size: 11px !important;" align="center">{{ $datos->fecha_inv}}</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;" align="center">
                         <!--<a href="{{ route('seguimiento.detalle', ['nro_inv' => $datos->nro_inventario]) }}" title="Ver detalle">🔍</a>-->
-                        <a href="#" onclick="mostrardetalle({{ $datos->nro_inventario }}, event)" title="Ver detalle">🔍</a>                        
+                        <a href="#" onclick="mostrardetalle('{{ $datos->nro_inventario }}', event)" title="Ver detalle">🔍</a>                        
                         </td>
                         <!--fas fa-search-->
                     </tr>
@@ -81,23 +92,34 @@ function numeroAOrdinal($numero) {
         <table id="tablaseguimiento2" class="table table-striped table-bordered">
             <thead class="thead-dark">
                 <tr>
+    @if(in_array($perfil, ['Admin']))                
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Usuario</th>
-                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Nro Inventario</th>
-                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Total Registros</th>
-                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Fec. Inventario</th>                    
+    @endif
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Nro Inv.</th>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Total Reg.</th>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Fec. Inv.</th>                    
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Ver Detalle</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($segdatos as $datos)
                     <tr>
+    @if(in_array($perfil, ['Admin']))                
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->usuario }}</td>
+    @endif
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->nro_inventario}}</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;" align="center">{{ $datos->total}}</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;" align="center">{{ $datos->fecha_inv}}</td>                        
+                        <td style="padding: 5px 10px!important; font-size: 11px !important;" align="center">
+                        <a href="#" onclick="mostrardetalle('{{ $datos->nro_inventario }}', event)" title="Ver detalle">🔍</a>                        
+                        </td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
+
+@endauth
+
         </span>
 
         

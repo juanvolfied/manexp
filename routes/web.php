@@ -24,6 +24,7 @@ use App\Http\Controllers\PerfilUsuarioController;
 Route::get('/login', [UsuarioLoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [UsuarioLoginController::class, 'login'])->name('usuario.login');
 Route::post('/logout', [UsuarioLoginController::class, 'logout'])->name('usuario.logout');
+
 Route::get('/', function () {
     if (Auth::check()) {
         return redirect('/principal');
@@ -31,6 +32,9 @@ Route::get('/', function () {
     return redirect('/login');    
     //return 'Bienvenido!';
 })->middleware('auth');
+
+
+
 
 Route::get('/principal', [MenuController::class, 'mostrarMenu']);
 
@@ -43,7 +47,8 @@ Route::post('/eliminar-item', [MenuController::class, 'eliminarItem'])->name('el
 Route::get('/seguimiento', [MenuController::class, 'seguimientoInventario'])->name('seginventario');
 //Route::get('/detalle/{nro_inv}', [MenuController::class, 'mostrarDetalle'])->name('seguimiento.detalle');
 Route::post('/seguimiento', [MenuController::class, 'mostrarDetalle'])->name('seguimiento.detalle');
-
+Route::get('/grafico', [InventarioController::class, 'mostrarVistaGrafico'])->name('grafico');
+Route::get('/grafico-usuario', [InventarioController::class, 'graficoPorUsuario'])->name('grafico.usuario');
 
 // Ruta para listar
 Route::get('/personal', [PersonalController::class, 'index'])->name('personal.index');

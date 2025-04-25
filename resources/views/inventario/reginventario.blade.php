@@ -4,14 +4,14 @@
     <!-- Mostrar el mensaje de éxito o error -->
     <form id="miFormulario" autocomplete="off">
     @if(session('messageErr'))
-        <div id="messageErr" class="alert alert-danger text-danger"><b>{{ session('messageErr') }}</b></div>
+        <div id="messageErr" class="alert alert-danger text-danger" style="transition: opacity 0.5s ease;"><b>{{ session('messageErr') }}</b></div>
     @else
-        <div id="messageErr" class="alert alert-danger text-danger" style="display:none;"></div>    
+        <div id="messageErr" class="alert alert-danger text-danger" style="transition: opacity 0.5s ease; display:none;"></div>    
     @endif
     @if(session('messageOK'))
-        <div id="messageOK" class="alert alert-success text-success"><b>{{ session('messageOK') }}</b></div>
+        <div id="messageOK" class="alert alert-success text-success" style="transition: opacity 0.5s ease;"><b>{{ session('messageOK') }}</b></div>
     @else
-        <div id="messageOK" class="alert alert-success text-success" style="display:none;"></div>
+        <div id="messageOK" class="alert alert-success text-success" style="transition: opacity 0.5s ease; display:none;"></div>
     @endif    
         @csrf
 
@@ -28,19 +28,14 @@
                         <div class="form-group" style="padding:5px;">
                           <label for="nroinventario"><b>Nro Inventario:</b></label>
                           <div class="input-group">
-                          <input type="text" class="form-control form-control-sm" name="nroinventario" id="nroinventario" onkeydown="buscanroinventa(event)"/>
+                          <input type="text" class="form-control form-control-sm" name="nroinventario" id="nroinventario" onkeydown="buscanroinventa(event)" autofocus/>
                           
-                          <button class="btn btn-primary" style="padding:0px 1rem!important;" type="button" onclick="ejecutabuscar()">
+                          <button class="btn btn-primary" style="padding:0px 1rem!important; z-index: 1;" type="button" onclick="ejecutabuscar()">
                           <i class="fas fa-check me-1"></i> Verificar
                           </button>
                           
                           </div>
                           
-                        </div>
-                      </div>
-                      <div class="col-md-6 col-lg-6">
-                        <div class="form-group" style="padding:5px;">
-                          <div id="msginventarioreg" class="form-text text-muted text-danger text-center" style="font-size:16px;"></div>
                         </div>
                       </div>
                     </div>
@@ -71,7 +66,7 @@
                         <div class="form-group" style="padding:5px;">
                           <label for="dependencia"><b>Dependencia:</b></label>
 			  <!--<select name="dependencia" id="dependencia" class="form-select form-control-sm" >-->
-			  <select name="dependencia" id="dependencia" class="selectpicker form-control form-control-sm" data-live-search="true">
+			  <select name="dependencia" id="dependencia" class="" data-live-search="true">
 			    <option value=""></option>
 
                             @foreach ($dependencias as $datos)
@@ -85,16 +80,17 @@
                           <label for="despacho"><b>Despacho:</b></label>
 			  <select name="despacho" id="despacho" class="form-select form-control-sm" >
 			    <option value=""></option>
-			    <option value="1">1er. Despacho</option>
-			    <option value="2">2do. Despacho</option>
-			    <option value="3">3er. Despacho</option>
-			    <option value="4">4to. Despacho</option>
-			    <option value="5">5to. Despacho</option>
-			    <option value="6">6to. Despacho</option>
-			    <option value="7">7mo. Despacho</option>
-			    <option value="8">8vo. Despacho</option>
-			    <option value="9">9no. Despacho</option>
-			    <option value="10">10mo. Despacho</option>
+			    <option value="0">DESPACHO</option>
+			    <option value="1">1er. DESPACHO</option>
+			    <option value="2">2do. DESPACHO</option>
+			    <option value="3">3er. DESPACHO</option>
+			    <option value="4">4to. DESPACHO</option>
+			    <option value="5">5to. DESPACHO</option>
+			    <option value="6">6to. DESPACHO</option>
+			    <option value="7">7mo. DESPACHO</option>
+			    <option value="8">8vo. DESPACHO</option>
+			    <option value="9">9no. DESPACHO</option>
+			    <option value="10">10mo. DESPACHO</option>
 			  </select>
                         </div>
                       </div>
@@ -224,44 +220,25 @@
     </form>
 
 
-    
-    <style>
-    .choices .choices__inner {
-    padding:0px !important;
-    min-height:0px !important;
-    font-size:12px !important;
+
+
+<style>
+    .selectize-dropdown, .selectize-input, .selectize-input input {
+        font-size: 11px!important;  /* O cualquier valor que desees */
     }
-    .choices__input {
-    font-size:12px !important;
-    }
-    .choices__item {
-    font-size:12px !important;
-    }
-    .choices__item--choice {
-    padding:5px !important;
-    }
-    </style>
-    
+    .selectize-input {
+        padding: 4px 4px!important;  
+    }    
+</style>
+@section('scripts')
 <script>
-  const element = document.getElementById('dependencia');
-  const choices = new Choices(element, {
-    searchEnabled: true,  // Habilitar la búsqueda
-    itemSelectText: 'Presiona para seleccionar',
-    noResultsText: 'Sin resultados',
-    placeholderValue: 'Selecciona...',
-    searchFloor: 1, // Número mínimo de caracteres para activar la búsqueda
-    searchResultLimit: 5, // Limitar los resultados a 5
-    // Aquí habilitamos el filtrado por subcadena
-    searchFilter: function (query, item) {
-      // Filtramos si el query (lo que se escribe) está dentro del texto de la opción
-      //return item.label.toLowerCase().includes(query.toLowerCase());
-      return item.label.toLowerCase() === query.toLowerCase();
-    }
-  });
-</script>   
+    $('#dependencia').selectize();
+</script>
+@endsection
 
 
-   
+
+
 <script>
 document.getElementById("miFormulario").addEventListener("keydown", function(event) {
     if (event.key === "Enter") {
@@ -413,8 +390,24 @@ document.getElementById("IniciaScan").addEventListener("click", function(event) 
 });
 
 document.getElementById("grabarBtn").addEventListener("click", function(event) {
-    event.preventDefault();  // Prevenir el comportamiento por defecto
-    document.getElementById("miFormulario2").submit();
+    if (event) event.preventDefault(); // Previene recarga
+    if (scannedItems.length > 0) {
+        event.preventDefault();  // Prevenir el comportamiento por defecto
+        document.getElementById("miFormulario2").submit();
+    } else {
+        document.getElementById('messageErr').innerHTML = '<b>No puedes inventariar si no hay registros lectoreados</b>';
+        var messageErr = document.getElementById('messageErr');
+        messageErr.style.opacity = '1';
+        messageErr.style.display = 'block';
+        setTimeout(function() {
+            messageErr.style.opacity = '0';
+            setTimeout(() => {
+                messageErr.style.display = 'none';
+            }, 500);
+        
+        }, 3000); 
+    }
+
 });
             
 
@@ -443,9 +436,19 @@ codigo = codigo.replace(/^[^A-Za-z0-9-]+|[^A-Za-z0-9-]+$/g, '');
 		    if (response.success) {
 
 			if (response.estado=="I") {
-			    document.getElementById('msginventarioreg').innerHTML = '<b>Este Nro de Inventario ya fue registrado</b>';
 			    updateScannedList();
 			    document.getElementById('scannedItemsInput').value = JSON.stringify(scannedItems);
+
+			    document.getElementById('messageErr').innerHTML = '<b>Este Nro de Inventario YA FUE REGISTRADO</b>';
+                            var messageErr = document.getElementById('messageErr');
+                            messageErr.style.opacity = '1';
+                            messageErr.style.display = 'block';
+                            setTimeout(function() {
+                                messageErr.style.opacity = '0';
+                                setTimeout(() => {
+                                    messageErr.style.display = 'none';
+                                }, 500);
+                            }, 3000); 
 
 			} else {
 
@@ -458,7 +461,9 @@ codigo = codigo.replace(/^[^A-Za-z0-9-]+|[^A-Za-z0-9-]+$/g, '');
 			    $('#archivo').val(registro.archivo);
 			    $('#nropaquete').val(registro.nro_paquete);
 			    $('#dependencia').val(registro.paq_dependencia);
-			    choices.setChoiceByValue(registro.paq_dependencia);
+                            var $select = $("#dependencia").selectize();
+                            var selectize = $select[0].selectize;
+                            selectize.setValue(registro.paq_dependencia); 
 			    $('#despacho').val(registro.despacho);
 			    
 			    $('#datinve').text($('#nroinventario').val()); 
@@ -509,7 +514,6 @@ codigo = codigo.replace(/^[^A-Za-z0-9-]+|[^A-Za-z0-9-]+$/g, '');
 		}
 	    });
 	} else {
-	    document.getElementById('msginventarioreg').innerHTML = '';
 	    updateScannedList();
 	    document.getElementById('scannedItemsInput').value = JSON.stringify(scannedItems);
 	    
@@ -565,13 +569,19 @@ window.onload = function() {
     var messageOK = document.getElementById('messageOK');
     if (messageErr) {
         setTimeout(function() {
-            messageErr.style.display = 'none';
-        }, 4000); 
+            messageErr.style.opacity = '0';
+            setTimeout(() => {
+                messageErr.style.display = 'none';
+            }, 500);
+        }, 3000); 
     }
     if (messageOK) {
         setTimeout(function() {
-            messageOK.style.display = 'none';
-        }, 4000); 
+            messageOK.style.opacity = '0';
+            setTimeout(() => {
+                messageOK.style.display = 'none';
+            }, 500);
+        }, 3000); 
     }
 };
 </script>
