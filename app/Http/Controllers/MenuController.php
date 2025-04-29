@@ -7,6 +7,7 @@ use App\Models\Expedientes;
 use App\Models\UbicacionExp; 
 use App\Models\Personal; 
 use App\Models\Dependencia; 
+use App\Models\ObsInventario; 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
@@ -41,13 +42,24 @@ class MenuController extends Controller
         $registros = Expedientes::where('nro_inventario', $nroinventario)->get();
         if ($registros->isNotEmpty()) {
             $estado = $registros[0]->estado;
+            $mens="";
+            if ($estado=="I") {
+                $mens="Este Nro de Inventario YA FUE REGISTRADO";
+            } else {
+                if ((Auth::user()->id_usuario) != ($registros[0]->id_usuario)) {
+                    $mens="Este Nro de Inventario lo está registrando OTRO USUARIO";
+                    $estado = "O";
+                }
+            }
 
             // Devolver la respuesta con los registros
             return response()->json([
                 'success' => true,
                 'estado' => $estado,
+                'message' => utf8_encode($mens),
                 'registros' => $registros,
             ]);
+            
         } else {
             return response()->json([
                 'success' => false,
@@ -127,6 +139,8 @@ class MenuController extends Controller
 
         // Validar los datos
         $request->validate([
+            'nroinventarioobs' => 'required|string',
+            'observacion' => 'nullable|string',        
             'scannedItems' => 'required|json', // Validamos que sea un JSON
         ]);
 	//$fechaHoraActualFormateada = now()->format('Y-m-d H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
@@ -136,6 +150,13 @@ class MenuController extends Controller
 
         // Convertir el JSON a un array
         $scannedItems = json_decode($request->scannedItems, true);
+
+	if (trim($request->observacion) !="" ) {
+                ObsInventario::create([
+                'nro_inventario' => $request->nroinventarioobs,
+                'observacion' => $request->observacion,
+                ]);
+        }
 	
         // Guardar cada registro de código interno e indicador
         foreach ($scannedItems as $item) {

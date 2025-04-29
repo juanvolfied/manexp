@@ -204,19 +204,45 @@
                   <div class="card-action">
                     <!--<button class="btn btn-success">Grabar</button>
                     <button class="btn btn-danger">Cancel</button>-->
-        	    <button id="grabarBtn" class="btn btn-primary">Inventariar c&oacute;digos escaneados</button>
-                    
+        	    <!--<button id="grabarBtn" class="btn btn-primary">Inventariar c&oacute;digos escaneados</button>-->
+        	    <!--<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#textoModal">Inventariar c&oacute;digos escaneados</button>-->
+        	    <button type="button" class="btn btn-primary" onclick="prepararYMostrarModal()">Inventariar c&oacute;digos escaneados</button>
                   </div>
                 </div>
               </div>
             </div>
             
-            
-            
     </form>
     <form action="{{ route('expediente.inventa') }}" method="POST" id="miFormulario2" autocomplete="off">
     @csrf  <!-- Este campo incluirá el token CSRF automáticamente -->
 	          <input type="hidden" id="scannedItemsInput" name="scannedItems">
+	          <input type="hidden" id="nroinventarioobs" name="nroinventarioobs">
+
+<!-- Modal -->
+<div class="modal fade" id="textoModal" tabindex="-1" aria-labelledby="textoModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+    
+      <div class="modal-header">
+        <h5 class="modal-title" id="textoModalLabel">CONFIRMAR GRABACION DE INVENTARIO</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      
+      <div class="modal-body">
+        <label for="observacion"><b>Puede ingresar una OBSERVACI&Oacute;N (Opcional) de hasta 100 caracteres</b></label>
+        <input type="text" name="observacion" id="observacion" class="form-control" maxlength="100" >
+      </div>
+      
+      <div class="modal-footer">
+        <!--<button type="button" class="btn btn-primary" onclick="guardarTexto()">Continuar y Grabar Inventario</button>-->
+        <button type="button" id="grabarBtn" class="btn btn-primary">Continuar y Grabar Inventario</button>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+      </div>
+    
+    </div>
+  </div>
+</div>
+
     </form>
 
 
@@ -283,7 +309,7 @@ function verificarEnter(event) {
                     const lafecha = response.fechalect;
                     const lahora = response.horalect;
                     const estado = 'L';
-                    scannedItems.push({ codbarras, dependencia, ano, nroexpediente, tipo, estado, lafecha, lahora});
+                    scannedItems.unshift({ codbarras, dependencia, ano, nroexpediente, tipo, estado, lafecha, lahora});
                     updateScannedList();
                     document.getElementById('scannedItemsInput').value = JSON.stringify(scannedItems);
                 } else {
@@ -389,6 +415,25 @@ document.getElementById("IniciaScan").addEventListener("click", function(event) 
     document.getElementById('codbarras').focus();        
 });
 
+  function prepararYMostrarModal() {
+    if (event) event.preventDefault(); // Previene recarga
+    if (scannedItems.length > 0) {
+        const myModal = new bootstrap.Modal(document.getElementById('textoModal'));
+        myModal.show();
+    } else {
+        document.getElementById('messageErr').innerHTML = '<b>No puedes inventariar si no hay registros lectoreados</b>';
+        var messageErr = document.getElementById('messageErr');
+        messageErr.style.opacity = '1';
+        messageErr.style.display = 'block';
+        setTimeout(function() {
+            messageErr.style.opacity = '0';
+            setTimeout(() => {
+                messageErr.style.display = 'none';
+            }, 500);
+        
+        }, 3000); 
+    }
+  }
 document.getElementById("grabarBtn").addEventListener("click", function(event) {
     if (event) event.preventDefault(); // Previene recarga
     if (scannedItems.length > 0) {
@@ -415,7 +460,9 @@ function buscanroinventa(event) {
     let codigo = document.getElementById("nroinventario").value;
 codigo = codigo.replace(/^[^A-Za-z0-9-]+|[^A-Za-z0-9-]+$/g, '');
     codigo = codigo.trim();
-
+    
+    
+    document.getElementById("nroinventarioobs").value=codigo;
     scannedItems = [];
     var nroreg=0;
 	if (event.keyCode === 13) {
@@ -435,11 +482,11 @@ codigo = codigo.replace(/^[^A-Za-z0-9-]+|[^A-Za-z0-9-]+$/g, '');
 		success: function(response) {
 		    if (response.success) {
 
-			if (response.estado=="I") {
+			if (response.estado=="I" || response.estado=="O") {
 			    updateScannedList();
 			    document.getElementById('scannedItemsInput').value = JSON.stringify(scannedItems);
 
-			    document.getElementById('messageErr').innerHTML = '<b>Este Nro de Inventario YA FUE REGISTRADO</b>';
+			    document.getElementById('messageErr').innerHTML = '<b>' + response.message + '</b>';
                             var messageErr = document.getElementById('messageErr');
                             messageErr.style.opacity = '1';
                             messageErr.style.display = 'block';
@@ -486,7 +533,7 @@ codigo = codigo.replace(/^[^A-Za-z0-9-]+|[^A-Za-z0-9-]+$/g, '');
 			    var lafecha = registro.fecha_inventario;
 			    var lahora = registro.hora_inventario;
 			}
-			scannedItems.push({ codbarras, dependencia, ano, nroexpediente, tipo, estado, lafecha, lahora});
+			scannedItems.unshift({ codbarras, dependencia, ano, nroexpediente, tipo, estado, lafecha, lahora});
 
 			});
 
@@ -509,9 +556,20 @@ codigo = codigo.replace(/^[^A-Za-z0-9-]+|[^A-Za-z0-9-]+$/g, '');
                         document.getElementById("verocultar4").style.display = "block";
 		    }
 		},
-		error: function() {
-		    alert('Hubo un error al buscar nro inventario.');
+		error: function(xhr, status, error) {
+                    if (xhr.status === 419) {
+                        // No autorizado - probablemente sesión expirada
+                        alert('TU SESION HA EXPIRADO. SERAS REDIRIGIDO AL LOGIN.');
+                        window.location.href = '{{ route("usuario.login") }}';
+                    } else {
+                        // Otro tipo de error
+                        console.error('Error en la petición:', error);
+                        alert('Hubo un error al buscar nro inventario.');
+                    }
+//		    alert('Hubo un error al buscar nro inventario.');
 		}
+
+
 	    });
 	} else {
 	    updateScannedList();
