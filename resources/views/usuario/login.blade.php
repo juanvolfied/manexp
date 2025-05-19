@@ -99,7 +99,11 @@
     @if($errors->any())
         <div class="alert alert-danger">{{ $errors->first() }}</div>
     @endif
-   
+@if(session('message'))
+    <div class="alert alert-warning">
+        {{ session('message') }}
+    </div>
+@endif   
     <h3 class="text-center mb-4">Iniciar Sesi&oacute;n</h3>
     <form method="POST" action="{{ route('usuario.login') }}" autocomplete="off">
     @csrf

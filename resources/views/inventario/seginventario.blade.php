@@ -266,9 +266,23 @@ var nroreg=0;
                                 alert(response.message);
                             }
                         },
-                        error: function() {
-                            alert('Hubo un error al buscar nro inventario.');
+                        error: function(xhr, status, error) {
+                            if (xhr.status === 419) {
+                                // No autorizado - probablemente sesión expirada
+                                alert('TU SESION HA EXPIRADO. SERAS REDIRIGIDO AL LOGIN.');
+                                window.location.href = '{{ route("usuario.login") }}';
+                            } else {
+                                // Otro tipo de error
+                                console.error('Error en la petición:', xhr.status);
+                                alert('Hubo un error al buscar nro inventario.');
+                            }
                         }
+
+
+
+
+
+                        
                     });
 }
 </script>

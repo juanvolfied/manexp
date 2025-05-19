@@ -9,7 +9,7 @@ class Personal extends Model
 //    protected $table = 'personal'; 
     public $timestamps = false;
 
-    protected $table = 'personal'; // opcional si el nombre sigue convención
+    protected $table = 'personal'; // opcional si el nombre sigue convenciï¿½n
     protected $primaryKey = 'id_personal'; // importante
     public $incrementing = false; // porque es CHAR(8), no int
     protected $keyType = 'string'; // porque es CHAR, no INT
@@ -19,6 +19,10 @@ class Personal extends Model
         'apellido_paterno', 
         'apellido_materno', 
         'nombres', 
+        'id_dependencia', 
+        'despacho',
+        'cargo', 
+        'fiscal_asistente', 
         'activo', 
     ];
 }

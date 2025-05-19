@@ -31,7 +31,7 @@
         </div>
     </form>
 
-    {{-- Gráfico --}}
+    {{-- Grï¿½fico --}}
     <div class="mt-5">
         <canvas id="graficoBarras" height="100"></canvas>
     </div>
@@ -39,7 +39,7 @@
 @endsection
 
 @section('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!--<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>-->
 <script>
     let grafico;
 
@@ -52,8 +52,16 @@
         const fechafin = document.getElementById('fechafin').value;
 
         fetch(`{{ route('grafico.usuario') }}?id_usuario=${id_usuario}&fechainicio=${fechainicio}&fechafin=${fechafin}`)
-
-            .then(res => res.json())
+            .then(response => {
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json();
+                }
+                alert('TU SESION HA EXPIRADO. SERAS REDIRIGIDO AL LOGIN.');
+                window.location.href = '{{ route("usuario.login") }}';
+                return;
+            })
+            //.then(res => res.json())
             .then(data => {
                 const ctx = document.getElementById('graficoBarras').getContext('2d');
 
@@ -82,7 +90,7 @@
         ticks: {
             //stepSize: 1,  // Asegura que el paso sea de 1
             callback: function(value) {
-                // Solo mostrar números enteros, sin decimales
+                // Solo mostrar nï¿½meros enteros, sin decimales
                 return Number.isInteger(value) ? value : '';
             }
         }

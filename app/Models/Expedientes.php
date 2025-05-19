@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Delitos; 
 
 class Expedientes extends Model
 {
@@ -11,6 +12,10 @@ class Expedientes extends Model
     
     protected $table = 'expediente';
     public $timestamps = false;    
+
+    protected $primaryKey = 'id_expediente';
+    public $incrementing = true; // es autoincremental
+    protected $keyType = 'int'; 
 
     // Los campos que se pueden asignar masivamente (por seguridad)
     protected $fillable = [
@@ -32,13 +37,11 @@ class Expedientes extends Model
         'hora_lectura',
         'fecha_inventario',
         'hora_inventario',
-        'nro_inventario',
-        'archivo',
-        'nro_paquete',
-        'paq_dependencia',
-        'despacho',
         'id_personal',
         'id_usuario'
     ];
-
+    public function delito()
+    {
+        return $this->belongsTo(Delitos::class);
+    }
 }

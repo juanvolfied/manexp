@@ -1,0 +1,482 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Expedientes;
+use App\Models\UbicacionExp; 
+use App\Models\MovimientoExp_Cab; 
+use App\Models\MovimientoExp_Det; 
+use App\Models\Delitos; 
+use App\Models\Personal; 
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
+class ExpedienteController extends Controller
+{
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+    public function index()
+    {
+            $expediente = DB::table('expediente')
+            ->leftJoin('delito', 'expediente.delito', '=', 'delito.id_delito')
+            ->select('expediente.*', 'delito.desc_delito')
+            ->orderBy('codbarras', 'asc') 
+            ->get();
+        
+        return view('expediente.index', compact('expediente'));
+    }
+
+    public function create()
+    {
+        $delitos = DB::table('delito')
+            ->orderBy('desc_delito', 'asc') 
+            ->get();
+
+        return view('expediente.create', compact('delitos'));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'codbarras' => 'required|max:25',
+            'imputado' => 'required|max:100',
+            'agraviado' => 'required|max:100',
+            'delito' => 'required|numeric',
+            'nro_oficio' => 'required|max:100',
+            'nro_folios' => 'required|max:5',
+        ]);
+        //Expedientes::create($request->all());
+
+        $codbar = $request->input('codbarras');
+        $dep_exp=substr($codbar,0,11);
+        $ano_exp=substr($codbar,11,4);
+        $nro_exp=substr($codbar,15,6);
+        $tip_exp=substr($codbar,21,4);
+        $dep_exp = (int) $dep_exp; 
+            
+        //$fechaHoraActualFormateada = now()->format('Y-m-d H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $fechaActual = now()->format('Y-m-d');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $horaActual = now()->format('H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $registro = Expedientes::create([
+            'codbarras' => $codbar,
+            'nro_expediente' => $nro_exp,
+            'ano_expediente' => $ano_exp,
+            'id_dependencia' => $dep_exp,
+            'id_tipo' => $tip_exp,
+            'fecha_ingreso' => $fechaActual,
+            'hora_ingreso' => $horaActual,
+            'estado' => '',
+            'id_personal' => Auth::user()->id_personal,
+            'id_usuario' => Auth::user()->id_usuario,
+            'imputado' => $request->input('imputado'),
+            'agraviado' => $request->input('agraviado'),
+            'delito' => $request->input('delito'),
+            'nro_oficio' => $request->input('nro_oficio'),
+            'nro_folios' => $request->input('nro_folios'),
+        ]);
+        return redirect()->route('expediente.index')->with('success', 'EXPEDIENTE REGISTRADO DE FORMA SATISFACTORIA.');
+    }
+
+    public function show(Expedientes $expediente)
+    {
+        return view('expediente.show', compact('expediente'));
+    }
+
+    public function edit(Expedientes $expediente)
+    {
+        $delitos = DB::table('delito')
+            ->orderBy('desc_delito', 'asc') 
+            ->get();
+        return view('expediente.edit', compact('expediente','delitos'));
+    }
+
+    public function update(Request $request, Expedientes $expediente)
+    {
+        $request->validate([
+            'imputado' => 'required|max:100',
+            'agraviado' => 'required|max:100',
+            'delito' => 'required|numeric',
+            'nro_oficio' => 'required|max:100',
+            'nro_folios' => 'required|max:5',
+        ]);
+
+        $expediente->update($request->all());
+        return redirect()->route('expediente.index')->with('success', 'EXPEDIENTE ACTUALIZADO.');
+    }
+
+    public function destroy(Expedientes $expediente)
+    {
+        $expediente->delete();
+        return redirect()->route('expediente.index')->with('success', 'EL REGISTRO HA SIDO ELIMINADO.');
+    }
+
+    public function buscaExpediente(Request $request)
+    {
+        $request->validate([
+            'codbarras' => 'required|string',
+        ]);
+        $codbar = $request->input('codbarras');
+        $dep_exp=substr($codbar,0,11);
+        $ano_exp=substr($codbar,11,4);
+        $nro_exp=substr($codbar,15,6);
+        $tip_exp=substr($codbar,21,4);
+        $dep_exp = (int) $dep_exp;
+        $nro_exp = (int) $nro_exp; 
+        $existe = Expedientes::where('id_dependencia', $dep_exp)
+            ->where('ano_expediente', $ano_exp)
+            ->where('nro_expediente', $nro_exp)
+            ->where('id_tipo', $tip_exp)
+            ->first();
+        if ($existe) {
+            return response()->json([
+                'success' => false,
+                'message' => utf8_encode('EL EXPEDIENTE ' . $codbar . ' YA SE ENCUENTRA REGISTRADO.')
+            ]);        
+        } else {
+            return response()->json([
+                'success' => true,
+                'message' => utf8_encode('OK'),
+            ]);        
+	    }
+    }
+
+
+
+
+
+
+
+
+    public function indexinternamiento()
+    {
+        //$guiacab = MovimientoExp_Cab::all();
+        $guiacab = DB::table('movimiento_exp_cab')
+        ->leftJoin('personal', 'movimiento_exp_cab.fiscal', '=', 'personal.id_personal')
+        ->where('tipo_mov','GI')
+        ->where(function($query) {
+            $query->where('id_usuario', Auth::user()->id_usuario)
+                ->orWhere('fiscal', Auth::user()->id_personal); 
+        })
+        ->orderBy('apellido_paterno', 'asc') 
+        ->orderBy('apellido_materno', 'asc') 
+        ->orderBy('nombres', 'asc') 
+        ->get();
+        return view('expediente_movs.index',compact('guiacab'));
+    }
+    public function internamiento()
+    {
+        $personal = DB::table('personal')
+            ->where('fiscal_asistente','F')
+            ->where('id_dependencia',Auth::user()->personal->id_dependencia)
+            ->where('despacho',Auth::user()->personal->despacho)
+            ->where('activo','S')            
+            ->orderBy('apellido_paterno', 'asc') 
+            ->orderBy('apellido_materno', 'asc') 
+            ->orderBy('nombres', 'asc') 
+            ->get();
+        return view('expediente_movs.internamiento', compact('personal'));
+    }
+    public function buscaExpedienteMov(Request $request)
+    {
+        $request->validate([
+            'codbarras' => 'required|string',
+        ]);
+        $codbar = $request->input('codbarras');
+        $dep_exp=substr($codbar,0,11);
+        $ano_exp=substr($codbar,11,4);
+        $nro_exp=substr($codbar,15,6);
+        $tip_exp=substr($codbar,21,4);
+        $dep_exp = (int) $dep_exp;
+        $nro_exp = (int) $nro_exp; 
+        $existe = Expedientes::where('id_dependencia', $dep_exp)
+            ->where('ano_expediente', $ano_exp)
+            ->where('nro_expediente', $nro_exp)
+            ->where('id_tipo', $tip_exp)
+            ->first();
+
+        if ($existe) {
+            $estado = $existe->estado; 
+            if ($estado=="I") {
+                return response()->json([
+                    'success' => false,
+                    'message' => utf8_encode('EL EXPEDIENTE ' . $codbar . ' SE ENCUENTRA INTERNADO EN ARCHIVO.')
+                ]);        
+            } else {
+                $existe2 = MovimientoExp_Det::where('id_expediente', $existe->id_expediente)
+                    ->first();
+                if ($existe2) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => utf8_encode('EL EXPEDIENTE ' . $codbar . ' SE ENCUENTRA EN OTRA GUIA DE INTERNAMIENTO.'),
+                    ]);                            
+                } else {
+                    return response()->json([
+                        'success' => true,
+                        'id_expediente' => $existe->id_expediente,
+                        'message' => 'OK'
+                    ]);        
+                }
+            }
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => utf8_encode('EL EXPEDIENTE ' . $codbar . ' NO HA SIDO REGISTRADO.'),
+            ]);        
+	    }
+    }
+    public function guardaInternamiento(Request $request)
+    {
+        $request->validate([
+            'codfiscal' => 'required|string',
+            'scannedItems' => 'required|json', // Validamos que sea un JSON
+        ]);
+        $fechaHoraActualFormateada = now()->format('Y-m-d H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $fechaActual = now()->format('Y-m-d');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $horaActual = now()->format('H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $anoActual = substr($fechaActual,0,4);
+
+        // Convertir el JSON a un array
+        $scannedItems = json_decode($request->scannedItems, true);
+
+        $ultimoRegistro = MovimientoExp_Cab::where('ano_mov', $anoActual)
+        ->where('tipo_mov', 'GI')
+        ->orderBy('ano_mov', 'desc')
+            ->orderBy('nro_mov', 'desc')
+            ->first();
+        $nromov=0;
+        if ($ultimoRegistro) {
+            $nromov = $ultimoRegistro->nro_mov;
+        }
+        $nromov++;
+        $registro = MovimientoExp_Cab::create([
+            'nro_mov'=>$nromov,
+            'ano_mov'=>$anoActual, 
+            'tipo_mov'=>'GI', 
+            'id_usuario'=> Auth::user()->id_usuario, 
+            'fiscal'=>$request->codfiscal, 
+            'fechahora_movimiento'=>$fechaHoraActualFormateada, 
+            'estado_mov'=>'G', 
+            'activo'=>'S',                
+        ]);
+
+        foreach ($scannedItems as $item) {
+            $codbar = $item['codbarras'];
+            $dep_exp=substr($codbar,0,11);
+            $ano_exp=substr($codbar,11,4);
+            $nro_exp=substr($codbar,15,6);
+            $tip_exp=substr($codbar,21,4);
+            $dep_exp = (int) $dep_exp; 
+            $id_exp = $item['id_expediente'];
+            
+            $registro = MovimientoExp_Det::create([
+                'nro_mov'=>$nromov,
+                'ano_mov'=>$anoActual, 
+                'tipo_mov'=>'GI', 
+                'id_expediente'=>$id_exp, 
+                'nro_expediente'=>$nro_exp, 
+                'ano_expediente'=>$ano_exp, 
+                'id_dependencia'=>$dep_exp, 
+                'id_tipo'=>$tip_exp, 
+                'observacion'=>'',     
+            ]);
+            
+        }
+        return redirect()->back()->with('messageOK', 'GUIA DE INTERNAMIENTO GENERADA DE FORMA SATISFACTORIA.');
+    }
+
+
+    public function envioInternamiento(Request $request)
+    {    
+        $fechaHoraActualFormateada = now()->format('Y-m-d H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $fechaActual = now()->format('Y-m-d');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $horaActual = now()->format('H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $anoActual = substr($fechaActual,0,4);
+
+        $tipo_mov = $request->input('tipo_mov');
+        $ano_mov = $request->input('ano_mov');
+        $nro_mov = $request->input('nro_mov');
+        DB::table('movimiento_exp_cab')
+        ->where('tipo_mov', $tipo_mov)
+        ->where('ano_mov', $ano_mov)
+        ->where('nro_mov', $nro_mov)
+        ->update([
+            'estado_mov' => 'E',
+            'fechahora_envio' => $fechaHoraActualFormateada
+        ]);
+
+        $ultimoRegistro = UbicacionExp::where('ano_movimiento', $anoActual)
+        ->orderBy('ano_movimiento', 'desc')
+            ->orderBy('nro_movimiento', 'desc')
+            ->first();
+        $nromov=0;
+        if ($ultimoRegistro) {
+            $nromov = $ultimoRegistro->nro_movimiento;
+        }
+
+        $registrosOrigen = DB::table('movimiento_exp_det')
+        ->where('tipo_mov', $tipo_mov)
+        ->where('ano_mov', $ano_mov)
+        ->where('nro_mov', $nro_mov)        
+        ->get();
+        foreach ($registrosOrigen as $registro) {
+            $nromov++;
+            UbicacionExp::create([
+                'nro_movimiento' => $nromov,
+                'ano_movimiento' => $anoActual,
+
+                'id_personal' => Auth::user()->id_personal,
+                'id_usuario' => Auth::user()->id_usuario,
+                //'archivo' => $request->archivo,
+                //'anaquel' => $request->anaquel,
+                //'nro_paquete' => $request->nropaquete,
+                //'nro_inventario' => $request->nroinventario,
+                'id_expediente' => $registro->id_expediente,
+
+                'nro_expediente' => $registro->nro_expediente,
+                'ano_expediente' => $registro->ano_expediente,
+                'id_dependencia' => $registro->id_dependencia,
+                'id_tipo' => $registro->id_tipo,
+                'ubicacion' => 'D',             //A=Archivo D=Despacho
+                'tipo_ubicacion' => 'T',        //I=Inventario T=Transito
+                'fecha_movimiento' => $fechaActual,
+                'hora_movimiento' => $horaActual,
+                'motivo_movimiento' => 'Internamiento',                
+                'paq_dependencia' => Auth::user()->personal->id_dependencia,
+                'despacho' => Auth::user()->personal->despacho,
+                'activo' => 'S',
+                'estado' => 'E', //E=Enviado
+            ]);
+        }
+        //return response()->json(['success' => true]);
+        return response()->json([
+            'success' => true,
+            'redirect_url' => route('internamiento.index'),
+            'message' => 'ENVIO REALIZADO CORRECTAMENTE.',
+        ]);
+    }
+
+
+
+
+
+
+    public function indexrecepinternamiento()
+    {
+        //$guiacab = MovimientoExp_Cab::all();
+        $guiacab = DB::table('movimiento_exp_cab')
+        ->leftJoin('personal', 'movimiento_exp_cab.fiscal', '=', 'personal.id_personal')
+        ->where('tipo_mov','GI')
+        ->orderBy('apellido_paterno', 'asc') 
+        ->orderBy('apellido_materno', 'asc') 
+        ->orderBy('nombres', 'asc') 
+        ->get();
+        return view('expediente_movs.recepcion',compact('guiacab'));
+    }
+    public function verifrecepinternamiento($tipo_mov, $ano_mov, $nro_mov)
+    {
+        $guiacab = DB::table('movimiento_exp_cab')
+        ->leftJoin('personal', 'movimiento_exp_cab.fiscal', '=', 'personal.id_personal')
+        ->where('tipo_mov', $tipo_mov)
+        ->where('ano_mov', $ano_mov)
+        ->where('nro_mov', $nro_mov)
+        ->select('movimiento_exp_cab.*', 'personal.apellido_paterno','personal.apellido_materno','personal.nombres') // Puedes ajustar campos
+        ->first();
+
+        $segdetalle = MovimientoExp_Det::where('tipo_mov', $tipo_mov)
+            ->where('ano_mov', $ano_mov)
+            ->where('nro_mov', $nro_mov)
+            ->leftJoin('expediente', 'movimiento_exp_det.id_expediente', '=', 'expediente.id_expediente')
+            ->select('movimiento_exp_det.*','expediente.codbarras')
+            ->get();
+
+        return view('expediente_movs.recepciondetalle', compact('segdetalle','guiacab'));
+    }
+    public function grabarecepcionInternamiento(Request $request)
+    {    
+        $fechaHoraActualFormateada = now()->format('Y-m-d H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $fechaActual = now()->format('Y-m-d');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $horaActual = now()->format('H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $anoActual = substr($fechaActual,0,4);
+        $tipo_mov = $request->input('tipo_mov');
+        $ano_mov = $request->input('ano_mov');
+        $nro_mov = $request->input('nro_mov');
+        DB::table('movimiento_exp_cab')
+        ->where('tipo_mov', $tipo_mov)
+        ->where('ano_mov', $ano_mov)
+        ->where('nro_mov', $nro_mov)
+        ->update([
+            'estado_mov' => 'R',
+            'fechahora_recepcion' => $fechaHoraActualFormateada,
+            'activo' => 'N'
+        ]);
+
+
+        $ultimoRegistro = UbicacionExp::where('ano_movimiento', $anoActual)
+        ->orderBy('ano_movimiento', 'desc')
+            ->orderBy('nro_movimiento', 'desc')
+            ->first();
+        $nromov=0;
+        if ($ultimoRegistro) {
+            $nromov = $ultimoRegistro->nro_movimiento;
+        }
+
+
+        $registrosOrigen = DB::table('movimiento_exp_det')
+        ->where('tipo_mov', $tipo_mov)
+        ->where('ano_mov', $ano_mov)
+        ->where('nro_mov', $nro_mov)        
+        ->get();
+        foreach ($registrosOrigen as $registro) {
+            DB::table('expediente')
+            ->where('id_expediente', $registro->id_expediente)
+            ->update([
+                'estado' => 'A'
+            ]);
+
+            DB::table('ubicacion_exp')
+            ->where('id_expediente', $registro->id_expediente)
+            ->update([
+                'activo' => 'N',
+            ]);
+            $nromov++;
+            UbicacionExp::create([
+                'nro_movimiento' => $nromov,
+                'ano_movimiento' => $anoActual,
+                'id_personal' => Auth::user()->id_personal,
+                'id_usuario' => Auth::user()->id_usuario,
+                //'archivo' => $request->archivo,
+                //'anaquel' => $request->anaquel,
+                //'nro_paquete' => $request->nropaquete,
+                //'nro_inventario' => $request->nroinventario,
+                'id_expediente' => $registro->id_expediente,
+    
+                'nro_expediente' => $registro->nro_expediente,
+                'ano_expediente' => $registro->ano_expediente,
+                'id_dependencia' => $registro->id_dependencia,
+                'id_tipo' => $registro->id_tipo,
+                'ubicacion' => 'A',             //A=Archivo D=Despacho
+                'tipo_ubicacion' => 'I',        //I=Inventario T=Transito
+                'fecha_movimiento' => $fechaActual,
+                'hora_movimiento' => $horaActual,
+                'motivo_movimiento' => 'Internamiento',                
+                'paq_dependencia' => Auth::user()->personal->id_dependencia,
+                'despacho' => Auth::user()->personal->despacho,
+                'activo' => 'S',
+                'estado' => 'A',
+            ]);
+        }
+
+
+        //return response()->json(['success' => true]);
+        return response()->json([
+            'success' => true,
+            'redirect_url' => route('internamiento.recepcion'),
+            'message' => 'RECEPCION REALIZADA CORRECTAMENTE.',
+        ]);
+    }
+
+}

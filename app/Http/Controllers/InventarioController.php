@@ -6,10 +6,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\Usuarios;
+use Illuminate\Support\Facades\Auth;
 
 class InventarioController extends Controller
 {
-
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
     public function registraInventario()
     {
         return view('inventario.reginventario');

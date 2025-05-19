@@ -17,13 +17,24 @@ class UbicacionExp extends Model
         'nro_movimiento',
         'ano_movimiento',
         'id_personal',
+        'id_usuario',
+        'archivo',
+        'anaquel',
+        'nro_paquete',
+        'nro_inventario',
         'id_expediente',
         'nro_expediente',
         'ano_expediente',
         'id_dependencia',
         'id_tipo',
+        'ubicacion',
+        'tipo_ubicacion',
         'fecha_movimiento',
         'hora_movimiento',
-        'motivo_movimiento'
+        'motivo_movimiento',
+        'activo',
+        'estado',
+        'paq_dependencia',
+        'despacho'
     ];
 }	

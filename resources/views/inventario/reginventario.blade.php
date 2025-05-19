@@ -1,7 +1,7 @@
 @extends('menu.index')
 
 @section('content')
-    <!-- Mostrar el mensaje de éxito o error -->
+    <!-- Mostrar el mensaje de ï¿½xito o error -->
     <form id="miFormulario" autocomplete="off">
     @if(session('messageErr'))
         <div id="messageErr" class="alert alert-danger text-danger" style="transition: opacity 0.5s ease;"><b>{{ session('messageErr') }}</b></div>
@@ -40,7 +40,7 @@
                       </div>
                     </div>
                     <div class="row">
-                      <div class="col-md-6 col-lg-6" id="verocultar1" style="display:none;">
+                      <div class="col-md-4 col-lg-4" id="verocultar1" style="display:none;">
                         <div class="form-group" style="padding:5px;">
                           <label for="archivo"><b>Archivo:</b></label>
 			  <select name="archivo" id="archivo" class="form-select form-control-sm" >
@@ -54,15 +54,21 @@
 			  </select>
                         </div>
                       </div>
-                      <div class="col-md-6 col-lg-6" id="verocultar2" style="display:none;">
+                      <div class="col-md-4 col-lg-4" id="verocultar2" style="display:none;">
                         <div class="form-group" style="padding:5px;">
                           <label for="nropaquete"><b>Nro Paquete:</b></label>
                           <input type="text" class="form-control form-control-sm" name="nropaquete" id="nropaquete" />
                         </div>
                       </div>
+                      <div class="col-md-4 col-lg-4" id="verocultar3" style="display:none;">
+                        <div class="form-group" style="padding:5px;">
+                          <label for="anaquel"><b>Anaquel:</b></label>
+                          <input type="text" class="form-control form-control-sm" name="anaquel" id="anaquel" />
+                        </div>
+                      </div>
                     </div>
                     <div class="row">
-                      <div class="col-md-6 col-lg-6" id="verocultar3" style="display:none;">
+                      <div class="col-md-6 col-lg-6" id="verocultar4" style="display:none;">
                         <div class="form-group" style="padding:5px;">
                           <label for="dependencia"><b>Dependencia:</b></label>
 			  <!--<select name="dependencia" id="dependencia" class="form-select form-control-sm" >-->
@@ -75,7 +81,7 @@
 			  </select>
                         </div>
                       </div>
-                      <div class="col-md-6 col-lg-6" id="verocultar4" style="display:none;">
+                      <div class="col-md-6 col-lg-6" id="verocultar5" style="display:none;">
                         <div class="form-group" style="padding:5px;">
                           <label for="despacho"><b>Despacho:</b></label>
 			  <select name="despacho" id="despacho" class="form-select form-control-sm" >
@@ -125,23 +131,22 @@
                       </div>
                     </div>
                     <div class="row">
-                      <div class="col-md-6 col-lg-6">
+                      <div class="col-md-4 col-lg-4">
                           <table width="100%"><tr><td width="100px;"><b>Archivo:</b></td><td id="datarch"></td></tr></table>
-                          <!--<label><b>Archivo:</b> <span id="datarch"></span></label>-->
                       </div>
-                      <div class="col-md-6 col-lg-6">
+                      <div class="col-md-4 col-lg-4">
                           <table width="100%"><tr><td width="100px;"><b>Nro Paquete:</b></td><td id="datpaqu"></td></tr></table>
-                          <!--<label><b>Nro Paquete:</b> <span id="datpaqu"></span></label>-->
+                      </div>
+                      <div class="col-md-4 col-lg-4">
+                          <table width="100%"><tr><td width="100px;"><b>Anaquel:</b></td><td id="datanaq"></td></tr></table>
                       </div>
                     </div>
                     <div class="row">
                       <div class="col-md-6 col-lg-6">
                           <table width="100%"><tr><td width="100px;"><b>Dependencia:</b></td><td id="datdepe" style="text-align: justify;"></td></tr></table>
-                          <!--<label><b>Dependencia:</b> <span id="datdepe"></span></label>-->
                       </div>
                       <div class="col-md-6 col-lg-6">
                           <table width="100%"><tr><td width="100px;"><b>Despacho:</b></td><td id="datdesp"></td></tr></table>
-                          <!--<label><b>Despacho:</b> <span id="datdesp"></span></label>-->
                       </div>
                     </div>
 
@@ -177,7 +182,7 @@
 		              </tr>
 		          </thead>
 		          <tbody style="font-size:12px;" >
-		        	<!-- Los datos escaneados se irán añadiendo aquí -->
+		        	<!-- Los datos escaneados se irï¿½n aï¿½adiendo aquï¿½ -->
 		          </tbody>
 		      </table>
 		      </span>
@@ -192,7 +197,7 @@
 		              </tr>
 		          </thead>
 		          <tbody>
-		        	<!-- Los datos escaneados se irán añadiendo aquí -->
+		        	<!-- Los datos escaneados se irï¿½n aï¿½adiendo aquï¿½ -->
 		          </tbody>
 		      </table>
 		      </span>
@@ -214,7 +219,7 @@
             
     </form>
     <form action="{{ route('expediente.inventa') }}" method="POST" id="miFormulario2" autocomplete="off">
-    @csrf  <!-- Este campo incluirá el token CSRF automáticamente -->
+    @csrf  <!-- Este campo incluirï¿½ el token CSRF automï¿½ticamente -->
 	          <input type="hidden" id="scannedItemsInput" name="scannedItems">
 	          <input type="hidden" id="nroinventarioobs" name="nroinventarioobs">
 
@@ -268,22 +273,22 @@
 <script>
 document.getElementById("miFormulario").addEventListener("keydown", function(event) {
     if (event.key === "Enter") {
-        event.preventDefault(); // Esto previene que el formulario se envíe cuando se presiona Enter
+        event.preventDefault(); // Esto previene que el formulario se envï¿½e cuando se presiona Enter
     }
 });
     
-let scannedItems = []; // Array para almacenar los códigos escaneados
+let scannedItems = []; // Array para almacenar los cï¿½digos escaneados
 let datoscab = []; // Array 
 function verificarEnter(event) {
     if (event.key === "Enter") {
-        event.preventDefault(); // Esto previene que el formulario se envíe cuando se presiona Enter
+        event.preventDefault(); // Esto previene que el formulario se envï¿½e cuando se presiona Enter
         limpiarCodigoBarra();
     }
 }
 
     function limpiarCodigoBarra() {
         let valor = document.getElementById("codbarras").value;
-        valor = valor.replace(/^[^0-9]+|[^0-9]+$/g, '');  // Remueve caracteres no alfanuméricos del inicio y final
+        valor = valor.replace(/^[^0-9]+|[^0-9]+$/g, '');  // Remueve caracteres no alfanumï¿½ricos del inicio y final
 
         valor = valor.trim();
         document.getElementById("codbarras").value = valor;
@@ -293,10 +298,10 @@ function verificarEnter(event) {
         }
 	
 	const codbarras = valor;
-	const dependencia = valor.substring(0, 11); // Primeras 6 posiciones
-	const ano = valor.substring(11, 15); // Las siguientes 4 posiciones
-	const nroexpediente = valor.substring(15, 21); // Últimas 5 posiciones
-	const tipo = valor.substring(21, 25); // Últimas 5 posiciones
+	const dependencia = parseInt(valor.substring(0, 11)); 
+	const ano = valor.substring(11, 15); 
+	const nroexpediente = parseInt(valor.substring(15, 21)); 
+	const tipo = parseInt(valor.substring(21, 25)); 
 
         var formData = $('#miFormulario').serialize();
         $.ajax({
@@ -395,6 +400,10 @@ document.getElementById("IniciaScan").addEventListener("click", function(event) 
     	alert("Ingresa el Nro de Paquete");
     	return false;
     }
+    if ($.trim($('#anaquel').val())==="") {
+    	alert("Ingresa el anaquel");
+    	return false;
+    }
     if ($.trim($('#dependencia').val())==="") {
     	alert("Selecciona la Dependencia");
     	return false;
@@ -407,6 +416,7 @@ document.getElementById("IniciaScan").addEventListener("click", function(event) 
     $('#datinve').text($('#nroinventario').val()); 
     $('#datarch').text($('#archivo option:selected').text());
     $('#datpaqu').text($('#nropaquete').val());
+    $('#datanaq').text($('#anaquel').val());
     $('#datdepe').text($('#dependencia option:selected').text());
     $('#datdesp').text($('#despacho option:selected').text());
     document.getElementById("datacabe").style.display = "none"; 
@@ -415,25 +425,26 @@ document.getElementById("IniciaScan").addEventListener("click", function(event) 
     document.getElementById('codbarras').focus();        
 });
 
-  function prepararYMostrarModal() {
-    if (event) event.preventDefault(); // Previene recarga
-    if (scannedItems.length > 0) {
-        const myModal = new bootstrap.Modal(document.getElementById('textoModal'));
-        myModal.show();
-    } else {
-        document.getElementById('messageErr').innerHTML = '<b>No puedes inventariar si no hay registros lectoreados</b>';
-        var messageErr = document.getElementById('messageErr');
-        messageErr.style.opacity = '1';
-        messageErr.style.display = 'block';
-        setTimeout(function() {
-            messageErr.style.opacity = '0';
-            setTimeout(() => {
-                messageErr.style.display = 'none';
-            }, 500);
-        
-        }, 3000); 
-    }
+function prepararYMostrarModal() {
+  if (event) event.preventDefault(); // Previene recarga
+  if (scannedItems.length > 0) {
+      const myModal = new bootstrap.Modal(document.getElementById('textoModal'));
+      myModal.show();
+  } else {
+      document.getElementById('messageErr').innerHTML = '<b>No puedes inventariar si no hay registros lectoreados</b>';
+      var messageErr = document.getElementById('messageErr');
+      messageErr.style.opacity = '1';
+      messageErr.style.display = 'block';
+      setTimeout(function() {
+          messageErr.style.opacity = '0';
+          setTimeout(() => {
+              messageErr.style.display = 'none';
+          }, 500);
+      
+      }, 3000); 
   }
+}
+
 document.getElementById("grabarBtn").addEventListener("click", function(event) {
     if (event) event.preventDefault(); // Previene recarga
     if (scannedItems.length > 0) {
@@ -482,88 +493,90 @@ codigo = codigo.replace(/^[^A-Za-z0-9-]+|[^A-Za-z0-9-]+$/g, '');
 		success: function(response) {
 		    if (response.success) {
 
-			if (response.estado=="I" || response.estado=="O") {
-			    updateScannedList();
-			    document.getElementById('scannedItemsInput').value = JSON.stringify(scannedItems);
+          if (response.estado=="I" || response.estado=="O") {
+              updateScannedList();
+              document.getElementById('scannedItemsInput').value = JSON.stringify(scannedItems);
 
-			    document.getElementById('messageErr').innerHTML = '<b>' + response.message + '</b>';
-                            var messageErr = document.getElementById('messageErr');
-                            messageErr.style.opacity = '1';
-                            messageErr.style.display = 'block';
-                            setTimeout(function() {
-                                messageErr.style.opacity = '0';
-                                setTimeout(() => {
-                                    messageErr.style.display = 'none';
-                                }, 500);
-                            }, 3000); 
+              document.getElementById('messageErr').innerHTML = '<b>' + response.message + '</b>';
+                                var messageErr = document.getElementById('messageErr');
+                                messageErr.style.opacity = '1';
+                                messageErr.style.display = 'block';
+                                setTimeout(function() {
+                                    messageErr.style.opacity = '0';
+                                    setTimeout(() => {
+                                        messageErr.style.display = 'none';
+                                    }, 500);
+                                }, 3000); 
 
-			} else {
+          } else {
 
-			var registros = response.registros;
-			registros.forEach(function(registro) {
+            var registros = response.registros;
+            registros.forEach(function(registro) {
 
-			nroreg=nroreg+1;
-			if (nroreg==1) {
-			    // Rellenar los otros inputs con los datos del producto
-			    $('#archivo').val(registro.archivo);
-			    $('#nropaquete').val(registro.nro_paquete);
-			    $('#dependencia').val(registro.paq_dependencia);
-                            var $select = $("#dependencia").selectize();
-                            var selectize = $select[0].selectize;
-                            selectize.setValue(registro.paq_dependencia); 
-			    $('#despacho').val(registro.despacho);
-			    
-			    $('#datinve').text($('#nroinventario').val()); 
-			    $('#datarch').text($('#archivo option:selected').text());
-			    $('#datpaqu').text($('#nropaquete').val());
-			    $('#datdepe').text($('#dependencia option:selected').text());
-			    $('#datdesp').text($('#despacho option:selected').text());
-			}
-			var codbarras = registro.codbarras;
-			var dependencia = registro.id_dependencia;
-			var ano = registro.ano_expediente;
-			var nroexpediente = registro.nro_expediente;
-			var tipo = registro.id_tipo;
-			var estado = registro.estado;
-			if (estado=="L") {
-			    var lafecha = registro.fecha_lectura;
-			    var lahora = registro.hora_lectura;
-			}
-			if (estado=="I") {
-			    var lafecha = registro.fecha_inventario;
-			    var lahora = registro.hora_inventario;
-			}
-			scannedItems.unshift({ codbarras, dependencia, ano, nroexpediente, tipo, estado, lafecha, lahora});
+            nroreg=nroreg+1;
+            if (nroreg==1) {
+                // Rellenar los otros inputs con los datos del producto
+                $('#archivo').val(registro.archivo);
+                $('#nropaquete').val(registro.nro_paquete);
+                $('#anaquel').val(registro.anaquel);
+                $('#dependencia').val(response.paq_dependencia);
+                                  var $select = $("#dependencia").selectize();
+                                  var selectize = $select[0].selectize;
+                                  selectize.setValue(response.paq_dependencia); 
+                $('#despacho').val(response.despacho);
+                
+                $('#datinve').text($('#nroinventario').val()); 
+                $('#datarch').text($('#archivo option:selected').text());
+                $('#datpaqu').text($('#nropaquete').val());
+                $('#datanaq').text($('#anaquel').val());
+                $('#datdepe').text($('#dependencia option:selected').text());
+                $('#datdesp').text($('#despacho option:selected').text());
+            }
+            var codbarras = registro.codbarras;
+            var dependencia = registro.id_dependencia;
+            var ano = registro.ano_expediente;
+            var nroexpediente = registro.nro_expediente;
+            var tipo = registro.id_tipo;
+            var estado = registro.estado;
+            if (estado=="L") {
+                var lafecha = registro.fecha_lectura;
+                var lahora = registro.hora_lectura;
+            }
+            if (estado=="I") {
+                var lafecha = registro.fecha_inventario;
+                var lahora = registro.hora_inventario;
+            }
+            scannedItems.unshift({ codbarras, dependencia, ano, nroexpediente, tipo, estado, lafecha, lahora});
 
-			});
+          });
 
-			updateScannedList();
-			document.getElementById('scannedItemsInput').value = JSON.stringify(scannedItems);
-			
-			document.getElementById("datacabe").style.display = "none"; 
-			document.getElementById("datascan").style.display = "block";
+          updateScannedList();
+          document.getElementById('scannedItemsInput').value = JSON.stringify(scannedItems);
+          
+          document.getElementById("datacabe").style.display = "none"; 
+          document.getElementById("datascan").style.display = "block";
 
-                        document.getElementById("codbarras").value='';
-                        document.getElementById('codbarras').focus();        
-			
-			}
+                            document.getElementById("codbarras").value='';
+                            document.getElementById('codbarras').focus();        
+          
+          }
 
 		    } else {
-			//alert(response.message);
                         document.getElementById("verocultar1").style.display = "block";
                         document.getElementById("verocultar2").style.display = "block";
                         document.getElementById("verocultar3").style.display = "block";
                         document.getElementById("verocultar4").style.display = "block";
+                        document.getElementById("verocultar5").style.display = "block";
 		    }
 		},
 		error: function(xhr, status, error) {
                     if (xhr.status === 419) {
-                        // No autorizado - probablemente sesión expirada
+                        // No autorizado - probablemente sesiï¿½n expirada
                         alert('TU SESION HA EXPIRADO. SERAS REDIRIGIDO AL LOGIN.');
                         window.location.href = '{{ route("usuario.login") }}';
                     } else {
                         // Otro tipo de error
-                        console.error('Error en la petición:', error);
+                        console.error('Error en la peticiï¿½n:', xhr.status);
                         alert('Hubo un error al buscar nro inventario.');
                     }
 //		    alert('Hubo un error al buscar nro inventario.');
@@ -579,6 +592,7 @@ codigo = codigo.replace(/^[^A-Za-z0-9-]+|[^A-Za-z0-9-]+$/g, '');
 	    document.getElementById("verocultar2").style.display = "none";
 	    document.getElementById("verocultar3").style.display = "none";
 	    document.getElementById("verocultar4").style.display = "none";
+	    document.getElementById("verocultar5").style.display = "none";
 	}
 }
 

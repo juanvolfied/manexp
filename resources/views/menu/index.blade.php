@@ -127,6 +127,35 @@
 
 @auth
     @if(in_array($perfil, ['Admin']))
+
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#movimientos">
+                  <i class="fas fa-layer-group"></i>
+                  <p>EXPEDIENTES</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="movimientos">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="{{ route('expediente.index') }}">
+                        <span class="sub-item">Registro de Expedientes</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{{ route('internamiento.index') }}">
+                        <span class="sub-item">Guia de Internamiento</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{{ route('internamiento.recepcion') }}">
+                        <span class="sub-item">Recepción Guia de Internamiento</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+    
+    
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#accesos">
                   <i class="fas fa-layer-group"></i>
@@ -220,7 +249,6 @@
                     <span class="profile-username">
 
                       <span class="fw-bold">{{ optional(Auth::user()->personal)->apellido_paterno }} {{ optional(Auth::user()->personal)->apellido_materno }} <br> {{ optional(Auth::user()->personal)->nombres }}</span>
-                      
 
                     </span>
                   </a>
@@ -345,8 +373,8 @@
     <!-- jQuery Scrollbar -->
     <script src="{{ asset('js/plugin/jquery-scrollbar/jquery.scrollbar.min.js') }}"></script>
 
-    <!-- Chart JS 
-    <script src="../assets/js/plugin/chart.js/chart.min.js"></script>-->
+    <!-- Chart JS -->
+    <script src="{{ asset('js/plugin/chart.js/chart.min.js') }}"></script>
 
     <!-- jQuery Sparkline 
     <script src="../assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js"></script>-->

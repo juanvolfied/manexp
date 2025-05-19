@@ -37,7 +37,9 @@ class UsuarioLoginController extends Controller
         ]);
     }
             
-            return redirect()->intended('/principal');
+            //return redirect()->intended('/principal');
+            return redirect()->route('principal');
+            
         }
 
         //return back()->withErrors(['usuario' => 'Usuario o contraseña incorrectos.']);
