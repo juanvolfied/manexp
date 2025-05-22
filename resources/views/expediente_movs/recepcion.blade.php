@@ -1,6 +1,9 @@
 @extends('menu.index')
 
 @section('content')
+@php
+    $estados = ['G' => 'Generado', 'E' => 'Enviado', 'R' => 'Recepcionado'];
+@endphp
 <!--<div class="container mt-4">-->
     <!--<h2 class="mb-4">Expedientes Registrados</h2>-->
 
@@ -22,10 +25,11 @@
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Movimiento</th>
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fiscal</th>
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Estado</th>
+                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">N° Carpetas</th>
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha Generaci&oacute;n</th>
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha Envio</th>
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha Recepci&oacute;n</th>
-                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;" width="155">Acciones</th>
+                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none; text-align:center;" width="155" colspan="2">Recepcionar</th>
             </tr>
         </thead>
         <tbody style="font-size:12px;">
@@ -33,13 +37,23 @@
                 <tr>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->tipo_mov }} {{ $p->ano_mov }}-{{ $p->nro_mov }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->apellido_paterno }} {{ $p->apellido_materno }} {{ $p->nombres }}</td>
-                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->estado_mov }}</td>
+                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $estados[$p->estado_mov] ?? $p->estado_mov }}</td>
+                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->cantidad_exp }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_movimiento }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_envio }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_recepcion }}</td>
-                    <td style="padding: 5px 10px!important; font-size: 12px !important;">
-                    @if($p->estado_mov == 'E')
-                        <a href="{{ route('internamiento.ver', ['tipo_mov' => $p->tipo_mov, 'ano_mov' => $p->ano_mov, 'nro_mov' => $p->nro_mov] ) }}" class="btn btn-primary" style="padding: 5px 8px!important;"><b>Verifica y Recepciona</b></a>
+                    <td style="padding: 5px 10px!important; font-size: 12px !important; text-align:center;">
+                    @if($p->estado_mov != 'E')
+                        <a href="#" data-bs-toggle="tooltip" title="Recepcionar Todo" onclick="prepararYMostrarModal('{{ $p->tipo_mov }}',{{ $p->ano_mov }},{{ $p->nro_mov }},event)" class="btn btn-link p-0" style="color: blue;"><i class="fas fa-file-alt fa-lg"></i> Todo</a>
+                    @else
+                        <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-file-alt fa-lg text-muted" ></i> Todo</a>
+                    @endif 
+                    </td>
+                    <td style="padding: 5px 10px!important; font-size: 12px !important; text-align:center;">
+                    @if($p->estado_mov != 'E')
+                        <a href="{{ route('internamiento.ver', ['tipo_mov' => $p->tipo_mov, 'ano_mov' => $p->ano_mov, 'nro_mov' => $p->nro_mov] ) }}" data-bs-toggle="tooltip" title="Recepcionar Escaneando c&oacute;digos de los expedientes" class="btn btn-link p-0" style="color: green;"><i class="fas fa-clipboard-check fa-lg"></i> Por Escaneo</a>
+                    @else
+                        <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-clipboard-check fa-lg text-muted" ></i> Por Escaneo</a>
                     @endif 
                     </td>
                 </tr>
@@ -49,6 +63,33 @@
         
         </div>
     </div>
+
+<div class="modal fade" id="textoModal" tabindex="-1" aria-labelledby="textoModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+    
+      <div class="modal-header">
+        <h5 class="modal-title" id="textoModalLabel">CONFIRMAR RECEPCI&Oacute;N</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      
+      <div class="modal-body">
+        SE RECEPCIONAR&Aacute; LA GUIA DE INTERNAMIENTO CON LA TOTALIDAD DE EXPEDIENTES ASIGNADOS<br><br>DESEA CONTINUAR CON LA RECEPCI&Oacute;N?
+      </div>
+      
+      <input type='hidden' id='tpmov' name='tpmov'>
+      <input type='hidden' id='anomov' name='anomov'>
+      <input type='hidden' id='nromov' name='nromov'>
+      <div class="modal-footer">
+        <!--<button type="button" class="btn btn-primary" onclick="guardarTexto()">Continuar y Grabar Inventario</button>-->
+        <a href="#" onclick="recibirinternamiento(event)" class="btn btn-primary">Recepcionar Gu&iacute;a de Internamiento</a>
+        <!--<button type="button" id="grabarBtn" class="btn btn-primary">Aceptar y enviar gu&iacute;a</button>-->
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+      </div>
+    
+    </div>
+  </div>
+</div>
 
 
 <!--</div>-->
@@ -91,32 +132,46 @@
 
 
 <script>
-function enviarinternamiento(xtipo,xano,xnro,event) {
+const myModal = new bootstrap.Modal(document.getElementById('textoModal'));
+function prepararYMostrarModal(xtipo,xano,xnro,event) {
     if (event) event.preventDefault(); // Previene recarga
-    const tipo = xtipo;
-    const ano = xano;
-    const nro = xnro;
-    if (confirm(`DESEA CONTINUAR CON EL ENVIO DE LA GUIA DE INTERNAMIENTO ?`)) {
-        $.ajax({
-            url: '{{ route("internamiento.envio") }}', 
-            method: 'POST',
-            data: {
-                _token: '{{ csrf_token() }}',
-                tipo_mov: tipo,
-                ano_mov: ano,
-                nro_mov: nro
-            },
-            success: function(response) {
-//                alert('Elemento eliminado correctamente.');
-                window.location.href = '{{ route("internamiento.index") }}';
-            },
-            error: function() {
-                alert('Error en proceso de envio.');
-            }
-        });
-    }
+    document.getElementById('tpmov').value=xtipo;
+    document.getElementById('anomov').value=xano;
+    document.getElementById('nromov').value=xnro;
+    myModal.show();
+}
+    
+function recibirinternamiento(event) {
+    if (event) event.preventDefault(); // Previene recarga
+    const tipo = document.getElementById('tpmov').value;
+    const ano = document.getElementById('anomov').value;
+    const nro = document.getElementById('nromov').value;
+    myModal.hide();
+    $.ajax({
+        url: '{{ route("internamiento.grabarecepcion") }}', 
+        method: 'POST',
+        data: {
+            _token: '{{ csrf_token() }}',
+            tipo_mov: tipo,
+            ano_mov: ano,
+            nro_mov: nro
+        },
+        success: function(response) {
+          if (response.success) {
+              // Guardar el mensaje para mostrarlo en la siguiente vista
+              sessionStorage.setItem('successMessage', response.message);
+              // Redirigir manualmente
+              window.location.href = response.redirect_url;
+          }
+        },
+        error: function() {
+            alert('Error en proceso de recepcion.');
+        }
+    });
 }
 </script>
+
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const msg = sessionStorage.getItem('successMessage');

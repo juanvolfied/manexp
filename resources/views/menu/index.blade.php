@@ -3,6 +3,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>Manejo y Seguimiento de Expedientes</title>
     <meta
@@ -409,6 +410,22 @@
 
 @yield('scripts')
 
+<style>
+/* Estilos personalizados para tooltips de Bootstrap */
+.tooltip-inner {
+    background-color: #004085 !important; /* Fondo */
+    color: #fff !important;               /* Texto */
+    font-size: 14px !important;           /* Tamaño de letra */
+    padding: 10px 15px;                   /* Espaciado */
+    border-radius: 8px;                   /* Bordes redondeados */
+    max-width: 300px;                     /* Ancho máximo */
+}
 
+/* Flechita del tooltip */
+.bs-tooltip-auto[data-popper-placement^=top] .tooltip-arrow::before,
+.bs-tooltip-top .tooltip-arrow::before {
+    border-top-color: #004085 !important;
+}
+</style>
   </body>
 </html>

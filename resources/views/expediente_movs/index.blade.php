@@ -1,6 +1,9 @@
 @extends('menu.index')
 
 @section('content')
+@php
+    $estados = ['G' => 'Generado', 'E' => 'Enviado', 'R' => 'Recepcionado'];
+@endphp
 <!--<div class="container mt-4">-->
     <!--<h2 class="mb-4">Expedientes Registrados</h2>-->
 
@@ -26,7 +29,7 @@
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha Generada</th>
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha Envio</th>
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha Recepci&oacute;n</th>
-                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Acciones</th>
+                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none; text-align:center;" colspan=3>Acciones</th>
             </tr>
         </thead>
         <tbody style="font-size:12px;">
@@ -34,14 +37,29 @@
                 <tr>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->tipo_mov }} {{ $p->ano_mov }}-{{ $p->nro_mov }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->apellido_paterno }} {{ $p->apellido_materno }} {{ $p->nombres }}</td>
-                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->estado_mov }}</td>
+                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $estados[$p->estado_mov] ?? $p->estado_mov }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_movimiento }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_envio }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_recepcion }}</td>
-                    <td style="padding: 5px 10px!important; font-size: 12px !important;">
+                    <td style="padding: 5px 10px!important; font-size: 12px !important; text-align:center;">
                     @if($p->estado_mov == 'G')
-                        <a href="#" onclick="prepararYMostrarModal('{{ $p->tipo_mov }}',{{ $p->ano_mov }},{{ $p->nro_mov }},event)" class="btn btn-sm btn-warning">Enviar a Archivo</a>
+                      <a href="{{ route('internamiento.edit', ['tipo_mov' => $p->tipo_mov, 'ano_mov' => $p->ano_mov, 'nro_mov' => $p->nro_mov]) }}" data-bs-toggle="tooltip" title="Editar Gu&iacute;a de Internamiento"><i class="fas fa-edit fa-lg"></i> Editar</a>
+                    @else
+                      <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-edit fa-lg text-muted"></i> Editar</a>
                     @endif 
+                    </td>
+                    <td style="padding: 5px 10px!important; font-size: 12px !important; text-align:center;">
+                    @if($p->estado_mov == 'G')
+                        <a href="#" data-bs-toggle="tooltip" title="Enviar Gu&iacute;a para Archivo" onclick="prepararYMostrarModal('{{ $p->tipo_mov }}',{{ $p->ano_mov }},{{ $p->nro_mov }},event)" class="btn btn-link p-0" style="color: green;"><i class="fas fa-paper-plane fa-lg"></i> Enviar</a>
+                    @else
+                        <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-paper-plane fa-lg text-muted" ></i> Enviar</a>
+                    @endif 
+                    </td>
+                    <td style="padding: 5px 10px!important; font-size: 12px !important; text-align:center;">
+                        <a href="#" data-bs-toggle="tooltip" title="Imprime Gu&iacute;a de Internamiento" onclick="generapdf('{{ route("internamiento.pdf", ["tipo_mov" => $p->tipo_mov, "ano_mov" => $p->ano_mov, "nro_mov" => $p->nro_mov]) }}', event)" style="color: purple;">
+                        <!--<a href="#" data-bs-toggle="tooltip" title="Imprime Gu&iacute;a de Internamiento" onclick="generapdf('{{ $p->tipo_mov }}','{{ $p->ano_mov }}','{{ $p->nro_mov }}',event)" style="color: purple;">-->
+                            <i class="fas fa-print fa-lg"></i> Imprimir
+                        </a>
                     </td>
                 </tr>
             @endforeach
@@ -77,12 +95,39 @@
     
     </div>
   </div>
-<!--</div>-->
-
-
 </div>
+<!-- Modal -->
+<div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Visualizar PDF</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <iframe id="pdfFrame" src="" width="100%" height="600px" style="border: none;"></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!--</div>-->
 @endsection
 @push('scripts')
+<script>
+function generapdf(url,event) {
+    if (event) event.preventDefault(); // Previene recarga    
+    $('#pdfFrame').attr('src', url);
+    $('#pdfModal').modal('show');
+}
+</script>
+
+
 <script>
   $(document).ready(function() {
     $('#tablaexpedientes').DataTable({
@@ -186,4 +231,14 @@ function enviarinternamiento(event) {
         }
     });
 </script>
+<script>
+    // Inicializar todos los tooltips al cargar la página
+    document.addEventListener('DOMContentLoaded', function () {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    });
+</script>
+
 @endpush

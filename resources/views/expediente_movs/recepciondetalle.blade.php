@@ -1,7 +1,24 @@
 @extends('menu.index')
 
 @section('content')
-
+<?php
+function numeroAOrdinal($numero) {
+    $ordinales = [
+        0 => '',
+        1 => '1er',
+        2 => '2do',
+        3 => '3er',
+        4 => '4to',
+        5 => '5to',
+        6 => '6to',
+        7 => '7mo',
+        8 => '8vo',
+        9 => '9no',
+        10 => '10mo',
+    ];    
+    return $ordinales[$numero] ?? $numero . 'º';
+}    
+?>  
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -34,13 +51,23 @@
 
 
                     <div class="row">
-                      <div class="col-md-6 col-lg-6">
+                      <div class="col-md-12 col-lg-12">
                           <table width="100%"><tr><td width="100px;"><b>Movimiento:</b></td><td id="datarch">{{ $guiacab->tipo_mov }} {{ $guiacab->ano_mov }}-{{ $guiacab->nro_mov }}</td></tr></table>
                       </div>
                     </div>
                     <div class="row">
-                      <div class="col-md-6 col-lg-6">
+                      <div class="col-md-12 col-lg-12">
                           <table width="100%"><tr><td width="100px;"><b>Fiscal:</b></td><td id="datanaq">{{ $guiacab->apellido_paterno . " " . $guiacab->apellido_materno . " " . $guiacab->nombres }}</td></tr></table>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-12 col-lg-12">
+                          <table width="100%"><tr><td width="100px;"><b>Dependencia:</b></td><td id="datanaq">{{ $guiacab->descripcion }}</td></tr></table>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-12 col-lg-12">
+                          <table width="100%"><tr><td width="100px;"><b>Despacho:</b></td><td id="datanaq">{{ numeroAOrdinal($guiacab->despacho) }} DESPACHO</td></tr></table>
                       </div>
                     </div>
                     

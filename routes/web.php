@@ -124,3 +124,6 @@ Route::post('/internamiento-envio', [ExpedienteController::class, 'envioInternam
 Route::get('/internamiento-recep', [ExpedienteController::class, 'indexrecepinternamiento'])->name('internamiento.recepcion');
 Route::get('/internamiento-recep/{tipo_mov}/{ano_mov}/{nro_mov}/ver', [ExpedienteController::class, 'verifrecepinternamiento'])->name('internamiento.ver');
 Route::post('/internamiento-recepciona', [ExpedienteController::class, 'grabarecepcionInternamiento'])->name('internamiento.grabarecepcion');
+Route::get('/internamiento/{tipo_mov}/{ano_mov}/{nro_mov}/edit', [ExpedienteController::class, 'editInternamiento'])->name('internamiento.edit');
+Route::put('/internamiento/{tipo_mov}/{ano_mov}/{nro_mov}', [ExpedienteController::class, 'updateInternamiento'])->name('internamiento.update');
+Route::get('/internamiento/{tipo_mov}/{ano_mov}/{nro_mov}/pdf', [ExpedienteController::class, 'generarGuiaIntPDF'])->name('internamiento.pdf');

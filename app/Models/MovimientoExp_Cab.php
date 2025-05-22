@@ -19,5 +19,8 @@ class MovimientoExp_Cab extends Model
         'fechahora_recepcion', 
         'estado_mov', 
         'activo', 
+        'cantidad_exp', 
+        'id_dependencia', 
+        'despacho', 
     ];
 }

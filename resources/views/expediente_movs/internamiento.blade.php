@@ -1,6 +1,24 @@
 @extends('menu.index')
 
 @section('content')
+<?php
+function numeroAOrdinal($numero) {
+    $ordinales = [
+        0 => '',
+        1 => '1er',
+        2 => '2do',
+        3 => '3er',
+        4 => '4to',
+        5 => '5to',
+        6 => '6to',
+        7 => '7mo',
+        8 => '8vo',
+        9 => '9no',
+        10 => '10mo',
+    ];    
+    return $ordinales[$numero] ?? $numero . 'º';
+}
+?>
     <!-- Mostrar el mensaje de �xito o error -->
     <form id="miFormulario" autocomplete="off">
     @if(session('messageErr'))
@@ -19,7 +37,14 @@
             <div class="col-md-12">
                 <div class="card">
                   <div class="card-header">
-                    <div class="card-title">Gu&iacute;a de Internamiento de Expedientes</div>
+                    <div class="card-title">
+                    @if(isset($regcab))
+                        Actualizar Gu&iacute;a de Internamiento : {{ $regcab->tipo_mov }} {{ $regcab->ano_mov }}-{{ $regcab->nro_mov }}
+                    @else
+                        Generar nueva Gu&iacute;a de Internamiento
+                    @endif    
+                        
+                    </div>
                   </div>
                   <div class="card-body">
                     <div class="row">
@@ -29,9 +54,17 @@
                             <select name="fiscal" id="fiscal" class="" data-live-search="true">
                                 <option value=""></option>
                                 @foreach ($personal as $fiscal)
-                                <option value="{{ $fiscal->id_personal }}">{{ $fiscal->apellido_paterno }} {{ $fiscal->apellido_materno }} {{ $fiscal->nombres }}</option>			    
+                                <option value="{{ $fiscal->id_personal }}" {{ old('id_personal', $regcab->fiscal ?? null) == $fiscal->id_personal ? 'selected' : '' }}>
+                                    {{ $fiscal->apellido_paterno }} {{ $fiscal->apellido_materno }} {{ $fiscal->nombres }}
+                                </option>			    
                                 @endforeach
                             </select>
+                        </div>
+                      </div>
+                      <div class="col-md-6 col-lg-6" >
+                        <div class="form-group" style="padding:5px;">
+                            <b>DEPENDENCIA : </b> {{ $dependencia->descripcion }}<br>
+                            <b>DESPACHO : </b> {{ numeroAOrdinal(Auth::user()->personal->despacho) }} DESPACHO
                         </div>
                       </div>
                     </div>
@@ -81,7 +114,13 @@
                     <button class="btn btn-danger">Cancel</button>-->
         	    <!--<button id="grabarBtn" class="btn btn-primary">Inventariar c&oacute;digos escaneados</button>-->
         	    <!--<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#textoModal">Inventariar c&oacute;digos escaneados</button>-->
-        	    <button type="button" class="btn btn-primary" onclick="prepararYMostrarModal()">Generar gu&iacute;a de Internamiento</button>
+        	    <button type="button" class="btn btn-primary" onclick="prepararYMostrarModal()">
+                    @if(isset($regcab))
+                        Actualizar gu&iacute;a de Internamiento
+                    @else
+                        Generar gu&iacute;a de Internamiento
+                    @endif    
+                </button>
                 <a href="{{ route('internamiento.index') }}" class="btn btn-secondary">Regresar al Listado de Gu&iacute;as</a>
 
             </div>
@@ -90,9 +129,15 @@
             </div>
             
     </form>
-    <form action="{{ route('internamiento.graba') }}" method="POST" id="miFormulario2" autocomplete="off">
+    <!--<form action="{{ route('internamiento.graba') }}" method="POST" id="miFormulario2" autocomplete="off">-->
+    <form action="{{ isset($regcab) ? route('internamiento.update', ['tipo_mov' => $regcab->tipo_mov, 'ano_mov' => $regcab->ano_mov, 'nro_mov' => $regcab->nro_mov]) : route('internamiento.graba') }}"
+      method="POST" id="miFormulario2" autocomplete="off">
+
     @csrf  <!-- Este campo incluir� el token CSRF autom�ticamente -->
-	          <input type="hidden" id="scannedItemsInput" name="scannedItems">
+    @if(isset($regcab))
+        @method('PUT')
+    @endif
+    <input type="hidden" id="scannedItemsInput" name="scannedItems">
 	          <input type="hidden" id="codfiscal" name="codfiscal">
 
 <!-- Modal -->
@@ -121,6 +166,24 @@
   </div>
 </div>
 
+<div class="modal fade" id="textoModal2" tabindex="-1" aria-labelledby="textoModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="textoModalLabel">CONFIRMAR</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div id="textomodalelimina" class="modal-body">
+      </div>
+      <input type="hidden" id="elementoindex" name="elementoindex">
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="eliminarItem(event)">Eliminar de la Lista</button>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
     </form>
 
 
@@ -134,12 +197,12 @@
         padding: 4px 4px!important;  
     }    
 </style>
+@endsection
+
 @section('scripts')
 <script>
     $('#fiscal').selectize();
 </script>
-@endsection
-
 
 
 
@@ -151,7 +214,6 @@ document.getElementById("miFormulario").addEventListener("keydown", function(eve
 });
     
 let scannedItems = []; // Array para almacenar los c�digos escaneados
-let datoscab = []; // Array 
 function verificarEnter(event) {
     if (event.key === "Enter") {
         event.preventDefault(); // Esto previene que el formulario se env�e cuando se presiona Enter
@@ -222,7 +284,7 @@ function updateScannedList() {
 		<td style="font-size:12px; padding: 5px 10px !important;">${item.nroexpediente}</td>
 		<td style="font-size:12px; padding: 5px 10px !important;">${item.tipo}</td>                        
 		<td style="font-size:12px; padding: 5px 10px !important;">
-		    <button onclick="eliminarItem(${index},event)" style="border: none; background: transparent; cursor: pointer;">
+		    <button onclick="prepararYMostrarModal2(${index},event)" style="border: none; background: transparent; cursor: pointer;">
 		    <i class="fas fa-trash-alt fa-lg" style="color: red;"></i>
 		    </button>
 		</td>
@@ -285,31 +347,25 @@ document.getElementById("grabarBtn").addEventListener("click", function(event) {
 });
             
 
-
-
-function eliminarItem(index,event) {
+function prepararYMostrarModal2(index,event) {
     if (event) event.preventDefault(); // Previene recarga
-
     const item = scannedItems[index];
-    const codbar = item.codbarras;
-    if (confirm(`\u00BF Est\u00E1s seguro de eliminar el elemento con c\u00F3digo de barras: ${codbar} ?`)) {
-        $.ajax({
-            url: '{{ route("elimina.item") }}', 
-            method: 'POST',
-            data: {
-                _token: '{{ csrf_token() }}',
-                codbarras: codbar
-            },
-            success: function(response) {
-                scannedItems.splice(index, 1);
-                updateScannedList();
-                alert('Elemento eliminado correctamente.');
-            },
-            error: function() {
-                alert('Error al eliminar el elemento.');
-            }
-        });
+    const codbar = item.codbarras;  
+    document.getElementById('textomodalelimina').innerHTML="SE VA A ELIMINAR DE LA LISTA EL CODIGO: " + codbar + "<br>DESEA CONTINUAR?";
+    document.getElementById('elementoindex').value=index;
+    const myModal2 = new bootstrap.Modal(document.getElementById('textoModal2'));
+    myModal2.show();
+}
+function eliminarItem(event) {
+    if (event) event.preventDefault(); // Previene recarga
+    const myModal2 = bootstrap.Modal.getInstance(document.getElementById('textoModal2'));
+    if (myModal2) {
+        myModal2.hide();
     }
+    var index=document.getElementById('elementoindex').value;
+    scannedItems.splice(index, 1);
+    updateScannedList();
+    document.getElementById('scannedItemsInput').value = JSON.stringify(scannedItems);
 }
 
 
@@ -333,5 +389,20 @@ window.onload = function() {
         }, 3000); 
     }
 };
+
+
+    const detalles = @json($regdet ?? []);
+    detalles.forEach(function(registro) {
+        var codbarras = registro.codbarras;
+        var dependencia = registro.id_dependencia;
+        var ano = registro.ano_expediente;
+        var nroexpediente = registro.nro_expediente;
+        var tipo = registro.id_tipo;
+        var id_expediente = registro.id_expediente;
+        scannedItems.unshift({ codbarras, dependencia, ano, nroexpediente, tipo, id_expediente});
+    });
+    updateScannedList();
+    document.getElementById('scannedItemsInput').value = JSON.stringify(scannedItems);
+
 </script>
 @endsection

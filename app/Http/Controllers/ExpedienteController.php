@@ -8,10 +8,14 @@ use App\Models\MovimientoExp_Cab;
 use App\Models\MovimientoExp_Det; 
 use App\Models\Delitos; 
 use App\Models\Personal; 
+use App\Models\Dependencia; 
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+
+use Mpdf\Mpdf;
+use App\Services\BarcodeGenerator;
 
 class ExpedienteController extends Controller
 {
@@ -111,7 +115,12 @@ class ExpedienteController extends Controller
     public function destroy(Expedientes $expediente)
     {
         $expediente->delete();
-        return redirect()->route('expediente.index')->with('success', 'EL REGISTRO HA SIDO ELIMINADO.');
+        //return redirect()->route('expediente.index')->with('success', 'EL REGISTRO HA SIDO ELIMINADO.');
+        return response()->json([
+            'success' => true,
+            'redirect_url' => route('expediente.index'),
+            'message' => 'EL REGISTRO HA SIDO ELIMINADO.',
+        ]);        
     }
 
     public function buscaExpediente(Request $request)
@@ -178,7 +187,36 @@ class ExpedienteController extends Controller
             ->orderBy('apellido_materno', 'asc') 
             ->orderBy('nombres', 'asc') 
             ->get();
-        return view('expediente_movs.internamiento', compact('personal'));
+        $dependencia = Dependencia::where('id_dependencia', Auth::user()->personal->id_dependencia)
+            ->first();
+        return view('expediente_movs.internamiento', compact('personal','dependencia'));
+    }
+//    public function editInternamiento(Expedientes $expediente)
+    public function editInternamiento($tipo_mov, $ano_mov, $nro_mov)
+    {
+        $regcab = MovimientoExp_Cab::where('tipo_mov', $tipo_mov)
+            ->where('ano_mov', $ano_mov)
+            ->where('nro_mov', $nro_mov)
+            ->first();
+        $regdet = MovimientoExp_Det::where('tipo_mov', $tipo_mov)
+            ->leftJoin('expediente', 'movimiento_exp_det.id_expediente', '=', 'expediente.id_expediente')
+            ->where('ano_mov', $ano_mov)
+            ->where('nro_mov', $nro_mov)
+            ->select('movimiento_exp_det.nro_expediente', 'movimiento_exp_det.ano_expediente','movimiento_exp_det.id_dependencia','movimiento_exp_det.id_tipo','expediente.codbarras', 'movimiento_exp_det.id_expediente') // Puedes ajustar campos
+            ->orderBy('id_movimiento', 'desc') 
+            ->get();
+        $personal = DB::table('personal')
+            ->where('fiscal_asistente','F')
+            ->where('id_dependencia',Auth::user()->personal->id_dependencia)
+            ->where('despacho',Auth::user()->personal->despacho)
+            ->where('activo','S')            
+            ->orderBy('apellido_paterno', 'asc') 
+            ->orderBy('apellido_materno', 'asc') 
+            ->orderBy('nombres', 'asc') 
+            ->get();
+        $dependencia = Dependencia::where('id_dependencia', Auth::user()->personal->id_dependencia)
+            ->first();
+        return view('expediente_movs.internamiento', compact('regcab','regdet','personal','dependencia'));
     }
     public function buscaExpedienteMov(Request $request)
     {
@@ -241,6 +279,7 @@ class ExpedienteController extends Controller
 
         // Convertir el JSON a un array
         $scannedItems = json_decode($request->scannedItems, true);
+        $itemsCount = count($scannedItems);
 
         $ultimoRegistro = MovimientoExp_Cab::where('ano_mov', $anoActual)
         ->where('tipo_mov', 'GI')
@@ -261,6 +300,9 @@ class ExpedienteController extends Controller
             'fechahora_movimiento'=>$fechaHoraActualFormateada, 
             'estado_mov'=>'G', 
             'activo'=>'S',                
+            'cantidad_exp'=>$itemsCount,                
+            'id_dependencia'=>Auth::user()->personal->id_dependencia,                
+            'despacho'=>Auth::user()->personal->despacho,                
         ]);
 
         foreach ($scannedItems as $item) {
@@ -286,6 +328,75 @@ class ExpedienteController extends Controller
             
         }
         return redirect()->back()->with('messageOK', 'GUIA DE INTERNAMIENTO GENERADA DE FORMA SATISFACTORIA.');
+    }
+    public function updateInternamiento(Request $request, $tipo_mov, $ano_mov, $nro_mov)
+    {
+        $request->validate([
+            'codfiscal' => 'required|string',
+            'scannedItems' => 'required|json', // Validamos que sea un JSON
+        ]);
+        $fechaHoraActualFormateada = now()->format('Y-m-d H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $fechaActual = now()->format('Y-m-d');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $horaActual = now()->format('H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $anoActual = substr($fechaActual,0,4);
+
+        // Convertir el JSON a un array
+        $scannedItems = json_decode($request->scannedItems, true);
+        $itemsCount = count($scannedItems);
+
+        DB::table('movimiento_exp_cab')
+        ->where('tipo_mov', $tipo_mov)
+        ->where('ano_mov', $ano_mov)
+        ->where('nro_mov', $nro_mov)
+        ->update([
+            'id_usuario'=> Auth::user()->id_usuario, 
+            'fiscal'=>$request->codfiscal, 
+            'fechahora_movimiento'=>$fechaHoraActualFormateada, 
+            'cantidad_exp'=>$itemsCount,                
+            'id_dependencia'=>Auth::user()->personal->id_dependencia,                
+            'despacho'=>Auth::user()->personal->despacho                
+        ]);
+        DB::table('movimiento_exp_det')
+        ->where('tipo_mov', $tipo_mov)
+        ->where('ano_mov', $ano_mov)
+        ->where('nro_mov', $nro_mov)
+        ->delete();
+
+        foreach ($scannedItems as $item) {
+            $codbar = $item['codbarras'];
+            $dep_exp=substr($codbar,0,11);
+            $ano_exp=substr($codbar,11,4);
+            $nro_exp=substr($codbar,15,6);
+            $tip_exp=substr($codbar,21,4);
+            $dep_exp = (int) $dep_exp; 
+            $id_exp = $item['id_expediente'];
+            
+            $registro = MovimientoExp_Det::create([
+                'nro_mov'=>$nro_mov,
+                'ano_mov'=>$ano_mov, 
+                'tipo_mov'=>$tipo_mov, 
+                'id_expediente'=>$id_exp, 
+                'nro_expediente'=>$nro_exp, 
+                'ano_expediente'=>$ano_exp, 
+                'id_dependencia'=>$dep_exp, 
+                'id_tipo'=>$tip_exp, 
+                'observacion'=>'',     
+            ]);
+            
+        }
+//        return redirect()->back()->with('messageOK', 'GUIA DE INTERNAMIENTO ACTUALIZADA DE FORMA SATISFACTORIA.');
+        $guiacab = DB::table('movimiento_exp_cab')
+        ->leftJoin('personal', 'movimiento_exp_cab.fiscal', '=', 'personal.id_personal')
+        ->where('tipo_mov','GI')
+        ->where(function($query) {
+            $query->where('id_usuario', Auth::user()->id_usuario)
+                ->orWhere('fiscal', Auth::user()->id_personal); 
+        })
+        ->orderBy('apellido_paterno', 'asc') 
+        ->orderBy('apellido_materno', 'asc') 
+        ->orderBy('nombres', 'asc') 
+        ->get();
+        return view('expediente_movs.index',compact('guiacab'));
     }
 
 
@@ -358,7 +469,63 @@ class ExpedienteController extends Controller
             'message' => 'ENVIO REALIZADO CORRECTAMENTE.',
         ]);
     }
+    public function generarGuiaIntPDF($tipo_mov, $ano_mov, $nro_mov)
+    {
+        $regcab = MovimientoExp_Cab::where('tipo_mov', $tipo_mov)
+            ->leftJoin('personal', 'movimiento_exp_cab.fiscal', '=', 'personal.id_personal')
+            ->leftJoin('dependencia', 'movimiento_exp_cab.id_dependencia', '=', 'dependencia.id_dependencia')
+            ->where('ano_mov', $ano_mov)
+            ->where('nro_mov', $nro_mov)
+            ->select('movimiento_exp_cab.*', 'personal.apellido_paterno','personal.apellido_materno','personal.nombres','dependencia.descripcion','dependencia.abreviado') 
+            ->first();
+        $regdet = MovimientoExp_Det::where('tipo_mov', $tipo_mov)
+            ->leftJoin('expediente', 'movimiento_exp_det.id_expediente', '=', 'expediente.id_expediente')
+            ->leftJoin('delito', 'expediente.delito', '=', 'delito.id_delito')
+            ->where('ano_mov', $ano_mov)
+            ->where('nro_mov', $nro_mov)
+            ->select('movimiento_exp_det.nro_expediente', 'movimiento_exp_det.ano_expediente','movimiento_exp_det.id_dependencia','movimiento_exp_det.id_tipo','expediente.codbarras','expediente.nro_folios','expediente.agraviado','expediente.imputado','delito.desc_delito', 'movimiento_exp_det.id_expediente') // Puedes ajustar campos
+            ->orderBy('id_movimiento', 'desc') 
+            ->get();
+        $barcodeData = str_pad($nro_mov, 5, '0', STR_PAD_LEFT) ."-".$ano_mov."-". ( $tipo_mov == 'GI' ? 'I' : $tipo_mov );
 
+        // Usa el servicio BarcodeGenerator
+        $barcodeService = new BarcodeGenerator();
+        $barcodePng = $barcodeService->generate('',"*".$barcodeData."*", 20, 'vertical', 'code128', true,1);
+
+        // Codifica en base64
+        $barcode = base64_encode($barcodePng);
+        $html = view('expediente_movs.pdfguiainternamiento', compact('regcab','regdet','barcode'))->render(); // Vista Blade
+
+        $mpdf = new Mpdf([
+            'mode' => 'c',
+            'format' => 'A4-L',
+            'default_font_size' => 10,
+            'default_font' => 'Arial',
+            'margin_left' => 5,
+            'margin_right' => 5,
+            'margin_top' => 3,
+            'margin_bottom' => 3,
+            'margin_header' => 1,
+            'margin_footer' => 1
+        ]);        
+        $mpdf->WriteHTML($html);
+
+        // Descargar PDF
+/*        return response($mpdf->Output('', 'S'), 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="documento.pdf"');
+*/
+    //$venta = Venta::findOrFail($id);
+    //$html = view('pdf.venta', compact('venta'))->render();
+    //$mpdf = new \Mpdf\Mpdf();
+    //$mpdf->WriteHTML($html);
+
+    $pdfContent = $mpdf->Output('', 'S'); // 'S' = devuelve el contenido como string
+    return response($pdfContent, 200)
+        ->header('Content-Type', 'application/pdf')
+        ->header('Content-Disposition', 'inline; filename="guia_'.$tipo_mov.'_'.$ano_mov.'_'.$nro_mov.'.pdf"');
+
+    }
 
 
 
@@ -380,10 +547,11 @@ class ExpedienteController extends Controller
     {
         $guiacab = DB::table('movimiento_exp_cab')
         ->leftJoin('personal', 'movimiento_exp_cab.fiscal', '=', 'personal.id_personal')
+        ->leftJoin('dependencia', 'movimiento_exp_cab.id_dependencia', '=', 'dependencia.id_dependencia')
         ->where('tipo_mov', $tipo_mov)
         ->where('ano_mov', $ano_mov)
         ->where('nro_mov', $nro_mov)
-        ->select('movimiento_exp_cab.*', 'personal.apellido_paterno','personal.apellido_materno','personal.nombres') // Puedes ajustar campos
+        ->select('movimiento_exp_cab.*', 'personal.apellido_paterno','personal.apellido_materno','personal.nombres','dependencia.descripcion') // Puedes ajustar campos
         ->first();
 
         $segdetalle = MovimientoExp_Det::where('tipo_mov', $tipo_mov)
