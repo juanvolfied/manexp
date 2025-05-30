@@ -27,7 +27,9 @@ function numeroAOrdinal($numero) {
     <title>Verificaci&oacute;n de Gu&iacute;a de Internamiento a recepcionar</title>    
   </head>
 <body>
-<form autocomplete="off">
+<form id="miFormulario" autocomplete="off">
+    @csrf  <!-- Este campo incluir� el token CSRF autom�ticamente -->
+
     <!--<div class="container mt-4">-->
     @if(session('messageerr'))
         <div id="messageErr" class="alert alert-danger text-danger">{{ session('messageerr') }}</div>
@@ -39,12 +41,15 @@ function numeroAOrdinal($numero) {
     @else
         <div id="messageOK" class="alert alert-success" style="display:none;"></div>
     @endif
+<input type='hidden' id="tipo_mov" name="tipo_mov" value="{{ $guiacab->tipo_mov }}">
+<input type='hidden' id="ano_mov" name="ano_mov" value="{{ $guiacab->ano_mov }}">
+<input type='hidden' id="nro_mov" name="nro_mov" value="{{ $guiacab->nro_mov }}">
 
             <div class="row">            
               <div class="col-md-12">
                 <div class="card">
                   <div class="card-header">
-                    <div class="card-title">Gu&iacute;a de Internamiento a recepcionar</div>
+                    <div class="card-title">Detalle - Gu&iacute;a de Internamiento</div>
                   </div>
                   <div class="card-body">
 <!--        <h1 class="mb-4">Seguimiento de Registro de Inventario</h1>-->
@@ -52,7 +57,7 @@ function numeroAOrdinal($numero) {
 
                     <div class="row">
                       <div class="col-md-12 col-lg-12">
-                          <table width="100%"><tr><td width="100px;"><b>Movimiento:</b></td><td id="datarch">{{ $guiacab->tipo_mov }} {{ $guiacab->ano_mov }}-{{ $guiacab->nro_mov }}</td></tr></table>
+                          <table width="100%"><tr><td width="100px;"><b>Movimiento:</b></td><td id="datarch">{{ str_pad($guiacab->nro_mov, 5, '0', STR_PAD_LEFT) }}-{{ $guiacab->ano_mov }}-{{ $guiacab->tipo_mov == 'GI' ? 'I' : $guiacab->tipo_mov }}</td></tr></table>
                       </div>
                     </div>
                     <div class="row">
@@ -70,195 +75,90 @@ function numeroAOrdinal($numero) {
                           <table width="100%"><tr><td width="100px;"><b>Despacho:</b></td><td id="datanaq">{{ numeroAOrdinal($guiacab->despacho) }} DESPACHO</td></tr></table>
                       </div>
                     </div>
-                    
-
-                    <div class="row" style="background-color:#F2F5A9;">
-                      <div class="col-md-6 col-lg-6">
-                        <div class="form-group">
-                          <label for="codbarras"><b>C&oacute;digo de Barras</b></label>
-                          <input type="text" class="form-control" name="codbarras" id="codbarras" placeholder="C&oacute;digo de Barras" autofocus/>
-                        </div>
-                      </div>
-                      <div class="col-md-6 col-lg-6">
-                        <div class="form-group">
-                          <br>
-                          <a href="#" onclick="prepararYMostrarModal('{{ $guiacab->tipo_mov }}',{{ $guiacab->ano_mov }},{{ $guiacab->nro_mov }},event)" class="btn btn-success">RECEPCIONAR</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                          <a href="{{ route('internamiento.recepcion') }}" class="btn btn-danger">Cancelar</a>
-                        </div>
-                      </div>
-
-                    </div>
 
         <!-- Tabla con clases Bootstrap -->
-        <table class="table table-striped table-bordered">
+        <table id="tabladetalle" class="table table-striped table-bordered">
             <thead class="thead-dark">
                 <tr>
-                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;" width="40">#</th>			      
-                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">C&oacute;digo de Barras</th>			      
-                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Dependencia</th>
-                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">A&ntilde;o</th>
-                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Nro Exp</th>
-                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Tipo</th>
-                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none; text-align:center;" width="100">Verificado</th>
+                  <th style="padding: 5px 5px!important; font-size:12px !important; text-transform:none;" width="40">#</th>			      
+                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;" width="150">Nro Expediente</th>
+                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Imputado</th>
+                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Agraviado</th>
+                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Delito</th>
+                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Oficio</th>
+                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Folios</th>
+                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none; text-align:center;" width="120">Estado</th>
                 </tr>
             </thead>
             <tbody id="tabla-codigos">
                 @foreach ($segdetalle as $datos)
                     <tr data-codigo="{{ $datos->codbarras }}">
-                      <td style="font-size:13px; padding: 5px 10px !important;">{{ $loop->iteration }}</td> <!-- Correlativo -->
-                      <td style="font-size:13px; padding: 5px 10px !important;">{{ $datos->codbarras }}</td>
-                      <td style="font-size:13px; padding: 5px 10px !important;">{{ $datos->id_dependencia }}</td>
-                      <td style="font-size:13px; padding: 5px 10px !important;">{{ $datos->ano_expediente }}</td>
-                      <td style="font-size:13px; padding: 5px 10px !important;">{{ $datos->nro_expediente }}</td>
-                      <td style="font-size:13px; padding: 5px 10px !important;">{{ $datos->id_tipo }}</td>                        
-                      <td style="font-size:13px; padding: 5px 10px !important; text-align:center;" class="estado text-success fw-bold"></td>                        
+                      <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $loop->iteration }}</td> <!-- Correlativo -->
+                      <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $datos->id_dependencia }}-{{ $datos->ano_expediente }}-{{ $datos->nro_expediente }}-{{ $datos->id_tipo }}</td>
+                      <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $datos->imputado }}</td>
+                      <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $datos->agraviado }}</td>
+                      <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $datos->desc_delito }}</td>
+                      <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $datos->nro_oficio }}</td>
+                      <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $datos->nro_folios }}</td>                        
+                      <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;" class="estado fw-bold">
+                      @if($datos->estado_mov == "R")
+                        <i class="fas fa-check-circle me-1" style="color:green;"></i><span class="fw-bold " style="color:green;">Recepcionado</span>
+                      @else
+                        <i class="fas fa-times-circle me-1" style="color:red;"></i><span class="fw-bold " style="color:red;">Pendiente</span>
+                      @endif
+                      </td>                        
                     </tr>
                 @endforeach
             </tbody>
         </table>
 
                   </div>
+                  <div class="card-footer">
+                    <a href="{{ route('internamiento.recepcion') }}" class="btn btn-danger">Regresar a la Pantalla Anterior</a>
+                  </div>
+
+
                 </div>
               </div>
             </div>
 
     <!--</div>-->
 
-
-
-
-
-    
-<div class="modal fade" id="textoModal" tabindex="-1" aria-labelledby="textoModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-    
-      <div class="modal-header">
-        <h5 class="modal-title" id="textoModalLabel">CONFIRMAR RECEPCI&Oacute;N</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      
-      <div class="modal-body">
-        DESEA CONTINUAR CON LA RECEPCI&Oacute;N DE LA GU&Iacute;A DE INTERNAMIENTO?
-      </div>
-      <input type='hidden' id='tpmov' name='tpmov'>
-      <input type='hidden' id='anomov' name='anomov'>
-      <input type='hidden' id='nromov' name='nromov'>
-      <div class="modal-footer">
-        <!--<button type="button" class="btn btn-primary" onclick="guardarTexto()">Continuar y Grabar Inventario</button>-->
-        <a href="#" onclick="recepcionarinternamiento(event)" class="btn btn-primary">Enviar a Archivo</a>
-        <!--<button type="button" id="grabarBtn" class="btn btn-primary">Aceptar y enviar gu&iacute;a</button>-->
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
-      </div>
-    
-    </div>
-  </div>
-</div>
-
-
   </form>
 </body>
 </html>
 
 @endsection
-
 @push('scripts')
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const input = document.getElementById('codbarras');
-            const filas = document.querySelectorAll('#tabla-codigos tr');
-
-            input.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const valor = input.value.trim();
-                    let encontrado = false;
-
-                    filas.forEach(fila => {
-                        const codigo = fila.getAttribute('data-codigo');
-                        if (codigo === valor) {
-                            encontrado = true;
-                            if (!fila.classList.contains('match')) {
-                                fila.classList.add('match');
-//                                fila.querySelector('.estado').textContent = "✔️ Verificado";
-//                                fila.querySelector('.estado').innerHTML = `<i class="bi bi-check-circle-fill text-success me-1"></i><span class="fw-bold text-success">Verificado</span>`;
-                                fila.querySelector('.estado').innerHTML = `<i class="fas fa-check-circle text-success me-1"></i><span class="fw-bold text-success">Verificado</span>`;
-                            }
-                        }
-                    });
-
-
-
-                    if (!encontrado) {
-                      document.getElementById('messageErr').innerHTML = "CODIGO NO ENCONTRADO EN LA GUIA DE INTERNAMIENTO: "  + valor;
-                      var messageErr = document.getElementById('messageErr');
-                      messageErr.style.opacity = '1';
-                      messageErr.style.display = 'block';
-                      setTimeout(function() {
-                          messageErr.style.opacity = '0';
-                          setTimeout(() => {
-                              messageErr.style.display = 'none';
-                          }, 500);
-                      }, 3000); 
-                        //alert("Código no encontrado: " + valor);
-                    }
-
-                    input.value = '';
-                }
-            });
-        });
-    </script>
 <script>
-const myModal = new bootstrap.Modal(document.getElementById('textoModal'));
-function prepararYMostrarModal(xtipo,xano,xnro,event) {
-    if (event) event.preventDefault(); // Previene recarga
-
-    document.getElementById('tpmov').value=xtipo;
-    document.getElementById('anomov').value=xano;
-    document.getElementById('nromov').value=xnro;
-    myModal.show();
-}
-
-//function recepcionarinternamiento(xtipo,xano,xnro,event) {
-function recepcionarinternamiento(event) {
-    if (event) event.preventDefault(); // Previene recarga
-//    const tipo = xtipo;
-//    const ano = xano;
-//    const nro = xnro;
-    const tipo = document.getElementById('tpmov').value;
-    const ano = document.getElementById('anomov').value;
-    const nro = document.getElementById('nromov').value;
-    myModal.hide();
-
-        $.ajax({
-            url: '{{ route("internamiento.grabarecepcion") }}', 
-            method: 'POST',
-            data: {
-                _token: '{{ csrf_token() }}',
-                tipo_mov: tipo,
-                ano_mov: ano,
-                nro_mov: nro
+  $(document).ready(function() {
+    $('#tabladetalle').DataTable({
+      "pageLength": 10,  // Número de filas por página
+      "lengthMenu": [10, 25, 50, 100],  // Opciones de paginación
+      "searching": true,  // Habilitar búsqueda
+      "ordering": true,   // Habilitar ordenación
+      "info": true,       // Mostrar información de la tabla
+      "autoWidth": false,  // Ajustar automáticamente el ancho de las columnas
+      "lengthChange": false,
+      "language": {
+            "search": "Buscar",                         // Cambia "Search" por "Buscar"
+            "lengthMenu": "Mostrar _MENU_ entradas",    // Cambia "Show entries" por "Mostrar entradas"
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas", // Cambia el texto de la información
+            "zeroRecords": "No se encontraron registros", // Mensaje cuando no hay resultados
+            "infoEmpty": "Mostrando 0 a 0 de 0 entradas", // Cuando la tabla está vacía
+            "infoFiltered": "(filtrado de _MAX_ entradas totales)", // Cuando hay filtros activos
+      
+            // Personaliza "Previous" y "Next" en la paginación
+            "paginate": {
+              "previous": "Anterior",   // Cambia "Previous" por "Anterior"
+              "next": "Siguiente"       // Cambia "Next" por "Siguiente"
             },
-            success: function(response) {
-                //window.location.href = '{{ route("internamiento.recepcion") }}';
-                if (response.success) {
-                    // Guardar el mensaje para mostrarlo en la siguiente vista
-                    sessionStorage.setItem('successMessage', response.message);
+      
+            // Personaliza el texto de "Showing entries"
+            "emptyTable": "No hay datos disponibles en la tabla", // Mensaje si no hay datos
+      }      
+    });
 
-                    // Redirigir manualmente
-                    window.location.href = response.redirect_url;
-                }
-
-            },
-            error: function() {
-                alert('Error en proceso de recepcion.');
-            }
-        });
-}
+  });
 </script>
-
-
 @endpush
-
-

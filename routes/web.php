@@ -114,6 +114,8 @@ Route::put('/expediente/{expediente}', [ExpedienteController::class, 'update'])-
 Route::delete('/expediente/{expediente}', [ExpedienteController::class, 'destroy'])->name('expediente.destroy');
 
 Route::post('/expediente-busca', [ExpedienteController::class, 'buscaExpediente'])->name('expediente.busca');
+Route::get('/expediente-seg', [ExpedienteController::class, 'seguimiento'])->name('expediente.seguimiento');
+Route::post('/expediente-det', [ExpedienteController::class, 'detalleseguimiento'])->name('expediente.segdetalle');
 
 
 Route::get('/internamiento-lista', [ExpedienteController::class, 'indexinternamiento'])->name('internamiento.index');
@@ -123,7 +125,10 @@ Route::post('/internamiento-graba', [ExpedienteController::class, 'guardaInterna
 Route::post('/internamiento-envio', [ExpedienteController::class, 'envioInternamiento'])->name('internamiento.envio');
 Route::get('/internamiento-recep', [ExpedienteController::class, 'indexrecepinternamiento'])->name('internamiento.recepcion');
 Route::get('/internamiento-recep/{tipo_mov}/{ano_mov}/{nro_mov}/ver', [ExpedienteController::class, 'verifrecepinternamiento'])->name('internamiento.ver');
+Route::get('/internamiento-recep/{tipo_mov}/{ano_mov}/{nro_mov}/det', [ExpedienteController::class, 'detallerecepinternamiento'])->name('internamiento.det');
 Route::post('/internamiento-recepciona', [ExpedienteController::class, 'grabarecepcionInternamiento'])->name('internamiento.grabarecepcion');
+Route::post('/internamiento-recepcionacodigo', [ExpedienteController::class, 'grabarecepcioncodigoInternamiento'])->name('internamiento.grabarecepcioncodigo');
 Route::get('/internamiento/{tipo_mov}/{ano_mov}/{nro_mov}/edit', [ExpedienteController::class, 'editInternamiento'])->name('internamiento.edit');
 Route::put('/internamiento/{tipo_mov}/{ano_mov}/{nro_mov}', [ExpedienteController::class, 'updateInternamiento'])->name('internamiento.update');
 Route::get('/internamiento/{tipo_mov}/{ano_mov}/{nro_mov}/pdf', [ExpedienteController::class, 'generarGuiaIntPDF'])->name('internamiento.pdf');
+Route::post('/internamiento-rechaza', [ExpedienteController::class, 'rechazarecepcionInternamiento'])->name('internamiento.rechazarecepcion');

@@ -143,6 +143,11 @@
                       </a>
                     </li>
                     <li>
+                      <a href="{{ route('expediente.seguimiento') }}">
+                        <span class="sub-item">Seguimiento de Expedientes</span>
+                      </a>
+                    </li>
+                    <li>
                       <a href="{{ route('internamiento.index') }}">
                         <span class="sub-item">Guia de Internamiento</span>
                       </a>

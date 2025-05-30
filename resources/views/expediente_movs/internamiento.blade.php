@@ -3,19 +3,7 @@
 @section('content')
 <?php
 function numeroAOrdinal($numero) {
-    $ordinales = [
-        0 => '',
-        1 => '1er',
-        2 => '2do',
-        3 => '3er',
-        4 => '4to',
-        5 => '5to',
-        6 => '6to',
-        7 => '7mo',
-        8 => '8vo',
-        9 => '9no',
-        10 => '10mo',
-    ];    
+    $ordinales = [0 => '',1 => '1er',2 => '2do',3 => '3er',4 => '4to',5 => '5to',6 => '6to',7 => '7mo',8 => '8vo',9 => '9no',10 => '10mo',];
     return $ordinales[$numero] ?? $numero . 'º';
 }
 ?>
@@ -39,7 +27,8 @@ function numeroAOrdinal($numero) {
                   <div class="card-header">
                     <div class="card-title">
                     @if(isset($regcab))
-                        Actualizar Gu&iacute;a de Internamiento : {{ $regcab->tipo_mov }} {{ $regcab->ano_mov }}-{{ $regcab->nro_mov }}
+                        Actualizar Gu&iacute;a de Internamiento : {{ str_pad($regcab->nro_mov, 5, '0', STR_PAD_LEFT) }}-{{ $regcab->ano_mov }}-{{ $regcab->tipo_mov == 'GI' ? 'I' : $regcab->tipo_mov }}
+                        <span style='color:red;' > {{ $regcab->estado_mov == 'Z' ? "(RECHAZADO EN ARCHIVO)" : "" }}</span>
                     @else
                         Generar nueva Gu&iacute;a de Internamiento
                     @endif    
@@ -47,6 +36,18 @@ function numeroAOrdinal($numero) {
                     </div>
                   </div>
                   <div class="card-body">
+
+                    @if(isset($obsmovimiento))
+                    <div class="row">
+                      <div class="col-md-12 col-lg-12" >
+                        <div class="form-group" style="padding:5px; color:red;" >
+                            <b>OBSERVACION DE RECHAZO :  {{ $obsmovimiento->observacion }}</b>
+                        </div>
+                      </div>
+                    </div>
+                    @endif    
+
+
                     <div class="row">
                       <div class="col-md-6 col-lg-6" >
                         <div class="form-group" style="padding:5px;">
@@ -91,11 +92,12 @@ function numeroAOrdinal($numero) {
             <table id="scanned-list" class="table table-striped table-sm">
                 <thead class="thead-dark">
                   <tr>
-                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">C&oacute;digo de Barras</th>			      
-                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Dependencia</th>
-                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">A&ntilde;o</th>
-                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Nro Exp</th>
-                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Tipo</th>
+                  <!--<th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">C&oacute;digo de Barras</th>-->			      
+                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Nro Expediente</th>
+                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Imputado</th>
+                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Agraviado</th>
+                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Delito</th>
+                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Folios</th>
                   <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Eliminar</th>
                   </tr>
                 </thead>
@@ -246,8 +248,13 @@ function verificarEnter(event) {
             success: function(response) {
                 let mensaje = response.message || 'Respuesta sin mensaje';
                 let id_expediente = response.id_expediente;
+                let imputado = response.imputado;
+                let agraviado = response.agraviado;
+                let desc_delito = response.desc_delito;
+                let nro_folios = response.nro_folios;
+
                 if (response.success) {
-                    scannedItems.unshift({ codbarras, dependencia, ano, nroexpediente, tipo, id_expediente});
+                    scannedItems.unshift({ codbarras, dependencia, ano, nroexpediente, tipo, id_expediente, imputado, agraviado, desc_delito, nro_folios});
                     updateScannedList();
                     document.getElementById('scannedItemsInput').value = JSON.stringify(scannedItems);
                 } else {
@@ -278,11 +285,12 @@ function updateScannedList() {
 	cantexp=cantexp+1;
 	tableBody.append(`
 	    <tr>
-		<td style="font-size:12px; padding: 5px 10px !important;">${item.codbarras}</td>
-		<td style="font-size:12px; padding: 5px 10px !important;">${item.dependencia}</td>
-		<td style="font-size:12px; padding: 5px 10px !important;">${item.ano}</td>
-		<td style="font-size:12px; padding: 5px 10px !important;">${item.nroexpediente}</td>
-		<td style="font-size:12px; padding: 5px 10px !important;">${item.tipo}</td>                        
+		<!--<td style="font-size:12px; padding: 5px 10px !important;">${item.codbarras}</td>-->
+		<td style="font-size:12px; padding: 5px 10px !important;">${item.dependencia}-${item.ano}-${item.nroexpediente}-${item.tipo}</td>
+		<td style="font-size:12px; padding: 5px 10px !important;">${item.imputado}</td>
+		<td style="font-size:12px; padding: 5px 10px !important;">${item.agraviado}</td>
+		<td style="font-size:12px; padding: 5px 10px !important;">${item.desc_delito}</td>                        
+		<td style="font-size:12px; padding: 5px 10px !important;">${item.nro_folios}</td>                        
 		<td style="font-size:12px; padding: 5px 10px !important;">
 		    <button onclick="prepararYMostrarModal2(${index},event)" style="border: none; background: transparent; cursor: pointer;">
 		    <i class="fas fa-trash-alt fa-lg" style="color: red;"></i>
@@ -399,7 +407,12 @@ window.onload = function() {
         var nroexpediente = registro.nro_expediente;
         var tipo = registro.id_tipo;
         var id_expediente = registro.id_expediente;
-        scannedItems.unshift({ codbarras, dependencia, ano, nroexpediente, tipo, id_expediente});
+        var imputado = registro.imputado;
+        var agraviado = registro.agraviado;
+        var desc_delito = registro.desc_delito;
+        var nro_folios = registro.nro_folios;
+
+        scannedItems.unshift({ codbarras, dependencia, ano, nroexpediente, tipo, id_expediente, imputado, agraviado, desc_delito, nro_folios});
     });
     updateScannedList();
     document.getElementById('scannedItemsInput').value = JSON.stringify(scannedItems);

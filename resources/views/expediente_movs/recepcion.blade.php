@@ -2,7 +2,11 @@
 
 @section('content')
 @php
-    $estados = ['G' => 'Generado', 'E' => 'Enviado', 'R' => 'Recepcionado'];
+    $estados = ['G' => 'Generado', 'E' => 'Pendiente', 'R' => 'Recepcionado'];
+function numeroAOrdinal($numero) {
+    $ordinales = [0 => '',1 => '1er',2 => '2do',3 => '3er',4 => '4to',5 => '5to',6 => '6to',7 => '7mo',8 => '8vo',9 => '9no',10 => '10mo',];
+    return $ordinales[$numero] ?? $numero . 'º';
+}
 @endphp
 <!--<div class="container mt-4">-->
     <!--<h2 class="mb-4">Expedientes Registrados</h2>-->
@@ -24,36 +28,39 @@
             <tr>
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Movimiento</th>
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fiscal</th>
+                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Dependencia</th>
+                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Despacho</th>
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Estado</th>
-                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">N° Carpetas</th>
-                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha Generaci&oacute;n</th>
-                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha Envio</th>
-                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha Recepci&oacute;n</th>
-                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none; text-align:center;" width="155" colspan="2">Recepcionar</th>
+                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Cant Exped</th>
+                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Cant Recep</th>
+                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha<br>Generaci&oacute;n</th>
+                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha<br>Envio</th>
+                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha<br>Recepci&oacute;n</th>
+                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none; text-align:center;" width="120" colspan="2">Acciones</th>
             </tr>
         </thead>
         <tbody style="font-size:12px;">
             @foreach($guiacab as $p)
                 <tr>
-                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->tipo_mov }} {{ $p->ano_mov }}-{{ $p->nro_mov }}</td>
+                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ str_pad($p->nro_mov, 5, '0', STR_PAD_LEFT) }}-{{ $p->ano_mov }}-{{ $p->tipo_mov == 'GI' ? 'I' : $p->tipo_mov }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->apellido_paterno }} {{ $p->apellido_materno }} {{ $p->nombres }}</td>
-                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $estados[$p->estado_mov] ?? $p->estado_mov }}</td>
+                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->abreviado }}</td>
+                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ numeroAOrdinal($p->despacho) }} DESPACHO</td>
+                    <td style="padding: 5px 10px!important; font-size: 12px !important; {{ $p->estado_mov == 'E' ? 'color:red;' : ($p->estado_mov == 'R' ? 'color:green;' : '') }}"><b>{{ $estados[$p->estado_mov] ?? $p->estado_mov }}</b></td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->cantidad_exp }}</td>
+                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->cantidad_exp_recep }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_movimiento }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_envio }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_recepcion }}</td>
-                    <td style="padding: 5px 10px!important; font-size: 12px !important; text-align:center;">
-                    @if($p->estado_mov != 'E')
-                        <a href="#" data-bs-toggle="tooltip" title="Recepcionar Todo" onclick="prepararYMostrarModal('{{ $p->tipo_mov }}',{{ $p->ano_mov }},{{ $p->nro_mov }},event)" class="btn btn-link p-0" style="color: blue;"><i class="fas fa-file-alt fa-lg"></i> Todo</a>
-                    @else
-                        <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-file-alt fa-lg text-muted" ></i> Todo</a>
-                    @endif 
+                    <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
+                        <!--<a href="#" data-bs-toggle="tooltip" title="Recepcionar Todo" onclick="prepararYMostrarModal('{{ $p->tipo_mov }}',{{ $p->ano_mov }},{{ $p->nro_mov }},event)" class="btn btn-link p-0" style="color: blue;"><i class="fas fa-file-alt fa-lg"></i> Todo</a>-->
+                        <a href="{{ route('internamiento.det', ['tipo_mov' => $p->tipo_mov, 'ano_mov' => $p->ano_mov, 'nro_mov' => $p->nro_mov] ) }}" data-bs-toggle="tooltip" title="Mostrar el detalle de la Gu&iacute;a de Internamiento" style="color: blue;"><i class="fas fa-search fa-lg"></i><br>Detalle</a>
                     </td>
-                    <td style="padding: 5px 10px!important; font-size: 12px !important; text-align:center;">
-                    @if($p->estado_mov != 'E')
-                        <a href="{{ route('internamiento.ver', ['tipo_mov' => $p->tipo_mov, 'ano_mov' => $p->ano_mov, 'nro_mov' => $p->nro_mov] ) }}" data-bs-toggle="tooltip" title="Recepcionar Escaneando c&oacute;digos de los expedientes" class="btn btn-link p-0" style="color: green;"><i class="fas fa-clipboard-check fa-lg"></i> Por Escaneo</a>
+                    <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
+                    @if($p->estado_mov == 'E')
+                        <a href="{{ route('internamiento.ver', ['tipo_mov' => $p->tipo_mov, 'ano_mov' => $p->ano_mov, 'nro_mov' => $p->nro_mov] ) }}" data-bs-toggle="tooltip" title="Recepcionar Escaneando c&oacute;digos de los expedientes" style="color: green;"><i class="fas fa-download fa-lg"></i><br>Recepcionar</a>
                     @else
-                        <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-clipboard-check fa-lg text-muted" ></i> Por Escaneo</a>
+                        <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-download fa-lg text-muted" ></i><br>Recepcionar</a>
                     @endif 
                     </td>
                 </tr>
@@ -98,20 +105,23 @@
 <script>
   $(document).ready(function() {
     $('#tablaexpedientes').DataTable({
+  "columnDefs": [
+    { "orderable": false, "targets": [9,10] }  // Evitar orden en columnas de acción si no es necesario
+  ],
       "pageLength": 10,  // Número de filas por página
       "lengthMenu": [10, 25, 50, 100],  // Opciones de paginación
       "searching": true,  // Habilitar búsqueda
-      "ordering": true,   // Habilitar ordenación
+      "ordering": false,   // Habilitar ordenación
       "info": true,       // Mostrar información de la tabla
       "autoWidth": false,  // Ajustar automáticamente el ancho de las columnas
       "lengthChange": false,
       "language": {
             "search": "Buscar",                         // Cambia "Search" por "Buscar"
-            "lengthMenu": "Mostrar _MENU_ entradas",    // Cambia "Show entries" por "Mostrar entradas"
-            "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas", // Cambia el texto de la información
+            "lengthMenu": "Mostrar _MENU_ paquetes",    // Cambia "Show entries" por "Mostrar entradas"
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ paquetes", // Cambia el texto de la información
             "zeroRecords": "No se encontraron registros", // Mensaje cuando no hay resultados
-            "infoEmpty": "Mostrando 0 a 0 de 0 entradas", // Cuando la tabla está vacía
-            "infoFiltered": "(filtrado de _MAX_ entradas totales)", // Cuando hay filtros activos
+            "infoEmpty": "Mostrando 0 a 0 de 0 paquetes", // Cuando la tabla está vacía
+            "infoFiltered": "(filtrado de _MAX_ paquetes totales)", // Cuando hay filtros activos
       
             // Personaliza "Previous" y "Next" en la paginación
             "paginate": {

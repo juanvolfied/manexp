@@ -39,7 +39,8 @@ class MenuController extends Controller
     public function buscarPorCodigo(Request $request)
     {    
         $nroinventario = $request->input('nroinventario');
-        $registros = UbicacionExp::where('nro_inventario', $nroinventario)
+        $registros = DB::table('ubicacion_exp')
+            ->where('nro_inventario', $nroinventario)
             ->leftJoin('expediente', 'ubicacion_exp.id_expediente', '=', 'expediente.id_expediente')
             ->select('expediente.codbarras','ubicacion_exp.id_dependencia','ubicacion_exp.ano_expediente',
             'ubicacion_exp.nro_expediente','ubicacion_exp.id_tipo','ubicacion_exp.estado',
@@ -96,7 +97,7 @@ class MenuController extends Controller
         ]);
 
         $codbar = $request->input('codbarras');
-        $existe = Expedientes::where('codbarras', $codbar)->exists();
+        $existe = DB::table('expediente')->where('codbarras', $codbar)->exists();
         $dep_exp=substr($codbar,0,11);
         $ano_exp=substr($codbar,11,4);
         $nro_exp=substr($codbar,15,6);
@@ -114,7 +115,7 @@ class MenuController extends Controller
                 'message' => utf8_encode('El expediente ' . $codbar . ' ya est� registrado en la base de datos.')
             ]);        
         } else {
-            $registro = Expedientes::create([
+            $idExpediente = DB::table('expediente')->insertGetId([
                 'codbarras' => $codbar,
                 'nro_expediente' => $nro_exp,
                 'ano_expediente' => $ano_exp,
@@ -128,10 +129,9 @@ class MenuController extends Controller
                 'id_personal' => Auth::user()->id_personal,
                 'id_usuario' => Auth::user()->id_usuario,
             ]);
-            $idExpediente = $registro->id_expediente;
 
-            $ultimoRegistro = UbicacionExp::where('ano_movimiento', $anoActual)
-            ->orderBy('ano_movimiento', 'desc')
+            $ultimoRegistro = DB::table('ubicacion_exp')
+                ->where('ano_movimiento', $anoActual)
                 ->orderBy('nro_movimiento', 'desc')
                 ->first();
             $nromov=0;
@@ -139,7 +139,7 @@ class MenuController extends Controller
                 $nromov = $ultimoRegistro->nro_movimiento;
             }
             $nromov++;
-            UbicacionExp::create([
+            DB::table('ubicacion_exp')->insert([
                 'nro_movimiento' => $nromov,
                 'ano_movimiento' => $anoActual,
                 'id_personal' => Auth::user()->id_personal,
@@ -225,7 +225,7 @@ class MenuController extends Controller
     public function eliminarItem(Request $request)
     {    
         $codbarras = $request->input('codbarras');
-        $registro = Expedientes::where('codbarras', $codbarras)->first();
+        $registro = DB::table('ubicacion_exp')->where('codbarras', $codbarras)->first();
         if ($registro) {
             $idExpediente = $registro->id_expediente; 
             DB::table('expediente')->where('codbarras', $codbarras)->delete();
@@ -251,6 +251,7 @@ class MenuController extends Controller
             ->leftJoin('dependencia', 'ubicacion_exp.paq_dependencia', '=', 'dependencia.id_dependencia')
             ->select('usuario', 'nro_inventario', 'archivo', 'nro_paquete', 'paq_dependencia', 'descripcion', 'despacho', DB::raw('count(*) as total'), DB::raw('MAX(expediente.id_expediente) as id_maximo'), DB::raw('MIN(fecha_inventario) as fecha_inv'))
             ->where('ubicacion_exp.id_usuario', $usuario->id_usuario)  // filtro para solo devolver lo del usuario
+            ->where('ubicacion_exp.nro_inventario','<>', '')  // filtro para solo devolver lo del usuario
             ->groupBy('usuario', 'nro_inventario', 'archivo', 'nro_paquete', 'paq_dependencia', 'descripcion', 'despacho')
             ->orderBy('id_maximo', 'desc')           
             ->get();
@@ -259,6 +260,7 @@ class MenuController extends Controller
             ->leftJoin('expediente', 'ubicacion_exp.id_expediente', '=', 'expediente.id_expediente')
             ->leftJoin('usuarios', 'ubicacion_exp.id_usuario', '=', 'usuarios.id_usuario')
             ->leftJoin('dependencia', 'ubicacion_exp.paq_dependencia', '=', 'dependencia.id_dependencia')
+            ->where('ubicacion_exp.nro_inventario','<>', '')  // filtro para solo devolver lo del usuario
             ->select('usuario', 'nro_inventario', 'archivo', 'nro_paquete', 'paq_dependencia', 'descripcion', 'despacho', DB::raw('count(*) as total'), DB::raw('MAX(expediente.id_expediente) as id_maximo'), DB::raw('MIN(fecha_inventario) as fecha_inv'))
             ->groupBy('usuario', 'nro_inventario', 'archivo', 'nro_paquete', 'paq_dependencia', 'descripcion', 'despacho')
             ->orderBy('id_maximo', 'desc')           
@@ -269,8 +271,8 @@ class MenuController extends Controller
     public function mostrarDetalle(Request $request)
     {
         $nroinventario = $request->input('nroinventario');    
-        //$segdetalle = UbicacionExp::where('nro_inventario', $nroinventario)->get();
-        $segdetalle = UbicacionExp::where('nro_inventario', $nroinventario)
+        $segdetalle = DB::table('ubicacion_exp')
+            ->where('nro_inventario', $nroinventario)
             ->leftJoin('expediente', 'ubicacion_exp.id_expediente', '=', 'expediente.id_expediente')
             ->select('expediente.codbarras','ubicacion_exp.id_dependencia','ubicacion_exp.ano_expediente',
             'ubicacion_exp.nro_expediente','ubicacion_exp.id_tipo','ubicacion_exp.estado',

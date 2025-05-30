@@ -19,5 +19,6 @@ class MovimientoExp_Det extends Model
         'id_dependencia', 
         'id_tipo', 
         'observacion', 
+        'estado_mov', 
     ];
 }

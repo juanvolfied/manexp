@@ -20,6 +20,7 @@ class MovimientoExp_Cab extends Model
         'estado_mov', 
         'activo', 
         'cantidad_exp', 
+        'cantidad_exp_recep', 
         'id_dependencia', 
         'despacho', 
     ];

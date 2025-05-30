@@ -20,38 +20,44 @@
         <table id="tablaexpedientes" class="table table-striped table-bordered">
             <thead class="thead-dark">
                 <tr>
-                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Cod. Barras</th>
+                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none; width:150px;">Nro Expediente</th>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fec. Ingreso</th>
-                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Hora Ingreso</th>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Imputado</th>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Agraviado</th>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">delito</th>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Nro Oficio</th>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Folios</th>
-                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;" colspan=2>Acciones</th>
+                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none; text-align:center;" colspan=2>Acciones</th>
                 </tr>
             </thead>
             <tbody style="font-size:12px;">
                 @foreach($expediente as $p)
                     <tr>
-                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->codbarras }}</td>
-                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fecha_ingreso }}</td>
-                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->hora_ingreso }}</td>
+                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->id_dependencia }}-{{ $p->ano_expediente }}-{{ $p->nro_expediente }}-{{ $p->id_tipo }}</td>
+                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fecha_ingreso }} {{ $p->hora_ingreso }}</td>
                         <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->imputado }}</td>
                         <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->agraviado }}</td>
                         <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->desc_delito }}</td>
                         <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->nro_oficio }}</td>
                         <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->nro_folios }}</td>
-                        <td style="padding: 5px 10px!important; font-size: 12px !important; text-align:center;">
-                            <a href="{{ route('expediente.edit', $p->id_expediente) }}"><i class="fas fa-edit fa-lg"></i>Editar</a>
+                        <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
+                            @if(empty($p->estado))
+                            <a href="{{ route('expediente.edit', $p->id_expediente) }}"><i class="fas fa-edit fa-lg"></i><br>Editar</a>
+                            @else
+                            <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-edit fa-lg text-muted"></i><br>Editar</a>
+                            @endif
                         </td>
-                        <td style="padding: 5px 10px!important; font-size: 12px !important;">
+                        <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
                             <!--<form action="{{ route('expediente.destroy', $p->id_expediente) }}" id="miFormulario2" method="POST" class="d-inline">
                                 @csrf @method('DELETE')-->
                                 <!--<button type="button" class="btn btn-link p-0 btn-danger" style="font-size: 12px !important;text-decoration: none;" onclick="return confirm('Estas seguro de eliminar este Expediente?')">-->
+                            @if(empty($p->estado))
                                 <button type="button" class="btn btn-link p-0 btn-danger" style="font-size: 12px !important;text-decoration: none;" onclick="prepararYMostrarModal('{{ $p->codbarras }}',{{ $p->id_expediente }}, event)">
-                                    <i class="fas fa-trash-alt fa-lg"></i>Eliminar
+                                    <i class="fas fa-trash-alt fa-lg"></i><br>Eliminar
                                 </button>
+                            @else
+                                <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-trash-alt fa-lg text-muted" ></i><br>Eliminar</a>
+                            @endif 
                             <!--</form>-->
                         </td>
                     </tr>
@@ -89,10 +95,14 @@
 <script>
 $(document).ready(function() {
     $('#tablaexpedientes').DataTable({
+  "columnDefs": [
+    { "orderable": false, "targets": [7,8] }  // Evitar orden en columnas de acción si no es necesario
+  ],
         "pageLength": 10,  // Número de filas por página
         "lengthMenu": [10, 25, 50, 100],  // Opciones de paginación
         "searching": true,  // Habilitar búsqueda
         "ordering": true,   // Habilitar ordenación
+    order: [[1, 'desc']], 
         "info": true,       // Mostrar información de la tabla
         "autoWidth": false,  // Ajustar automáticamente el ancho de las columnas
         "lengthChange": false,

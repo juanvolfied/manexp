@@ -2,8 +2,16 @@
 
 @section('content')
 @php
-    $estados = ['G' => 'Generado', 'E' => 'Enviado', 'R' => 'Recepcionado'];
+    $estados = ['G' => 'Generado', 'E' => 'Enviado', 'R' => 'Recepcionado', 'Z' => 'RECHAZADO'];
+
+function numeroAOrdinal($numero) {
+    $ordinales = [0 => '',1 => '1er',2 => '2do',3 => '3er',4 => '4to',5 => '5to',6 => '6to',7 => '7mo',8 => '8vo',9 => '9no',10 => '10mo',];
+    return $ordinales[$numero] ?? $numero . 'º';
+}
 @endphp
+<form id="miFormulario" autocomplete="off">
+    @csrf  <!-- Este campo incluir� el token CSRF autom�ticamente -->
+
 <!--<div class="container mt-4">-->
     <!--<h2 class="mb-4">Expedientes Registrados</h2>-->
 
@@ -25,40 +33,46 @@
             <tr>
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Movimiento</th>
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fiscal</th>
+                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Dependencia</th>
+                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Despacho</th>
+                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Cant<br>Exp</th>
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Estado</th>
-                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha Generada</th>
-                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha Envio</th>
-                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha Recepci&oacute;n</th>
+                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha<br>Generada</th>
+                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha<br>Envio</th>
+                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha<br>Recepci&oacute;n</th>
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none; text-align:center;" colspan=3>Acciones</th>
             </tr>
-        </thead>
+          </thead>
         <tbody style="font-size:12px;">
             @foreach($guiacab as $p)
                 <tr>
-                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->tipo_mov }} {{ $p->ano_mov }}-{{ $p->nro_mov }}</td>
+                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ str_pad($p->nro_mov, 5, '0', STR_PAD_LEFT) }}-{{ $p->ano_mov }}-{{ $p->tipo_mov == 'GI' ? 'I' : $p->tipo_mov }} </td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->apellido_paterno }} {{ $p->apellido_materno }} {{ $p->nombres }}</td>
-                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $estados[$p->estado_mov] ?? $p->estado_mov }}</td>
+                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->abreviado }}</td>
+                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ numeroAOrdinal($p->despacho) }} DESPACHO</td>
+                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->cantidad_exp }}</td>
+                    <td style="padding: 5px 10px!important; font-size: 12px !important; {{ $p->estado_mov == 'E' ? 'color:blue;' : ($p->estado_mov == 'R' ? 'color:green;' : ($p->estado_mov == 'Z' ? 'color:red;' : '')) }}"><b>{{ $estados[$p->estado_mov] ?? $p->estado_mov }}</b></td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_movimiento }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_envio }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_recepcion }}</td>
-                    <td style="padding: 5px 10px!important; font-size: 12px !important; text-align:center;">
-                    @if($p->estado_mov == 'G')
-                      <a href="{{ route('internamiento.edit', ['tipo_mov' => $p->tipo_mov, 'ano_mov' => $p->ano_mov, 'nro_mov' => $p->nro_mov]) }}" data-bs-toggle="tooltip" title="Editar Gu&iacute;a de Internamiento"><i class="fas fa-edit fa-lg"></i> Editar</a>
+                    <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
+                    @if($p->estado_mov == 'G' || $p->estado_mov == 'Z')
+                      <a href="{{ route('internamiento.edit', ['tipo_mov' => $p->tipo_mov, 'ano_mov' => $p->ano_mov, 'nro_mov' => $p->nro_mov]) }}" data-bs-toggle="tooltip" title="Editar Gu&iacute;a de Internamiento"><i class="fas fa-edit fa-lg"></i><br>Editar</a>
                     @else
-                      <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-edit fa-lg text-muted"></i> Editar</a>
+                      <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-edit fa-lg text-muted"></i><br>Editar</a>
                     @endif 
                     </td>
-                    <td style="padding: 5px 10px!important; font-size: 12px !important; text-align:center;">
-                    @if($p->estado_mov == 'G')
-                        <a href="#" data-bs-toggle="tooltip" title="Enviar Gu&iacute;a para Archivo" onclick="prepararYMostrarModal('{{ $p->tipo_mov }}',{{ $p->ano_mov }},{{ $p->nro_mov }},event)" class="btn btn-link p-0" style="color: green;"><i class="fas fa-paper-plane fa-lg"></i> Enviar</a>
+                    <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
+                    @if($p->estado_mov == 'G' || $p->estado_mov == 'Z')
+                        <a href="#" data-bs-toggle="tooltip" title="Enviar Gu&iacute;a para Archivo" onclick="prepararYMostrarModal('{{ $p->tipo_mov }}',{{ $p->ano_mov }},{{ $p->nro_mov }},event)" style="color: green;"><i class="fas fa-paper-plane fa-lg"></i><br>Enviar</a>
                     @else
-                        <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-paper-plane fa-lg text-muted" ></i> Enviar</a>
+                        <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-paper-plane fa-lg text-muted" ></i><br>Enviar</a>
                     @endif 
                     </td>
-                    <td style="padding: 5px 10px!important; font-size: 12px !important; text-align:center;">
+                    <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
                         <a href="#" data-bs-toggle="tooltip" title="Imprime Gu&iacute;a de Internamiento" onclick="generapdf('{{ route("internamiento.pdf", ["tipo_mov" => $p->tipo_mov, "ano_mov" => $p->ano_mov, "nro_mov" => $p->nro_mov]) }}', event)" style="color: purple;">
                         <!--<a href="#" data-bs-toggle="tooltip" title="Imprime Gu&iacute;a de Internamiento" onclick="generapdf('{{ $p->tipo_mov }}','{{ $p->ano_mov }}','{{ $p->nro_mov }}',event)" style="color: purple;">-->
-                            <i class="fas fa-print fa-lg"></i> Imprimir
+                            <i class="fas fa-print fa-lg"></i><br>Imprimir
                         </a>
                     </td>
                 </tr>
@@ -113,7 +127,7 @@
   </div>
 </div>
 
-
+</form>
 
 
 <!--</div>-->
@@ -131,20 +145,23 @@ function generapdf(url,event) {
 <script>
   $(document).ready(function() {
     $('#tablaexpedientes').DataTable({
+  "columnDefs": [
+    { "orderable": false, "targets": [9,10,11] }  // Evitar orden en columnas de acción si no es necesario
+  ],
       "pageLength": 10,  // Número de filas por página
       "lengthMenu": [10, 25, 50, 100],  // Opciones de paginación
       "searching": true,  // Habilitar búsqueda
-      "ordering": true,   // Habilitar ordenación
+      "ordering": false,   // Habilitar ordenación
       "info": true,       // Mostrar información de la tabla
       "autoWidth": false,  // Ajustar automáticamente el ancho de las columnas
       "lengthChange": false,
       "language": {
             "search": "Buscar",                         // Cambia "Search" por "Buscar"
-            "lengthMenu": "Mostrar _MENU_ entradas",    // Cambia "Show entries" por "Mostrar entradas"
-            "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas", // Cambia el texto de la información
+            "lengthMenu": "Mostrar _MENU_ paquetes",    // Cambia "Show entries" por "Mostrar entradas"
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ paquetes", // Cambia el texto de la información
             "zeroRecords": "No se encontraron registros", // Mensaje cuando no hay resultados
-            "infoEmpty": "Mostrando 0 a 0 de 0 entradas", // Cuando la tabla está vacía
-            "infoFiltered": "(filtrado de _MAX_ entradas totales)", // Cuando hay filtros activos
+            "infoEmpty": "Mostrando 0 a 0 de 0 paquetes", // Cuando la tabla está vacía
+            "infoFiltered": "(filtrado de _MAX_ paquetes totales)", // Cuando hay filtros activos
       
             // Personaliza "Previous" y "Next" en la paginación
             "paginate": {
@@ -231,7 +248,6 @@ function enviarinternamiento(event) {
         }
     });
 </script>
-<script>
     // Inicializar todos los tooltips al cargar la página
     document.addEventListener('DOMContentLoaded', function () {
         const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -239,6 +255,29 @@ function enviarinternamiento(event) {
             return new bootstrap.Tooltip(tooltipTriggerEl)
         })
     });
+</script>
+
+<script>
+window.onload = function() {
+    var messageErr = document.getElementById('messageErr');
+    var messageOK = document.getElementById('messageOK');
+    if (messageErr) {
+        setTimeout(function() {
+            messageErr.style.opacity = '0';
+            setTimeout(() => {
+                messageErr.style.display = 'none';
+            }, 500);
+        }, 3000); 
+    }
+    if (messageOK) {
+        setTimeout(function() {
+            messageOK.style.opacity = '0';
+            setTimeout(() => {
+                messageOK.style.display = 'none';
+            }, 500);
+        }, 3000); 
+    }
+};
 </script>
 
 @endpush
