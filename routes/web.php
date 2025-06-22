@@ -20,7 +20,8 @@ use App\Http\Controllers\UsuarioLoginController;
 use App\Http\Controllers\PersonalController;
 use App\Http\Controllers\PerfilUsuarioController;
 use App\Http\Controllers\ExpedienteController;
-
+use App\Http\Controllers\BackupController;
+use App\Http\Controllers\MantenimientoController;
 
 Route::get('/login', [UsuarioLoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [UsuarioLoginController::class, 'login'])->name('usuario.login');
@@ -34,6 +35,21 @@ Route::get('/', function () {
     //return 'Bienvenido!';
 })->middleware('auth');
 
+//mantenimiento
+Route::get('/backup', [BackupController::class, 'mostrarBackupForm'])->name('backup');
+Route::get('/backup/generar', [BackupController::class, 'generate'])->name('backup.generar');
+Route::get('/backup/descargar/{filename}', function ($filename) {
+    $path = storage_path("app/backups/{$filename}");
+    if (!file_exists($path)) {
+        abort(404);
+    }
+    return response()->download($path);
+})->name('backup.descargar');
+Route::get('/mantenimiento/reactiva', [MantenimientoController::class, 'mostrarReactivacion'])->name('reactivainventario');
+Route::post('/mantenimiento/reactivabuscar', [MantenimientoController::class, 'buscarPorCodigo'])->name('reactivainventariobuscar');
+Route::post('/mantenimiento/grabareactiva', [MantenimientoController::class, 'grabaReactivacion'])->name('reactivainventariograbar');
+Route::get('/mantenimiento/verdependencias', [MantenimientoController::class, 'mostrarDependencias'])->name('verdependencias');
+Route::post('/mantenimiento/{id}/cambiaestadover', [MantenimientoController::class, 'cambiaEstadoDependencia'])->name('dependenciacambiaestado');
 
 
 

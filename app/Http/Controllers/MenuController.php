@@ -26,7 +26,11 @@ class MenuController extends Controller
     }
     public function nuevoExpediente()
     {
-        $dependencias = Dependencia::orderBy('descripcion', 'asc')->get();
+        //$dependencias = Dependencia::orderBy('descripcion', 'asc')->get();
+        //$dependencias = Dependencia::whereIn('id_dependencia', [34, 38, 42])
+        $dependencias = Dependencia::where('inventario', 'S')
+            ->orderBy('descripcion', 'asc')
+            ->get();
         return view('inventario.reginventario', compact('dependencias'));
     }
 
@@ -44,8 +48,8 @@ class MenuController extends Controller
             ->leftJoin('expediente', 'ubicacion_exp.id_expediente', '=', 'expediente.id_expediente')
             ->select('expediente.codbarras','ubicacion_exp.id_dependencia','ubicacion_exp.ano_expediente',
             'ubicacion_exp.nro_expediente','ubicacion_exp.id_tipo','ubicacion_exp.estado',
-            'expediente.fecha_lectura','expediente.hora_lectura','expediente.fecha_inventario','expediente.hora_inventario',
-            'ubicacion_exp.id_usuario','ubicacion_exp.archivo','ubicacion_exp.anaquel','ubicacion_exp.nro_paquete','ubicacion_exp.paq_dependencia','ubicacion_exp.despacho')
+            'ubicacion_exp.fecha_lectura','ubicacion_exp.hora_lectura','ubicacion_exp.fecha_inventario','ubicacion_exp.hora_inventario',
+            'ubicacion_exp.id_usuario','ubicacion_exp.archivo','ubicacion_exp.anaquel','ubicacion_exp.nro_paquete','ubicacion_exp.paq_dependencia','ubicacion_exp.despacho','ubicacion_exp.tomo')
             ->get();
 
         if ($registros->isNotEmpty()) {
@@ -59,7 +63,17 @@ class MenuController extends Controller
 
             $mens="";
             if ($estado=="I") {
-                $mens="Este Nro de Inventario YA FUE REGISTRADO";
+
+                $existe = DB::table('inventario_reactiva')
+                ->where('nro_inventario', $nroinventario)
+                ->where('activo', 'S')
+                ->first();
+                if ($existe) {
+                    $estado="A";
+                    $mens="ACTIVADO";
+                } else {
+                    $mens="Este Nro de Inventario YA FUE REGISTRADO";
+                }
             } else {
                 if ((Auth::user()->id_usuario) != ($registros[0]->id_usuario)) {
                     $mens="Este Nro de Inventario lo est&aacute; registrando OTRO USUARIO";
@@ -97,38 +111,61 @@ class MenuController extends Controller
         ]);
 
         $codbar = $request->input('codbarras');
-        $existe = DB::table('expediente')->where('codbarras', $codbar)->exists();
+        $existeexp = DB::table('expediente')->where('codbarras', $codbar)->first();
         $dep_exp=substr($codbar,0,11);
         $ano_exp=substr($codbar,11,4);
         $nro_exp=substr($codbar,15,6);
         $tip_exp=substr($codbar,21,4);
         $dep_exp = (int) $dep_exp; 
+        $tomo = $request->input('tomo');
             
         //$fechaHoraActualFormateada = now()->format('Y-m-d H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
         $fechaActual = now()->format('Y-m-d');  // Formato 'YYYY-MM-DD HH:mm:ss'
         $horaActual = now()->format('H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
         $anoActual = substr($fechaActual,0,4);
-
+        
+        if ($existeexp) {
+            $existe = DB::table('ubicacion_exp')
+            ->where('nro_expediente', $nro_exp)
+            ->where('ano_expediente', $ano_exp)
+            ->where('id_dependencia', $dep_exp)
+            ->where('id_tipo', $tip_exp)
+            ->where('tomo', $tomo)
+            ->exists();
+        } else {
+            $existe=$existeexp;
+        }
         if ($existe) {
             return response()->json([
                 'success' => false,
                 'message' => utf8_encode('El expediente ' . $codbar . ' ya est� registrado en la base de datos.')
             ]);        
         } else {
-            $idExpediente = DB::table('expediente')->insertGetId([
-                'codbarras' => $codbar,
-                'nro_expediente' => $nro_exp,
-                'ano_expediente' => $ano_exp,
-                'id_dependencia' => $dep_exp,
-                'id_tipo' => $tip_exp,
-                'fecha_ingreso' => $fechaActual,
-                'hora_ingreso' => $horaActual,
-                'estado' => 'L',
-                'fecha_lectura' => $fechaActual,
-                'hora_lectura' => $horaActual,
-                'id_personal' => Auth::user()->id_personal,
-                'id_usuario' => Auth::user()->id_usuario,
-            ]);
+            if ($existeexp) {
+                $idExpediente=$existeexp->id_expediente;
+                DB::table('expediente')
+                ->where('id_expediente', $idExpediente)
+                ->update([
+                    'estado' => 'L',
+                    'fecha_lectura' => $fechaActual,
+                    'hora_lectura' => $horaActual
+                ]);                
+            }else {
+                $idExpediente = DB::table('expediente')->insertGetId([
+                    'codbarras' => $codbar,
+                    'nro_expediente' => $nro_exp,
+                    'ano_expediente' => $ano_exp,
+                    'id_dependencia' => $dep_exp,
+                    'id_tipo' => $tip_exp,
+                    'fecha_ingreso' => $fechaActual,
+                    'hora_ingreso' => $horaActual,
+                    'estado' => 'L',
+                    'fecha_lectura' => $fechaActual,
+                    'hora_lectura' => $horaActual,
+                    'id_personal' => Auth::user()->id_personal,
+                    'id_usuario' => Auth::user()->id_usuario,
+                ]);
+            }
 
             $ultimoRegistro = DB::table('ubicacion_exp')
                 ->where('ano_movimiento', $anoActual)
@@ -163,6 +200,9 @@ class MenuController extends Controller
                 'despacho' => $request->despacho,
                 'activo' => 'S',
                 'estado' => 'L',
+                'fecha_lectura' => $fechaActual,
+                'hora_lectura' => $horaActual,
+                'tomo' => $tomo,
             ]);
 
             return response()->json([
@@ -196,6 +236,10 @@ class MenuController extends Controller
             'observacion' => $request->observacion,
             ]);
         }
+                DB::table('inventario_reactiva')
+                ->where('nro_inventario', $request->nroinventarioobs)
+                ->where('activo', 'S')
+                ->update(['activo' => 'N']);
 	
         foreach ($scannedItems as $item) {
             $registro = Expedientes::where('codbarras', $item['codbarras'])->first();
@@ -212,10 +256,13 @@ class MenuController extends Controller
                 ]);
                 DB::table('ubicacion_exp')
                 ->where('id_expediente', $idExpediente)
+                ->where('tomo', $item['tomo'])
                 ->update([
                     'estado' => 'I',
                     'ubicacion' => 'A',             //A=Archivo D=Despacho
-                    'tipo_ubicacion' => 'I'         //I=Inventario T=Transito
+                    'tipo_ubicacion' => 'I',         //I=Inventario T=Transito
+                    'fecha_inventario' => $fechaActual,
+                    'hora_inventario' => $horaActual
                 ]);
             }
         }
@@ -225,12 +272,20 @@ class MenuController extends Controller
     public function eliminarItem(Request $request)
     {    
         $codbarras = $request->input('codbarras');
-        $registro = DB::table('ubicacion_exp')->where('codbarras', $codbarras)->first();
+        $tomo = $request->input('tomo');
+        $registro = DB::table('expediente')->where('codbarras', $codbarras)->first();
         if ($registro) {
             $idExpediente = $registro->id_expediente; 
-            DB::table('expediente')->where('codbarras', $codbarras)->delete();
-            DB::table('ubicacion_exp')->where('id_expediente', $idExpediente)->delete();
+            DB::table('ubicacion_exp')
+            ->where('id_expediente', $idExpediente)
+            ->where('tomo', $tomo)
+            ->delete();
+            $existe = DB::table('ubicacion_exp')->where('id_expediente', $idExpediente)->exists();
+            if ($existe) {
 
+            } else {
+                DB::table('expediente')->where('codbarras', $codbarras)->delete();
+            }
             return response()->json(['success' => true]);
         } else {
             return response()->json(['error' => 'No se encontro el item'], 404);
@@ -244,15 +299,15 @@ class MenuController extends Controller
     public function seguimientoInventario()
     {
         $usuario = auth()->user();
-        if ($usuario->perfil->descri_perfil !== 'Admin') {
+        if ($usuario->perfil->descri_perfil === 'Inventario') {
             $segdatos = DB::table('ubicacion_exp')
             ->leftJoin('expediente', 'ubicacion_exp.id_expediente', '=', 'expediente.id_expediente')
             ->leftJoin('usuarios', 'ubicacion_exp.id_usuario', '=', 'usuarios.id_usuario')
             ->leftJoin('dependencia', 'ubicacion_exp.paq_dependencia', '=', 'dependencia.id_dependencia')
-            ->select('usuario', 'nro_inventario', 'archivo', 'nro_paquete', 'paq_dependencia', 'descripcion', 'despacho', DB::raw('count(*) as total'), DB::raw('MAX(expediente.id_expediente) as id_maximo'), DB::raw('MIN(fecha_inventario) as fecha_inv'))
+            ->select('usuario', 'nro_inventario', 'archivo', 'anaquel', 'nro_paquete', 'paq_dependencia', 'descripcion', 'despacho', DB::raw('count(*) as total'), DB::raw('MAX(expediente.id_expediente) as id_maximo'), DB::raw('MIN(ubicacion_exp.fecha_inventario) as fecha_inv'))
             ->where('ubicacion_exp.id_usuario', $usuario->id_usuario)  // filtro para solo devolver lo del usuario
             ->where('ubicacion_exp.nro_inventario','<>', '')  // filtro para solo devolver lo del usuario
-            ->groupBy('usuario', 'nro_inventario', 'archivo', 'nro_paquete', 'paq_dependencia', 'descripcion', 'despacho')
+            ->groupBy('usuario', 'nro_inventario', 'archivo', 'anaquel', 'nro_paquete', 'paq_dependencia', 'descripcion', 'despacho')
             ->orderBy('id_maximo', 'desc')           
             ->get();
         } else {
@@ -261,8 +316,8 @@ class MenuController extends Controller
             ->leftJoin('usuarios', 'ubicacion_exp.id_usuario', '=', 'usuarios.id_usuario')
             ->leftJoin('dependencia', 'ubicacion_exp.paq_dependencia', '=', 'dependencia.id_dependencia')
             ->where('ubicacion_exp.nro_inventario','<>', '')  // filtro para solo devolver lo del usuario
-            ->select('usuario', 'nro_inventario', 'archivo', 'nro_paquete', 'paq_dependencia', 'descripcion', 'despacho', DB::raw('count(*) as total'), DB::raw('MAX(expediente.id_expediente) as id_maximo'), DB::raw('MIN(fecha_inventario) as fecha_inv'))
-            ->groupBy('usuario', 'nro_inventario', 'archivo', 'nro_paquete', 'paq_dependencia', 'descripcion', 'despacho')
+            ->select('usuario', 'nro_inventario', 'archivo', 'anaquel', 'nro_paquete', 'paq_dependencia', 'descripcion', 'despacho', DB::raw('count(*) as total'), DB::raw('MAX(expediente.id_expediente) as id_maximo'), DB::raw('MIN(ubicacion_exp.fecha_inventario) as fecha_inv'))
+            ->groupBy('usuario', 'nro_inventario', 'archivo', 'anaquel', 'nro_paquete', 'paq_dependencia', 'descripcion', 'despacho')
             ->orderBy('id_maximo', 'desc')           
             ->get();
         }
@@ -276,8 +331,8 @@ class MenuController extends Controller
             ->leftJoin('expediente', 'ubicacion_exp.id_expediente', '=', 'expediente.id_expediente')
             ->select('expediente.codbarras','ubicacion_exp.id_dependencia','ubicacion_exp.ano_expediente',
             'ubicacion_exp.nro_expediente','ubicacion_exp.id_tipo','ubicacion_exp.estado',
-            'expediente.fecha_lectura','expediente.hora_lectura','expediente.fecha_inventario','expediente.hora_inventario',
-            'ubicacion_exp.id_usuario','ubicacion_exp.archivo','ubicacion_exp.anaquel','ubicacion_exp.nro_paquete','ubicacion_exp.paq_dependencia','ubicacion_exp.despacho')
+            'ubicacion_exp.fecha_lectura','ubicacion_exp.hora_lectura','ubicacion_exp.fecha_inventario','ubicacion_exp.hora_inventario',
+            'ubicacion_exp.id_usuario','ubicacion_exp.archivo','ubicacion_exp.anaquel','ubicacion_exp.nro_paquete','ubicacion_exp.paq_dependencia','ubicacion_exp.despacho','ubicacion_exp.tomo')
             ->get();
 
         if ($segdetalle->isNotEmpty()) {

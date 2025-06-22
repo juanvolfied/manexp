@@ -50,12 +50,13 @@ function numeroAOrdinal($numero) {
         <table id="tablaseguimiento" class="table table-striped table-bordered">
             <thead class="thead-dark">
                 <tr>
-    @if(in_array($perfil, ['Admin']))                
+    @if(in_array($perfil, ['Admin','Archivo']))                
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Usuario</th>
     @endif
 
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Nro Inventario</th>
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Archivo</th>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Anaquel</th>
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Nro Paquete</th>
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Dependencia</th>
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Despacho</th>
@@ -67,11 +68,12 @@ function numeroAOrdinal($numero) {
             <tbody>
                 @foreach ($segdatos as $datos)
                     <tr>
-    @if(in_array($perfil, ['Admin']))                
+    @if(in_array($perfil, ['Admin','Archivo']))                
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->usuario }}</td>
     @endif
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->nro_inventario}}</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">Archivo 00{{ $datos->archivo}}</td>
+                        <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->anaquel}}</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->nro_paquete}}</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->descripcion}}</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ numeroAOrdinal($datos->despacho) }} Despacho</td>
@@ -92,7 +94,7 @@ function numeroAOrdinal($numero) {
         <table id="tablaseguimiento2" class="table table-striped table-bordered">
             <thead class="thead-dark">
                 <tr>
-    @if(in_array($perfil, ['Admin']))                
+    @if(in_array($perfil, ['Admin','Archivo']))                
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Usuario</th>
     @endif
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Nro Inv.</th>
@@ -104,7 +106,7 @@ function numeroAOrdinal($numero) {
             <tbody>
                 @foreach ($segdatos as $datos)
                     <tr>
-    @if(in_array($perfil, ['Admin']))                
+    @if(in_array($perfil, ['Admin','Archivo']))                
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->usuario }}</td>
     @endif
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->nro_inventario}}</td>
@@ -153,6 +155,7 @@ function numeroAOrdinal($numero) {
                       <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">A&ntilde;o</th>
                       <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Nro Exp</th>
                       <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Tipo</th>
+                      <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Tomo</th>
                       <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Fecha Lectoreo</th>
                       <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Fecha Inventariado</th>
                   </tr>
@@ -250,6 +253,7 @@ var nroreg=0;
                         <td style="font-size:12px; padding: 5px 10px !important;">${registro.ano_expediente}</td>
                         <td style="font-size:12px; padding: 5px 10px !important;">${registro.nro_expediente}</td>
                         <td style="font-size:12px; padding: 5px 10px !important;">${registro.id_tipo}</td>                        
+                        <td style="font-size:12px; padding: 5px 10px !important;">${registro.tomo}</td>                        
                         <td style="font-size:12px; padding: 5px 10px !important;">${registro.fecha_lectura ?? ''} ${registro.hora_lectura ?? ''}</td>
                         <td style="font-size:12px; padding: 5px 10px !important;">${(registro.fecha_inventario ?? '') + ' ' + (registro.hora_inventario ?? '')}</td>
                     </tr>

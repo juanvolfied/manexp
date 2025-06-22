@@ -79,6 +79,15 @@
         <div class="sidebar-wrapper scrollbar scrollbar-inner">
           <div class="sidebar-content">
             <ul class="nav nav-secondary">
+@auth
+    @php
+        $perfil = optional(Auth::user()->perfil)->descri_perfil;        
+    @endphp
+    @php
+        $menuinventario = in_array($perfil, ['Admin', 'Inventario','Archivo']);
+        $puedeVerGrafico = in_array($perfil, ['Admin','Archivo']);
+    @endphp
+    @if ($menuinventario)
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#dashboard" >
                   <i class="fas fa-home"></i>
@@ -87,12 +96,6 @@
                 </a>
                 <div class="collapse" id="dashboard">
                   <ul class="nav nav-collapse">
-@auth
-    @php
-        $perfil = optional(Auth::user()->perfil)->descri_perfil;        
-    @endphp
-    @if(in_array($perfil, ['Admin', 'Inventario']))
-
                     <li>
                       <a href="{{ route('inventario') }}">
                         <span class="sub-item">Registro de Inventario</span>
@@ -103,20 +106,18 @@
                         <span class="sub-item">Seguimiento</span>
                       </a>
                     </li>
-    @endif
-    @if(in_array($perfil, ['Admin']))
-
+      @if($puedeVerGrafico)
                     <li>
                       <a href="{{ route('grafico') }}">
                         <span class="sub-item">Gr&aacute;fico de Avance</span>
                       </a>
                     </li>
-    @endif
-@endauth
-                    
+      @endif
                   </ul>
                 </div>
               </li>
+    @endif <!--menuinventario-->
+@endauth
 <!--
               <li class="nav-section">
                 <span class="sidebar-mini-icon">
@@ -127,8 +128,13 @@
 -->
 
 @auth
-    @if(in_array($perfil, ['Admin']))
-
+    @php
+        $menuexpedientes = in_array($perfil, ['Admin','Archivo','Despacho']);
+        $puedeRegistrar = in_array($perfil, ['Admin','Despacho']);
+        $puedeGenerarGuia = in_array($perfil, ['Admin','Despacho']);
+        $puedeRecepcionar = in_array($perfil, ['Admin','Archivo']);
+    @endphp
+    @if ($menuexpedientes)
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#movimientos">
                   <i class="fas fa-layer-group"></i>
@@ -137,31 +143,66 @@
                 </a>
                 <div class="collapse" id="movimientos">
                   <ul class="nav nav-collapse">
+      @if($puedeRegistrar)
                     <li>
                       <a href="{{ route('expediente.index') }}">
                         <span class="sub-item">Registro de Expedientes</span>
                       </a>
                     </li>
-                    <li>
-                      <a href="{{ route('expediente.seguimiento') }}">
-                        <span class="sub-item">Seguimiento de Expedientes</span>
-                      </a>
-                    </li>
+      @endif
+      @if($puedeGenerarGuia)
                     <li>
                       <a href="{{ route('internamiento.index') }}">
                         <span class="sub-item">Guia de Internamiento</span>
                       </a>
                     </li>
+      @endif
+      @if($puedeRecepcionar)
                     <li>
                       <a href="{{ route('internamiento.recepcion') }}">
                         <span class="sub-item">Recepción Guia de Internamiento</span>
                       </a>
                     </li>
+      @endif
+                    <li>
+                      <a href="{{ route('expediente.seguimiento') }}">
+                        <span class="sub-item">Seguimiento de Expedientes</span>
+                      </a>
+                    </li>
                   </ul>
                 </div>
               </li>
+    @endif <!--menuexpedientes-->
+
     
     
+    @if(in_array($perfil, ['Admin']))
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#mantenimiento">
+                  <i class="fas fa-wrench"></i>
+                  <p>MANTENIMIENTO</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="mantenimiento">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="{{ route('reactivainventario') }}">
+                        <span class="sub-item">Reactiva Movimiento de Inventario</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{{ route('verdependencias') }}">
+                        <span class="sub-item">Selecciona Dependencias para Inventarios</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{{ route('backup') }}">
+                        <span class="sub-item">Backup</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#accesos">
                   <i class="fas fa-layer-group"></i>
@@ -253,9 +294,9 @@
                       <img src="{{ asset('img/user.png') }}" alt="..." class="avatar-img rounded-circle" />
                     </div>
                     <span class="profile-username">
-
+@auth
                       <span class="fw-bold">{{ optional(Auth::user()->personal)->apellido_paterno }} {{ optional(Auth::user()->personal)->apellido_materno }} <br> {{ optional(Auth::user()->personal)->nombres }}</span>
-
+@endauth
                     </span>
                   </a>
                   <ul class="dropdown-menu dropdown-user animated fadeIn">

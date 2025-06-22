@@ -52,20 +52,20 @@ class InventarioController extends Controller
         }
 
         // Consulta a la base de datos
-        $datos = DB::table('expediente')
+        $datos = DB::table('ubicacion_exp')
             ->select(DB::raw('DATE(fecha_inventario) as dia'), DB::raw('count(*) as total'))
             ->where('id_usuario', $id_usuario)
             ->whereBetween('fecha_inventario', [$fechainicio, $fechafin])
             ->groupBy(DB::raw('DATE(fecha_inventario)'))
             ->pluck('total', 'dia');
 
-        // Asegurar que todos los días del periodo estén representados (aunque tengan 0)
+        // Asegurar que todos los dï¿½as del periodo estï¿½n representados (aunque tengan 0)
         $resultado = [];
         foreach ($periodo as $dia) {
             $resultado[$dia] = $datos[$dia] ?? 0;
         }
 
-        // Retornar para el gráfico (por ejemplo en formato JSON)
+        // Retornar para el grï¿½fico (por ejemplo en formato JSON)
         return response()->json([
             'labels' => array_keys($resultado),
             'data' => array_values($resultado),

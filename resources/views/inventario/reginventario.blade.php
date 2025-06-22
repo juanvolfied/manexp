@@ -177,7 +177,7 @@
 			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Nro Exp</th>
 			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Tipo</th>
 			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Fecha</th>
-			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Hora</th>
+			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Tomo</th>
 			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Eliminar</th>
 		              </tr>
 		          </thead>
@@ -217,6 +217,11 @@
               </div>
             </div>
             
+
+            <input type="hidden" id="tomo" name="tomo" value=0>
+            <input type="hidden" id="codbartmp" name="codbartmp">
+
+
     </form>
     <form action="{{ route('expediente.inventa') }}" method="POST" id="miFormulario2" autocomplete="off">
     @csrf  <!-- Este campo incluir� el token CSRF autom�ticamente -->
@@ -248,6 +253,32 @@
   </div>
 </div>
 
+
+<!-- Modal -->
+<div class="modal fade" id="modalportomos" tabindex="-1" aria-labelledby="textoModaltomos" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+    
+      <div class="modal-header">
+        <h5 class="modal-title" id="textoModaltomos">CARPETA FISCAL YA HA SIDO REGISTRADA</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      
+      <div class="modal-body">
+        LA CARPETA FISCAL YA HA SIDO REGISTRADA, SI CORRESPONDE A UN NUEVO TOMO, DIGITE EL NUMERO DE TOMO Y PRESIONE CONTINUAR<br><br>
+        <label for="tomo_ing" style="display: inline-block; margin-right: 10px;"><b>Ingrese TOMO</b></label>
+        <input type="text" name="tomo_ing" id="tomo_ing" class="form-control" maxlength="2" size="2" style="width:50px; display: inline-block;">
+      </div>
+      
+      <div class="modal-footer">
+        <!--<button type="button" class="btn btn-primary" onclick="guardarTexto()">Continuar y Grabar Inventario</button>-->
+        <button type="button" id="aceptatomo" class="btn btn-primary" onclick="lectoreatomo()">Aceptar y Continuar</button>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+      </div>
+    
+    </div>
+  </div>
+</div>
     </form>
 
 
@@ -282,9 +313,15 @@ let datoscab = []; // Array
 function verificarEnter(event) {
     if (event.key === "Enter") {
         event.preventDefault(); // Esto previene que el formulario se env�e cuando se presiona Enter
+
+        document.getElementById('codbartmp').value ="";
+        document.getElementById('tomo').value =0;
+        document.getElementById('tomo_ing').value ="";
+
         limpiarCodigoBarra();
     }
 }
+
 
     function limpiarCodigoBarra() {
         let valor = document.getElementById("codbarras").value;
@@ -302,6 +339,8 @@ function verificarEnter(event) {
 	const ano = valor.substring(11, 15); 
 	const nroexpediente = parseInt(valor.substring(15, 21)); 
 	const tipo = parseInt(valor.substring(21, 25)); 
+  const tomo = document.getElementById("tomo").value;
+  document.getElementById('codbartmp').value =codbarras;
 
         var formData = $('#miFormulario').serialize();
         $.ajax({
@@ -314,15 +353,27 @@ function verificarEnter(event) {
                     const lafecha = response.fechalect;
                     const lahora = response.horalect;
                     const estado = 'L';
-                    scannedItems.unshift({ codbarras, dependencia, ano, nroexpediente, tipo, estado, lafecha, lahora});
+                    scannedItems.unshift({ codbarras, dependencia, ano, nroexpediente, tipo, estado, lafecha, lahora, tomo});
                     updateScannedList();
                     document.getElementById('scannedItemsInput').value = JSON.stringify(scannedItems);
                 } else {
+
+    var modalElement = document.getElementById('modalportomos');
+    var modal = new bootstrap.Modal(modalElement);
+    modal.show();
+    modalElement.addEventListener('shown.bs.modal', function () {
+      document.getElementById('tomo_ing').focus();
+    }, { once: true });
+
+
+/*
                     $('#msgerr').html('<b>' + mensaje + '</b>');
                     msgerr.style.display = 'block';
                     setTimeout(function() {
                         msgerr.style.display = 'none';
                     }, 4000);                 
+*/
+
                 }
             },
             error: function(xhr) {
@@ -331,10 +382,31 @@ function verificarEnter(event) {
             }
         });
 
+  document.getElementById("tomo").value=0;
+	document.getElementById("tomo_ing").value='';
+
 	document.getElementById("codbarras").value='';
 	document.getElementById('codbarras').focus();        
 
     }
+
+    function lectoreatomo() {
+      var modalElement = document.getElementById('modalportomos');
+      var modalInstance = bootstrap.Modal.getInstance(modalElement);
+      if (modalInstance) {
+        modalInstance.hide();
+      }
+
+      document.getElementById("codbarras").value = document.getElementById('codbartmp').value;
+        document.getElementById("tomo").value = document.getElementById('tomo_ing').value;
+        limpiarCodigoBarra();
+    }
+
+
+
+
+
+
 
 function updateScannedList() {
     const tableBody = $('#scanned-list tbody');
@@ -351,8 +423,8 @@ function updateScannedList() {
 		<td style="font-size:12px; padding: 5px 10px !important;">${item.ano}</td>
 		<td style="font-size:12px; padding: 5px 10px !important;">${item.nroexpediente}</td>
 		<td style="font-size:12px; padding: 5px 10px !important;">${item.tipo}</td>                        
-		<td style="font-size:12px; padding: 5px 10px !important;">${item.lafecha}</td>
-		<td style="font-size:12px; padding: 5px 10px !important;">${item.lahora}</td>
+		<td style="font-size:12px; padding: 5px 10px !important;">${item.lafecha} ${item.lahora}</td>
+		<td style="font-size:12px; padding: 5px 10px !important;">${item.tomo}</td>
 		<td style="font-size:12px; padding: 5px 10px !important;">
 		    <button onclick="eliminarItem(${index},event)" style="border: none; background: transparent; cursor: pointer;">
 		    <i class="fas fa-trash-alt" style="color: red;"></i>
@@ -547,7 +619,8 @@ codigo = codigo.replace(/^[^A-Za-z0-9-]+|[^A-Za-z0-9-]+$/g, '');
                 var lafecha = registro.fecha_inventario;
                 var lahora = registro.hora_inventario;
             }
-            scannedItems.unshift({ codbarras, dependencia, ano, nroexpediente, tipo, estado, lafecha, lahora});
+            var tomo = registro.tomo;
+            scannedItems.unshift({ codbarras, dependencia, ano, nroexpediente, tipo, estado, lafecha, lahora, tomo});
 
           });
 
@@ -616,13 +689,15 @@ function eliminarItem(index,event) {
 
     const item = scannedItems[index];
     const codbar = item.codbarras;
+    const tomo = item.tomo;
     if (confirm(`\u00BF Est\u00E1s seguro de eliminar el elemento con c\u00F3digo de barras: ${codbar} ?`)) {
         $.ajax({
             url: '{{ route("elimina.item") }}', 
             method: 'POST',
             data: {
                 _token: '{{ csrf_token() }}',
-                codbarras: codbar
+                codbarras: codbar,
+                tomo: tomo
             },
             success: function(response) {
                 scannedItems.splice(index, 1);

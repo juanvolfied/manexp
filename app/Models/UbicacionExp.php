@@ -35,6 +35,11 @@ class UbicacionExp extends Model
         'activo',
         'estado',
         'paq_dependencia',
-        'despacho'
+        'despacho',
+        'tomo',
+        'fecha_lectura',
+        'hora_lectura',
+        'fecha_inventario',
+        'hora_inventario'
     ];
 }	
