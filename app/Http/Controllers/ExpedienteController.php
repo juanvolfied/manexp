@@ -167,18 +167,42 @@ class ExpedienteController extends Controller
     {
         return view('expediente.seguimiento');
     }
-    public function detalleseguimiento(Request $request)
+    public function buscaseguimiento(Request $request)
     {
-        $id_dependencia = $request->input('id_dependencia');    
         $ano_expediente = $request->input('ano_expediente');    
         $nro_expediente = $request->input('nro_expediente');    
-        $id_tipo = $request->input('id_tipo');    
+
+        $query = DB::table('expediente')
+            ->select('expediente.*');
+        if (!empty($ano_expediente)) {
+            $query->where('expediente.ano_expediente', $ano_expediente);
+        }
+        if (!empty($nro_expediente)) {
+            $query->where('expediente.nro_expediente', 'like', "%{$nro_expediente}%");
+        }
+        $segdetalle = $query
+            ->orderBy('codbarras', 'asc')
+            ->get();
+
+        if ($segdetalle->isNotEmpty()) {
+            return response()->json([
+                'success' => true,
+                'registros' => $segdetalle,
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'NO SE ENCONTRARON CARPETAS FISCALES CON LOS DATOS PROPORCIONADOS.',
+            ]);
+        }
+
+    }
+    public function detalleseguimiento(Request $request)
+    {
+        $id_expediente = $request->input('id_expediente');    
 
         $segdetalle = DB::table('ubicacion_exp')
-            ->where('ubicacion_exp.id_dependencia', $id_dependencia)
-            ->where('ubicacion_exp.ano_expediente', $ano_expediente)
-            ->where('nro_expediente', $nro_expediente)
-            ->where('ubicacion_exp.id_tipo', $id_tipo)
+            ->where('ubicacion_exp.id_expediente', $id_expediente)
             ->leftJoin('dependencia', 'ubicacion_exp.paq_dependencia', '=', 'dependencia.id_dependencia')
             ->select('ubicacion_exp.*','dependencia.abreviado')
             ->orderBy('fecha_movimiento', 'desc') 

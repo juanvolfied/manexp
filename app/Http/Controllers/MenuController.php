@@ -111,7 +111,7 @@ class MenuController extends Controller
         ]);
 
         $codbar = $request->input('codbarras');
-        $existeexp = DB::table('expediente')->where('codbarras', $codbar)->first();
+        $existe = DB::table('expediente')->where('codbarras', $codbar)->first();
         $dep_exp=substr($codbar,0,11);
         $ano_exp=substr($codbar,11,4);
         $nro_exp=substr($codbar,15,6);
@@ -123,34 +123,20 @@ class MenuController extends Controller
         $fechaActual = now()->format('Y-m-d');  // Formato 'YYYY-MM-DD HH:mm:ss'
         $horaActual = now()->format('H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
         $anoActual = substr($fechaActual,0,4);
-        
-        if ($existeexp) {
-            $existe = DB::table('ubicacion_exp')
-            ->where('nro_expediente', $nro_exp)
-            ->where('ano_expediente', $ano_exp)
-            ->where('id_dependencia', $dep_exp)
-            ->where('id_tipo', $tip_exp)
-            ->where('tomo', $tomo)
-            ->exists();
-        } else {
-            $existe=$existeexp;
-        }
+
         if ($existe) {
             return response()->json([
                 'success' => false,
-                'message' => utf8_encode('El expediente ' . $codbar . ' ya est� registrado en la base de datos.')
+                'message' => utf8_encode('El expediente ' . $codbar . ' ya est&aacute; registrado en la base de datos.')
             ]);        
-        } else {
-            if ($existeexp) {
-                $idExpediente=$existeexp->id_expediente;
-                DB::table('expediente')
-                ->where('id_expediente', $idExpediente)
-                ->update([
-                    'estado' => 'L',
-                    'fecha_lectura' => $fechaActual,
-                    'hora_lectura' => $horaActual
-                ]);                
-            }else {
+        } 
+
+        try {
+            DB::transaction(function () use (
+                $codbar, $nro_exp, $ano_exp, $dep_exp, $tip_exp, $fechaActual, $horaActual,
+                $tomo, $anoActual, $request, &$idExpediente
+            ) {
+
                 $idExpediente = DB::table('expediente')->insertGetId([
                     'codbarras' => $codbar,
                     'nro_expediente' => $nro_exp,
@@ -165,45 +151,43 @@ class MenuController extends Controller
                     'id_personal' => Auth::user()->id_personal,
                     'id_usuario' => Auth::user()->id_usuario,
                 ]);
-            }
 
-            $ultimoRegistro = DB::table('ubicacion_exp')
-                ->where('ano_movimiento', $anoActual)
-                ->orderBy('nro_movimiento', 'desc')
-                ->first();
-            $nromov=0;
-            if ($ultimoRegistro) {
-                $nromov = $ultimoRegistro->nro_movimiento;
-            }
-            $nromov++;
-            DB::table('ubicacion_exp')->insert([
-                'nro_movimiento' => $nromov,
-                'ano_movimiento' => $anoActual,
-                'id_personal' => Auth::user()->id_personal,
-                'id_usuario' => Auth::user()->id_usuario,
-                'archivo' => $request->archivo,
-                'anaquel' => $request->anaquel,
-                'nro_paquete' => $request->nropaquete,
-                'nro_inventario' => $request->nroinventario,
-                'id_expediente' => $idExpediente,
+                $ultimoRegistro = DB::table('ubicacion_exp')
+                    ->where('ano_movimiento', $anoActual)
+                    ->orderBy('nro_movimiento', 'desc')
+                    ->first();
 
-                'nro_expediente' => $nro_exp,
-                'ano_expediente' => $ano_exp,
-                'id_dependencia' => $dep_exp,
-                'id_tipo' => $tip_exp,
-                'ubicacion' => 'A',             //A=Archivo D=Despacho
-                'tipo_ubicacion' => 'T',        //I=Inventario T=Transito
-                'fecha_movimiento' => $fechaActual,
-                'hora_movimiento' => $horaActual,
-                'motivo_movimiento' => 'Inventario',                
-                'paq_dependencia' => $request->dependencia,
-                'despacho' => $request->despacho,
-                'activo' => 'S',
-                'estado' => 'L',
-                'fecha_lectura' => $fechaActual,
-                'hora_lectura' => $horaActual,
-                'tomo' => $tomo,
-            ]);
+                $nromov = $ultimoRegistro ? $ultimoRegistro->nro_movimiento + 1 : 1;
+
+                DB::table('ubicacion_exp')->insert([
+                    'nro_movimiento' => $nromov,
+                    'ano_movimiento' => $anoActual,
+                    'id_personal' => Auth::user()->id_personal,
+                    'id_usuario' => Auth::user()->id_usuario,
+                    'archivo' => $request->archivo,
+                    'anaquel' => $request->anaquel,
+                    'nro_paquete' => $request->nropaquete,
+                    'nro_inventario' => $request->nroinventario,
+                    'id_expediente' => $idExpediente,
+
+                    'nro_expediente' => $nro_exp,
+                    'ano_expediente' => $ano_exp,
+                    'id_dependencia' => $dep_exp,
+                    'id_tipo' => $tip_exp,
+                    'ubicacion' => 'A',             //A=Archivo D=Despacho
+                    'tipo_ubicacion' => 'T',        //I=Inventario T=Transito
+                    'fecha_movimiento' => $fechaActual,
+                    'hora_movimiento' => $horaActual,
+                    'motivo_movimiento' => 'Inventario',                
+                    'paq_dependencia' => $request->dependencia,
+                    'despacho' => $request->despacho,
+                    'activo' => 'S',
+                    'estado' => 'L',
+                    'fecha_lectura' => $fechaActual,
+                    'hora_lectura' => $horaActual,
+                    'tomo' => $tomo,
+                ]);
+            });
 
             return response()->json([
                 'success' => true,
@@ -211,7 +195,15 @@ class MenuController extends Controller
                 'fechalect' => $fechaActual,
                 'horalect' => $horaActual
             ]);        
-	    }
+	    
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'HUBO UN ERROR AL GUARDAR LA LECTURA, INTENTELO NUEVAMENTE : ' . $e->getMessage()
+            ]);
+        }
+
+
         //return redirect()->back()->with('messageOK', 'Registros guardados exitosamente');
     }
 
@@ -230,43 +222,55 @@ class MenuController extends Controller
         // Convertir el JSON a un array
         $scannedItems = json_decode($request->scannedItems, true);
 
-    	if (trim($request->observacion) !="" ) {
-            ObsInventario::create([
-            'nro_inventario' => $request->nroinventarioobs,
-            'observacion' => $request->observacion,
-            ]);
-        }
+        DB::beginTransaction();
+        try {
+                    
+            if (trim($request->observacion) !="" ) {
+                ObsInventario::create([
+                'nro_inventario' => $request->nroinventarioobs,
+                'observacion' => $request->observacion,
+                ]);
+            }
                 DB::table('inventario_reactiva')
                 ->where('nro_inventario', $request->nroinventarioobs)
                 ->where('activo', 'S')
                 ->update(['activo' => 'N']);
 	
-        foreach ($scannedItems as $item) {
-            $registro = Expedientes::where('codbarras', $item['codbarras'])->first();
-            $idExpediente = $registro->id_expediente; 
-            $estado = $registro->estado; 
-            
-            if ($estado=="L") {
-                DB::table('expediente')
-                ->where('codbarras', $item['codbarras'])
-                ->update([
-                    'estado' => 'I',
-                    'fecha_inventario' => $fechaActual,
-                    'hora_inventario' => $horaActual
-                ]);
-                DB::table('ubicacion_exp')
-                ->where('id_expediente', $idExpediente)
-                ->where('tomo', $item['tomo'])
-                ->update([
-                    'estado' => 'I',
-                    'ubicacion' => 'A',             //A=Archivo D=Despacho
-                    'tipo_ubicacion' => 'I',         //I=Inventario T=Transito
-                    'fecha_inventario' => $fechaActual,
-                    'hora_inventario' => $horaActual
-                ]);
+            foreach ($scannedItems as $item) {
+                $registro = Expedientes::where('codbarras', $item['codbarras'])->first();
+                $idExpediente = $registro->id_expediente; 
+                $estado = $registro->estado; 
+                
+                if ($estado=="L") {
+                    DB::table('expediente')
+                    ->where('codbarras', $item['codbarras'])
+                    ->update([
+                        'estado' => 'I',
+                        'fecha_inventario' => $fechaActual,
+                        'hora_inventario' => $horaActual
+                    ]);
+                    DB::table('ubicacion_exp')
+                    ->where('id_expediente', $idExpediente)
+                    ->where('tomo', $item['tomo'])
+                    ->update([
+                        'estado' => 'I',
+                        'ubicacion' => 'A',             //A=Archivo D=Despacho
+                        'tipo_ubicacion' => 'I',         //I=Inventario T=Transito
+                        'fecha_inventario' => $fechaActual,
+                        'hora_inventario' => $horaActual
+                    ]);
+                }
             }
+            DB::commit(); // Confirmar la transacción
+
+            return redirect()->back()->with('messageOK', 'Registros Inventariados exitosamente');
+
+        } catch (\Exception $e) {
+            DB::rollBack(); // Deshacer la transacción
+
+            return redirect()->back()->with('messageErr', 'HUBO UN ERROR AL GUARDAR, INTENTELO NUEVAMENTE: ' . $e->getMessage());
         }
-        return redirect()->back()->with('messageOK', 'Registros Inventariados exitosamente');
+
     }
 
     public function eliminarItem(Request $request)

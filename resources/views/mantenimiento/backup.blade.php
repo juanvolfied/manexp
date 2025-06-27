@@ -53,7 +53,7 @@
                         <td style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">{{ $file['name'] }}</td>
                         <td style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">{{ $file['date'] }}</td>
                         <td style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">{{ number_format($file['size'] / 1024, 2) }} KB</td>
-                        <td style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;"><a href="{{ $file['url'] }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-download"></i> Descargar</a></td>
+                        <td style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;"><a href="{{ route('backup.descargar', ['filename' => $file['name']]) }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-download"></i> Descargar</a></td>
                     </tr>
                 @empty
                     <tr><td colspan="4">No hay backups disponibles</td></tr>

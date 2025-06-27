@@ -113,6 +113,11 @@
                       </a>
                     </li>
       @endif
+                    <li>
+                      <a href="{{ route('expediente.seguimiento') }}">
+                        <span class="sub-item">B&uacute;squeda y Seguimiento de Carpetas Fiscales</span>
+                      </a>
+                    </li>
                   </ul>
                 </div>
               </li>
@@ -166,7 +171,7 @@
       @endif
                     <li>
                       <a href="{{ route('expediente.seguimiento') }}">
-                        <span class="sub-item">Seguimiento de Expedientes</span>
+                        <span class="sub-item">B&uacute;squeda y Seguimiento de Carpetas Fiscales</span>
                       </a>
                     </li>
                   </ul>

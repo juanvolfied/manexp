@@ -1,11 +1,28 @@
 @extends('menu.index') 
 
 @section('content')
-<div class="container">
-    <h2 class="mb-4">Gr&aacute;fico - seguimiento de avance del inventario por Usuario</h2>
+<!--<div class="container">-->
+            <div class="row">            
+              <div class="col-md-12">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="card-title">Gr&aacute;fico - seguimiento de avance del inventario por Usuario</div>
+                  </div>
+                  <div class="card-body table-responsive">
+
 
     {{-- Formulario para seleccionar filtros --}}
     <form id="form-filtros" class="row g-3">
+        <div class="row">
+        <div class="col-md-4">
+            <label for="tpdatos" class="form-label">Datos a Mostrar</label>
+            <select id="tpdatos" class="form-select" name="tpdatos" required>
+                <option value="1">Por n&uacute;mero de Carpetas Fiscales</option>
+                <option value="2">Por n&uacute;mero de Paquetes</option>
+            </select>
+        </div>
+        </div>
+        <div class="row">
         <div class="col-md-4">
             <label for="id_usuario" class="form-label">Nombre del personal >>> Usuario</label>
             <select id="id_usuario" class="form-select" name="id_usuario" required>
@@ -29,13 +46,22 @@
         <div class="col-md-2 d-flex align-items-end">
             <button type="submit" class="btn btn-primary w-100">Generar Gr&aacute;fico</button>
         </div>
+        </div>
     </form>
 
     {{-- Gr�fico --}}
     <div class="mt-5">
         <canvas id="graficoBarras" height="100"></canvas>
     </div>
-</div>
+
+
+    
+                  </div>
+                </div>
+              </div>
+            </div>
+
+<!--</div>-->
 @endsection
 
 @section('scripts')
@@ -50,8 +76,13 @@
         const id_usuario = document.getElementById('id_usuario').value;
         const fechainicio = document.getElementById('fechainicio').value;
         const fechafin = document.getElementById('fechafin').value;
-
-        fetch(`{{ route('grafico.usuario') }}?id_usuario=${id_usuario}&fechainicio=${fechainicio}&fechafin=${fechafin}`)
+        const tpdatos = document.getElementById('tpdatos').value;
+        if (tpdatos=="1") {
+            var titulo="CARPETAS FISCALES POR D\u00EDA";
+        } else {
+            var titulo="PAQUETES POR D\u00EDA";
+        }
+        fetch(`{{ route('grafico.usuario') }}?id_usuario=${id_usuario}&fechainicio=${fechainicio}&fechafin=${fechafin}&tpdatos=${tpdatos}`)
             .then(response => {
                 const contentType = response.headers.get('content-type');
                 if (contentType && contentType.includes('application/json')) {
@@ -74,7 +105,7 @@
                     data: {
                         labels: data.labels,
                         datasets: [{
-                            label: 'Expedientes por D\u00EDa',
+                            label: titulo,
                             data: data.data,
                             backgroundColor: 'rgba(75, 192, 192, 0.6)',
                             borderColor: 'rgba(75, 192, 192, 1)',

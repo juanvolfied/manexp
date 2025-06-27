@@ -131,6 +131,7 @@ Route::delete('/expediente/{expediente}', [ExpedienteController::class, 'destroy
 
 Route::post('/expediente-busca', [ExpedienteController::class, 'buscaExpediente'])->name('expediente.busca');
 Route::get('/expediente-seg', [ExpedienteController::class, 'seguimiento'])->name('expediente.seguimiento');
+Route::post('/expediente-bus', [ExpedienteController::class, 'buscaseguimiento'])->name('expediente.buscacarpetas');
 Route::post('/expediente-det', [ExpedienteController::class, 'detalleseguimiento'])->name('expediente.segdetalle');
 
 

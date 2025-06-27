@@ -357,22 +357,22 @@ function verificarEnter(event) {
                     updateScannedList();
                     document.getElementById('scannedItemsInput').value = JSON.stringify(scannedItems);
                 } else {
-
+/*
     var modalElement = document.getElementById('modalportomos');
     var modal = new bootstrap.Modal(modalElement);
     modal.show();
     modalElement.addEventListener('shown.bs.modal', function () {
       document.getElementById('tomo_ing').focus();
     }, { once: true });
+*/
 
 
-/*
                     $('#msgerr').html('<b>' + mensaje + '</b>');
                     msgerr.style.display = 'block';
                     setTimeout(function() {
                         msgerr.style.display = 'none';
                     }, 4000);                 
-*/
+
 
                 }
             },
@@ -702,6 +702,8 @@ function eliminarItem(index,event) {
             success: function(response) {
                 scannedItems.splice(index, 1);
                 updateScannedList();
+                document.getElementById('scannedItemsInput').value = JSON.stringify(scannedItems);
+
                 alert('Elemento eliminado correctamente.');
             },
             error: function() {
