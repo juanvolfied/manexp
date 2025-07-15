@@ -22,6 +22,7 @@ use App\Http\Controllers\PerfilUsuarioController;
 use App\Http\Controllers\ExpedienteController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\MantenimientoController;
+use App\Http\Controllers\MesaController;
 
 Route::get('/login', [UsuarioLoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [UsuarioLoginController::class, 'login'])->name('usuario.login');
@@ -60,12 +61,29 @@ Route::post('/buscar-inventar', [MenuController::class, 'buscarPorCodigo'])->nam
 Route::post('/expediente-lect', [MenuController::class, 'grabalecturaExpediente'])->name('expediente.lectura');
 Route::post('/expediente-inve', [MenuController::class, 'grabainventarioExpediente'])->name('expediente.inventa');
 Route::post('/eliminar-item', [MenuController::class, 'eliminarItem'])->name('elimina.item');
+Route::get('/inventariov2', [MenuController::class, 'nuevoExpedientev2'])->name('inventariov2');
+
+
+Route::get('/mesapartes', [MesaController::class, 'index'])->name('mesapartes.index');
+Route::get('/mesapartes/registrolibros', [MesaController::class, 'nuevoEscrito'])->name('mesapartes.libroescritos');
+Route::get('/mesapartes/consultafiscal', [MesaController::class, 'consultarFiscal'])->name('mesapartes.consulta');
+Route::post('/mesapartes/store', [MesaController::class, 'store'])->name('mesapartes.store');
+Route::post('/mesapartes', [MesaController::class, 'consultarFiscaldetalle'])->name('mesapartes.consultadetalle');
+Route::get('/mesapartes/{fiscal}/{fecha}/pdf', [MesaController::class, 'generarConsFiscalPDF'])->name('escritosfiscal.pdf');
+Route::get('/mesapartes/{codigogenerar}/pdf', [MesaController::class, 'generarCodigoBarrasPDF'])->name('mesapartescodbarras.pdf');
+
+Route::get('/mesapartes/consultaescritos', [MesaController::class, 'consultarEscritos'])->name('mesapartes.consultaescritos');
+Route::post('/mesapartes/consultaescritosdet', [MesaController::class, 'consultarEscritosdetalle'])->name('mesapartes.consultaescritosdetalle');
+
+
 
 Route::get('/seguimiento', [MenuController::class, 'seguimientoInventario'])->name('seginventario');
 //Route::get('/detalle/{nro_inv}', [MenuController::class, 'mostrarDetalle'])->name('seguimiento.detalle');
 Route::post('/seguimiento', [MenuController::class, 'mostrarDetalle'])->name('seguimiento.detalle');
 Route::get('/grafico', [InventarioController::class, 'mostrarVistaGrafico'])->name('grafico');
 Route::get('/grafico-usuario', [InventarioController::class, 'graficoPorUsuario'])->name('grafico.usuario');
+Route::get('/graficopie', [InventarioController::class, 'mostrarGraficoPie'])->name('graficopie');
+Route::get('/graficopie-fecha', [InventarioController::class, 'graficoPieFecha'])->name('graficopie.fecha');
 
 // Ruta para listar
 Route::get('/personal', [PersonalController::class, 'index'])->name('personal.index');

@@ -82,7 +82,7 @@
 			    <option value=""></option>
 
                             @foreach ($dependencias as $datos)
-			    <option value="{{ $datos->id_dependencia }}">{{ $datos->descripcion }}</option>			    
+			    <option value="{{ $datos->id_dependencia }}" >{{ $datos->descripcion }}</option>			    
 			    @endforeach
 			  </select>
                         </div>
@@ -135,30 +135,30 @@
 
 
                     <div class="row">
-                      <div class="col-md-6 col-lg-6">
+                      <div class="col-6 col-md-6 col-lg-6">
                           <table width="100%"><tr><td width="100px;"><b>Nro Inventario:</b></td><td id="datinve"></td></tr></table>
                           <!--<label><b>Nro Inventario:</b> <span id="datinve"></span></label>-->
                       </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-3 col-lg-3">
+                      <div class="col-6 col-md-6 col-lg-6">
                           <table width="100%"><tr><td width="100px;"><b>Archivo:</b></td><td id="datarch"></td></tr></table>
                       </div>
-                      <div class="col-md-3 col-lg-3">
+                    </div>
+                    <div class="row">
+                      <div class="col-4 col-md-4 col-lg-4">
                           <table width="100%"><tr><td width="100px;"><b>Nro Paquete:</b></td><td id="datpaqu"></td></tr></table>
                       </div>
-                      <div class="col-md-3 col-lg-3">
+                      <div class="col-4 col-md-4 col-lg-4">
                           <table width="100%"><tr><td width="100px;"><b>Serie:</b></td><td id="datseri"></td></tr></table>
                       </div>
-                      <div class="col-md-3 col-lg-3">
+                      <div class="col-4 col-md-4 col-lg-4">
                           <table width="100%"><tr><td width="100px;"><b>Anaquel:</b></td><td id="datanaq"></td></tr></table>
                       </div>
                     </div>
                     <div class="row">
-                      <div class="col-md-6 col-lg-6">
+                      <div class="col-6 col-md-6 col-lg-6">
                           <table width="100%"><tr><td width="100px;"><b>Dependencia:</b></td><td id="datdepe" style="text-align: justify;"></td></tr></table>
                       </div>
-                      <div class="col-md-6 col-lg-6">
+                      <div class="col-6 col-md-6 col-lg-6">
                           <table width="100%"><tr><td width="100px;"><b>Despacho:</b></td><td id="datdesp"></td></tr></table>
                       </div>
                     </div>
@@ -193,6 +193,34 @@
 
 
 
+                    <div class="row" style="background-color:#d8eefd; padding:0px;">
+
+
+                      <div class="col-4 col-md-3 col-lg-3 pe-0" >
+                        <div >
+                        <!--<label for="tomo" style="display: inline-block; margin-right: 10px;"><b>TOMO</b></label>
+                        <input type="text" id="tomo" name="tomo" value=0 maxlength="2" size="2" style="width:50px; display: inline-block;">-->
+                        <label for="tomo" style="display: inline-block; margin-right: 10px;"><b>Tomo</b></label>
+                        <input type="text" class="form-control form-control-sm" id="tomo" name="tomo" value=0 maxlength="2" size="2" style="width:30px; display: inline-block;" onfocus="this.select();">
+                        </div>
+                      </div>
+                      <div class="col-4 col-md-3 col-lg-3 ps-0 pe-0">
+                        <div class="form-switch">
+                          <label class="form-check-label" for="checkacomp">
+                            <input class="form-check-input" type="checkbox" id="checkacomp" name="checkacomp" role="switch" value="S" > <b>Acompa&ntilde;ado</b>
+                          </label>
+                        </div>
+                      </div>
+                      <div class="col-4 col-md-3 col-lg-3 ps-0 pe-0">
+                        <div class="form-switch">
+                          <label class="form-check-label" for="checkcuade">
+                            <input class="form-check-input" type="checkbox" id="checkcuade" name="checkcuade" value="S"> <b>Cuaderno</b>
+                          </label>
+                        </div>
+
+                      </div>
+                    </div>
+
                     <div class="row" style="background-color:#F2F5A9;">
                       <div class="col-md-6 col-lg-6">
                         <div class="form-group">
@@ -201,13 +229,46 @@
                           <small id="msgerr" class="form-text text-muted text-danger" style="display:none;">Escanee con lector o digite el codigo y presione enter.</small>
                         </div>
                       </div>
-                      <div class="col-md-6 col-lg-6">
+
+                      <div class="col-md-6 col-lg-6" id="nroregistros" style="display: none;">
                         <div class="form-group">
-                          <div class="card-title mt-0 text-danger text-center" id="cantexp"></div>
+                          <div class="text-danger text-center fw-bold" style="font-size: 18px;" id="cantexp"></div>
                         </div>
                       </div>
+                      
                     </div>
+
                   </div>
+
+
+<style>
+  @media (max-width: 767.98px) {
+    #nroregistros {
+      position: fixed;
+      top: 90px;
+      right: 20px;
+      z-index: 9999;
+      background-color: #F2F5A9;
+      color: white;
+      padding: 0px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.5);
+      width: 150px;
+    }
+  }
+</style>
+<script>
+const mostrar = document.getElementById('cantexp');
+const nroregi = document.getElementById('nroregistros');
+const observer = new MutationObserver(() => {
+    if (cantexp.innerHTML.trim() === "") {
+        nroregi.style.display = "none";
+    } else {
+        nroregi.style.display = "block"; // o "flex"
+    }
+});
+observer.observe(mostrar, { childList: true, subtree: true });
+</script>
 
 	          <div class="container mt-0">
                       <span class="d-none d-md-inline">
@@ -234,9 +295,10 @@
 	              <table id="scanned-listcel" class="table table-striped table-sm">
 		          <thead class="thead-dark">
 			      <tr>
-			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">C&oacute;digo de Barras</th>
-			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Fecha y hora</th>
-			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">-</th>
+			          <th style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">C&oacute;digo de Barras</th>
+			          <th style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">Fecha y hora</th>
+			          <th style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">T</th>
+			          <th style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">-</th>
 		              </tr>
 		          </thead>
 		          <tbody>
@@ -261,7 +323,7 @@
             </div>
             
 
-            <input type="hidden" id="tomo" name="tomo" value=0>
+<!--            <input type="hidden" id="tomo" name="tomo" value=0>-->
             <input type="hidden" id="codbartmp" name="codbartmp">
 
 
@@ -297,31 +359,6 @@
 </div>
 
 
-<!-- Modal -->
-<div class="modal fade" id="modalportomos" tabindex="-1" aria-labelledby="textoModaltomos" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-    
-      <div class="modal-header">
-        <h5 class="modal-title" id="textoModaltomos">CARPETA FISCAL YA HA SIDO REGISTRADA</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      
-      <div class="modal-body">
-        LA CARPETA FISCAL YA HA SIDO REGISTRADA, SI CORRESPONDE A UN NUEVO TOMO, DIGITE EL NUMERO DE TOMO Y PRESIONE CONTINUAR<br><br>
-        <label for="tomo_ing" style="display: inline-block; margin-right: 10px;"><b>Ingrese TOMO</b></label>
-        <input type="text" name="tomo_ing" id="tomo_ing" class="form-control" maxlength="2" size="2" style="width:50px; display: inline-block;">
-      </div>
-      
-      <div class="modal-footer">
-        <!--<button type="button" class="btn btn-primary" onclick="guardarTexto()">Continuar y Grabar Inventario</button>-->
-        <button type="button" id="aceptatomo" class="btn btn-primary" onclick="lectoreatomo()">Aceptar y Continuar</button>
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
-      </div>
-    
-    </div>
-  </div>
-</div>
     </form>
 
 
@@ -359,11 +396,6 @@ let datoscab = []; // Array
 function verificarEnter(event) {
     if (event.key === "Enter") {
         event.preventDefault(); // Esto previene que el formulario se env�e cuando se presiona Enter
-
-        document.getElementById('codbartmp').value ="";
-        document.getElementById('tomo').value =0;
-        document.getElementById('tomo_ing').value ="";
-
         limpiarCodigoBarra();
     }
 }
@@ -386,6 +418,9 @@ function verificarEnter(event) {
 	const nroexpediente = parseInt(valor.substring(15, 21)); 
 	const tipo = parseInt(valor.substring(21, 25)); 
   const tomo = document.getElementById("tomo").value;
+  const checkacomp = document.getElementById("checkacomp").checked;
+  const checkcuade = document.getElementById("checkcuade").checked;
+
   document.getElementById('codbartmp').value =codbarras;
 
         var formData = $('#miFormulario').serialize();
@@ -399,18 +434,10 @@ function verificarEnter(event) {
                     const lafecha = response.fechalect;
                     const lahora = response.horalect;
                     const estado = 'L';
-                    scannedItems.unshift({ codbarras, dependencia, ano, nroexpediente, tipo, estado, lafecha, lahora, tomo});
+                    scannedItems.unshift({ codbarras, dependencia, ano, nroexpediente, tipo, estado, lafecha, lahora, tomo, checkacomp, checkcuade});
                     updateScannedList();
                     document.getElementById('scannedItemsInput').value = JSON.stringify(scannedItems);
                 } else {
-/*
-    var modalElement = document.getElementById('modalportomos');
-    var modal = new bootstrap.Modal(modalElement);
-    modal.show();
-    modalElement.addEventListener('shown.bs.modal', function () {
-      document.getElementById('tomo_ing').focus();
-    }, { once: true });
-*/
 
 
                     $('#msgerr').html('<b>' + mensaje + '</b>');
@@ -429,26 +456,14 @@ function verificarEnter(event) {
         });
 
   document.getElementById("tomo").value=0;
-	document.getElementById("tomo_ing").value='';
+  document.getElementById("checkacomp").checked = false;
+  document.getElementById("checkcuade").checked = false;
+
 
 	document.getElementById("codbarras").value='';
 	document.getElementById('codbarras').focus();        
 
     }
-
-    function lectoreatomo() {
-      var modalElement = document.getElementById('modalportomos');
-      var modalInstance = bootstrap.Modal.getInstance(modalElement);
-      if (modalInstance) {
-        modalInstance.hide();
-      }
-
-      document.getElementById("codbarras").value = document.getElementById('codbartmp').value;
-        document.getElementById("tomo").value = document.getElementById('tomo_ing').value;
-        limpiarCodigoBarra();
-    }
-
-
 
 
 
@@ -481,9 +496,10 @@ function updateScannedList() {
 
 	tableBodycel.append(`
 	    <tr>
-		<td style="font-size:11px; padding: 5px 10px !important;">${item.codbarras}</td>
-		<td style="font-size:11px; padding: 5px 10px !important;">${item.lafecha} ${item.lahora}</td>
-		<td style="font-size:12px; padding: 5px 10px !important;">
+		<td style="font-size:11px; padding: 5px 5px !important;">${item.codbarras}</td>
+		<td style="font-size:11px; padding: 5px 5px !important;">${item.lafecha} ${item.lahora}</td>
+    <td style="font-size:11px; padding: 5px 5px !important;">${item.tomo}</td>
+		<td style="font-size:12px; padding: 5px 5px !important;">
 		    <button onclick="eliminarItem(${index},event)" style="border: none; background: transparent; cursor: pointer;">
 		    <i class="fas fa-trash-alt" style="color: red;"></i>
 		    </button>
@@ -691,7 +707,10 @@ codigo = codigo.replace(/^[^A-Za-z0-9-]+|[^A-Za-z0-9-]+$/g, '');
                 var lahora = registro.hora_inventario;
             }
             var tomo = registro.tomo;
-            scannedItems.unshift({ codbarras, dependencia, ano, nroexpediente, tipo, estado, lafecha, lahora, tomo});
+            var checkacomp = (registro.acompanados === "S");
+            var checkcuade = (registro.cuadernos === "S");
+
+            scannedItems.unshift({ codbarras, dependencia, ano, nroexpediente, tipo, estado, lafecha, lahora, tomo, checkacomp, checkcuade});
 
           });
 

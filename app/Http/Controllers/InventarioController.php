@@ -86,4 +86,45 @@ class InventarioController extends Controller
         ]);
     }
 
+    
+    public function mostrarGraficoPie()
+    {
+        return view('inventario.graficopie');
+    }    
+    public function graficoPieFecha(Request $request)
+    {
+
+        $tpfecha = $request->tpfecha;
+        $fechainicio = Carbon::parse($request->fechainicio);
+        $fechafin = Carbon::parse($request->fechafin);
+        $tpdatos = $request->tpdatos;
+
+        // Consulta a la base de datos
+        if ($tpdatos==="1") {
+        $query = DB::table('ubicacion_exp')
+            ->leftJoin('dependencia', 'ubicacion_exp.paq_dependencia', '=', 'dependencia.id_dependencia')
+            ->select('abreviado', DB::raw('count(*) as total'));
+        } else {
+        $query = DB::table('ubicacion_exp')
+            ->leftJoin('dependencia', 'ubicacion_exp.paq_dependencia', '=', 'dependencia.id_dependencia')
+            ->select(
+                'abreviado',
+                DB::raw('COUNT(DISTINCT nro_inventario) as total')
+            );
+        }
+        if ($tpfecha==="F") {
+            $query = $query->whereBetween('fecha_inventario', [$fechainicio, $fechafin]);
+        }
+        $datos = $query->groupBy('abreviado')
+            ->pluck('total', 'abreviado');
+
+        $resultado = $datos->toArray();
+
+        // Retornar para el gr�fico (por ejemplo en formato JSON)
+        return response()->json([
+            'labels' => array_keys($resultado),
+            'data' => array_values($resultado),
+        ]);
+    }
+
 }

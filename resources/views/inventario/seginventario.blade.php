@@ -58,6 +58,7 @@ function numeroAOrdinal($numero) {
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Archivo</th>
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Anaquel</th>
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Nro Paquete</th>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Serie</th>
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Dependencia</th>
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Despacho</th>
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" align="center">Total Registros</th>
@@ -75,6 +76,7 @@ function numeroAOrdinal($numero) {
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">Archivo 00{{ $datos->archivo}}</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->anaquel}}</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->nro_paquete}}</td>
+                        <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->serie}}</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->descripcion}}</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ numeroAOrdinal($datos->despacho) }} Despacho</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;" align="center">{{ $datos->total}}</td>

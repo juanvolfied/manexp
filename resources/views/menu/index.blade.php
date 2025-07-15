@@ -102,6 +102,11 @@
                       </a>
                     </li>
                     <li>
+                      <a href="{{ route('inventariov2') }}">
+                        <span class="sub-item">Registro de Inventario forma 2</span>
+                      </a>
+                    </li>
+                    <li>
                       <a href="{{ route('seginventario') }}">
                         <span class="sub-item">Seguimiento</span>
                       </a>
@@ -110,6 +115,11 @@
                     <li>
                       <a href="{{ route('grafico') }}">
                         <span class="sub-item">Gr&aacute;fico de Avance</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{{ route('graficopie') }}">
+                        <span class="sub-item">Gr&aacute;fico por Dependencia</span>
                       </a>
                     </li>
       @endif
@@ -179,7 +189,67 @@
               </li>
     @endif <!--menuexpedientes-->
 
+
     
+
+
+    @php
+        $menumesapartes = in_array($perfil, ['Admin','mesapartes']);
+    @endphp
+    @if ($menumesapartes)
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#mesapartes">
+                  <i class="fas fa-layer-group"></i>
+                  <p>MESA DE PARTES</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="mesapartes">
+                  <ul class="nav nav-collapse">
+
+                    <li>
+                      <a href="{{ route('mesapartes.index') }}">
+                        <span class="sub-item">Registro de ingreso de Escritos</span>
+                      </a>
+                    </li>
+
+                    <li>
+                      <a href="{{ route('mesapartes.consulta') }}">
+                        <span class="sub-item">Consulta de escritos por fecha y fiscal</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+    @endif <!--menumesapartes-->
+
+
+    @php
+        $menuescritos = in_array($perfil, ['Admin','Despacho']);
+    @endphp
+    @if ($menuescritos)
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#escritos">
+                  <i class="fas fa-layer-group"></i>
+                  <p>ESCRITOS</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="escritos">
+                  <ul class="nav nav-collapse">
+
+                    <li>
+                      <a href="{{ route('mesapartes.consultaescritos') }}">
+                        <span class="sub-item">Consulta de escritos</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+    @endif <!--menuescritos-->
+
+
+
+
+
     
     @if(in_array($perfil, ['Admin']))
               <li class="nav-item">

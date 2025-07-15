@@ -6,6 +6,8 @@ use Illuminate\Support\ServiceProvider;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Notification;
 use App\Channels\NullChannel;
+use Illuminate\Pagination\Paginator;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -30,5 +32,7 @@ class AppServiceProvider extends ServiceProvider
         return new NullChannel();
     });
         //
+            Paginator::useBootstrap(); // esto obliga a usar estilo Bootstrap
+
     }
 }

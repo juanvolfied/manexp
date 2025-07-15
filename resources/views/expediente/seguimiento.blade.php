@@ -86,6 +86,7 @@
               <thead class="thead-dark">
                   <tr>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Fecha Movimiento</th>
+                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Nro Inventario</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Ubicacion</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Tipo Ubicacion</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Dependencia</th>			      
@@ -93,6 +94,7 @@
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Archivo</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Anaquel</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Nro Paquete</th>
+                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Tomo</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Activo</th>
                   </tr>
               </thead>
@@ -244,6 +246,7 @@ function mostrardetalle(idexp, event) {
                     tableBody.append(`
                         <tr>
                             <td style="font-size:12px; padding: 5px 10px !important; ${estiloExtra}">${registro.fecha_movimiento} ${registro.hora_movimiento}</td>
+                            <td style="font-size:12px; padding: 5px 10px !important; ${estiloExtra}">${registro.nro_inventario}</td>
                             <td style="font-size:12px; padding: 5px 10px !important; ${estiloExtra}">${registro.ubicacion=="D" ? "Despacho" : (registro.ubicacion=="A" ? "Archivo" : "")}</td>
                             <td style="font-size:12px; padding: 5px 10px !important; ${estiloExtra}">${registro.tipo_ubicacion=="T" ? "Transito" : (registro.tipo_ubicacion=="I" ? "Inventario" :"")}</td>
                             <td style="font-size:12px; padding: 5px 10px !important; ${estiloExtra}">${registro.abreviado}</td>
@@ -251,6 +254,7 @@ function mostrardetalle(idexp, event) {
                             <td style="font-size:12px; padding: 5px 10px !important; ${estiloExtra}">${registro.archivo ?? ''}</td>
                             <td style="font-size:12px; padding: 5px 10px !important; ${estiloExtra}">${registro.anaquel ?? ''}</td>
                             <td style="font-size:12px; padding: 5px 10px !important; ${estiloExtra}">${registro.nro_paquete ?? ''}</td>
+                            <td style="font-size:12px; padding: 5px 10px !important; ${estiloExtra}">${registro.tomo ?? ''}</td>
                             <td style="font-size:12px; padding: 5px 10px !important; ${estiloExtra}">${registro.activo ?? ''}</td>
                         </tr>
                     `);

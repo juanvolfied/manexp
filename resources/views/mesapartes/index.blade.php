@@ -1,6 +1,35 @@
 @extends('menu.index')
 
 @section('content')
+<?php
+function numeroAOrdinal($numero) {
+    $ordinales = [
+        0 => '',
+        1 => '1er',
+        2 => '2do',
+        3 => '3er',
+        4 => '4to',
+        5 => '5to',
+        6 => '6to',
+        7 => '7mo',
+        8 => '8vo',
+        9 => '9no',
+        10 => '10mo',
+    ];    
+    return $ordinales[$numero] ?? $numero . 'º';
+}
+?>
+@php
+    $tipos = [
+    'E' => 'Escrito',
+    'O' => 'Oficio',
+    'S' => 'Solicitud',
+    'C' => 'Carta',
+    'I' => 'Invitación',
+    'F' => 'Informe',
+    'Z' => 'OTROS',
+    ];
+@endphp
 <!--<div class="container mt-4">-->
     <!--<h2 class="mb-4">Expedientes Registrados</h2>-->
 
@@ -10,68 +39,52 @@
         <div id="messageOK" class="alert alert-success" style="display:none;"><b></b></div>
     @endif
 
-    <a href="{{ route('expediente.create') }}" class="btn btn-primary mb-3">+ Nuevo Registro</a>
+    <a href="{{ route('mesapartes.libroescritos') }}" class="btn btn-primary mb-3">+ Nuevo Registro</a>
     <div class="card">
         <div class="card-header">
-        <div class="card-title">Expedientes Registrados</div>
+        <div class="card-title">Escritos registrados hoy ({{ date('Y-m-d') }})</div>
         </div>
         <div class="card-body table-responsive">
 
         <table id="tablaexpedientes" class="table table-striped table-bordered">
             <thead class="thead-dark">
                 <tr>
-                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none; width:150px;">Nro Expediente</th>
-                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fec. Ingreso</th>
-                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Imputado</th>
-                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Agraviado</th>
-                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">delito</th>
-                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Nro Oficio</th>
+                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none; width:150px;">N&uacute;mero</th>
+                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Dependencia</th>
+                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Despacho</th>
+                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fiscal</th>
+                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Tipo</th>
+                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Descripci&oacute;n</th>
+                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Remitente</th>
+                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Carpeta Fiscal</th>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Folios</th>
-                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none; text-align:center;" colspan=2>Acciones</th>
+                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">C.Barras</th>
                 </tr>
             </thead>
             <tbody style="font-size:12px;">
-                @foreach($expediente as $p)
+                @foreach($libroescritos as $p)
                     <tr>
-                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->id_dependencia }}-{{ $p->ano_expediente }}-{{ $p->nro_expediente }}-{{ $p->id_tipo }}</td>
-                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fecha_ingreso }} {{ $p->hora_ingreso }}</td>
-                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->imputado }}</td>
-                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->agraviado }}</td>
-                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->desc_delito }}</td>
-                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->nro_oficio }}</td>
-                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->nro_folios }}</td>
-                        <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
-                            @if(empty($p->estado))
-                            <a href="{{ route('expediente.edit', $p->id_expediente) }}"><i class="fas fa-edit fa-lg"></i><br>Editar</a>
-                            @else
-                            <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-edit fa-lg text-muted"></i><br>Editar</a>
-                            @endif
+                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->anolibro }}-{{ str_pad($p->numero, 6, '0', STR_PAD_LEFT) }}</td>
+                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->abreviado }}</td>
+                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ numeroAOrdinal($p->despacho) . " DESPACHO" }}</td>
+                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->apellido_paterno ." ". $p->apellido_materno ." ". $p->nombres }}</td>
+                        <td style="padding: 5px 10px!important; font-size: 12px !important;">
+                            {{ $tipos[$p->tipo] ?? $p->tipo }}
                         </td>
+                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->descripcionescrito }}</td>
+                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->remitente }}</td>
+                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->carpetafiscal }}</td>
+                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->folios }}</td>
                         <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
-                            <!--<form action="{{ route('expediente.destroy', $p->id_expediente) }}" id="miFormulario2" method="POST" class="d-inline">
-                                @csrf @method('DELETE')-->
-                                <!--<button type="button" class="btn btn-link p-0 btn-danger" style="font-size: 12px !important;text-decoration: none;" onclick="return confirm('Estas seguro de eliminar este Expediente?')">-->
-                            @if(empty($p->estado))
-                                <button type="button" class="btn btn-link p-0 btn-danger" style="font-size: 12px !important;text-decoration: none;" onclick="prepararYMostrarModal('{{ $p->codbarras }}',{{ $p->id_expediente }}, event)">
-                                    <i class="fas fa-trash-alt fa-lg"></i><br>Eliminar
-                                </button>
-                            @else
-                                <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-trash-alt fa-lg text-muted" ></i><br>Eliminar</a>
-                            @endif 
-                            <!--</form>-->
+                            <a href="#" data-bs-toggle="tooltip" title="Imprime C&oacute;digo de Barras" onclick="generacodbarraspdf('{{ route("mesapartescodbarras.pdf", ["codigogenerar" => $p->anolibro ."-". str_pad($p->numero, 6, '0', STR_PAD_LEFT) ]) }}', event)" style="color: purple;">
+                                <i class="fas fa-print fa-lg"></i><br>Imprimir
+                            </a>
                         </td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
-
-<div class="d-flex justify-content-between align-items-center mt-3">
-    <p class="text-muted small mb-0">
-        Mostrando del {{ $expediente->firstItem() }} al {{ $expediente->lastItem() }} de {{ $expediente->total() }} registros
-    </p>
-    {{ $expediente->links() }}
-</div>
-
+        
         </div>
     </div>
 
@@ -96,12 +109,36 @@
   </div>
 </div>
 
+<!-- Modal -->
+<div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Visualizar PDF</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <iframe id="pdfFrame" src="" width="100%" height="600px" style="border: none;"></iframe>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!--</div>-->
 @endsection
 @push('scripts')
 <script>
-    /*
+function generacodbarraspdf(url,event) {
+    if (event) event.preventDefault(); // Previene recarga    
+    $('#pdfFrame').attr('src', url);
+    $('#pdfModal').modal('show');
+}
+</script>
+<script>
+
+
 $(document).ready(function() {
     $('#tablaexpedientes').DataTable({
   "columnDefs": [
@@ -133,7 +170,7 @@ $(document).ready(function() {
             "emptyTable": "No hay datos disponibles en la tabla", // Mensaje si no hay datos
         }      
     });
-});*/
+});
 
 const myModal = new bootstrap.Modal(document.getElementById('textoModal'));
 function prepararYMostrarModal(codbar,idexp,event) {
