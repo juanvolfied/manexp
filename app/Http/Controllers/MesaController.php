@@ -32,6 +32,7 @@ class MesaController extends Controller
             'personal.nombres',
             'libroescritos.tipo',
             'libroescritos.descripcion as descripcionescrito',
+            'libroescritos.dependenciapolicial',
             'libroescritos.remitente',
             'libroescritos.carpetafiscal',
             'libroescritos.folios'
@@ -63,7 +64,11 @@ class MesaController extends Controller
         ->orderBy('nombres', 'asc') 
         ->get();
 
-        return view('mesapartes.registroescritos', compact('fiscales'));
+        $deppoli = DB::table('dependenciapolicial')
+            ->orderBy('descripciondep', 'asc') 
+            ->get();
+
+        return view('mesapartes.registroescritos', compact('fiscales','deppoli'));
     }
 
     public function consultarFiscal()
@@ -169,7 +174,8 @@ class MesaController extends Controller
 
         // Usa el servicio BarcodeGenerator
         $barcodeService = new BarcodeGenerator();
-        $barcodePng = $barcodeService->generate('',"*".$barcodeData."*", 20, 'horizontal', 'code128', true,2);
+        //$barcodePng = $barcodeService->generate('',"*".$barcodeData."*", 20, 'horizontal', 'code128', true,2);
+        $barcodePng = $barcodeService->generate('',"*".$barcodeData."*", 20, 'vertical', 'code128', true,1);
 
         // Codifica en base64
         $barcode = base64_encode($barcodePng);
@@ -307,6 +313,7 @@ class MesaController extends Controller
                 'id_fiscal' => $request->input('fiscal'),
                 'tipo' => $request->input('tipo'),
                 'descripcion' => $request->input('descripcion'),
+                'dependenciapolicial' => $request->input('deppolicial'),
                 'remitente' => $request->input('remitente'),
                 'carpetafiscal' => $request->input('carpetafiscal'),
                 'folios' => $request->input('folios'),

@@ -261,6 +261,11 @@
                 <div class="collapse" id="mantenimiento">
                   <ul class="nav nav-collapse">
                     <li>
+                      <a href="{{ route('deppolicial.index') }}">
+                        <span class="sub-item">Dependencias Policiales</span>
+                      </a>
+                    </li>
+                    <li>
                       <a href="{{ route('reactivainventario') }}">
                         <span class="sub-item">Reactiva Movimiento de Inventario</span>
                       </a>
@@ -486,6 +491,7 @@
     <script src="{{ asset('js/core/bootstrap.min.js') }}"></script>
     <script src="{{ asset('js/core/jquery-3.7.1.min.js') }}"></script>
 
+<script src="{{ asset('js/imask.js') }}"></script>
 
 
 <!-- JS de Selectize -->

@@ -49,26 +49,28 @@ function numeroAOrdinal($numero) {
 <b>FISCAL :</b> {{ $datosfiscal->apellido_paterno ?? '' }} {{ $datosfiscal->apellido_materno ?? '' }} {{ $datosfiscal->nombres ?? '' }}
 <br>{{ $datosfiscal->abreviado ?? '' }} - {{ numeroAOrdinal($datosfiscal->despacho) ?? '' }} DESPACHO
 <br><b>FECHA :</b> {{ $fechareg }}
-    <table id="scanned-list" class="table table-striped table-sm" border=1 style="width:100%;border-collapse: collapse;">
+    <table id="scanned-list" class="table table-striped table-sm" border=1 style="width:100%; border-collapse: collapse;">
         <thead class="thead-dark" style="font-size:10px;">
             <tr>
-            <th align="left" style="font-size:10px;">#</th>			      
-            <th align="left" style="font-size:10px;">TIPO</th>			      
-            <th align="left" style="font-size:10px;">DESCRIPCI&Oacute;N</th>
-            <th align="left" style="font-size:10px;">REMITENTE</th>
-            <th align="left" style="font-size:10px;">CARPETA FISCAL</th>
-            <th align="left" style="font-size:10px;">FOLIOS</th>
+            <th align="left" style="padding-right:5px; font-size:10px;">#</th>			      
+            <th align="left" style="padding-right:5px; font-size:10px;">TIPO</th>			      
+            <th align="left" style="padding-right:5px; font-size:10px;">DESCRIPCI&Oacute;N</th>
+            <th align="left" style="padding-right:5px; font-size:10px;">DEP. POLICIAL</th>
+            <th align="left" style="padding-right:5px; font-size:10px;">REMITENTE</th>
+            <th align="left" style="padding-right:5px; font-size:10px;">CARPETA FISCAL</th>
+            <th align="left" style="padding-right:5px; font-size:10px;">FOLIOS</th>
             </tr>
         </thead>
         <tbody style="font-size:10px;" >
         @foreach ($segdetalle as $detalle)
             <tr>
-            <td style='padding-right:10px; padding-top:3px; padding-bottom:3px; font-size:10px;' >{{ $loop->iteration }}</td>
-            <td style='padding-right:10px; padding-top:3px; padding-bottom:3px; font-size:10px;' >{{ $tipos[$detalle->tipo] ?? $detalle->tipo }}</td>
-            <td style='padding-right:10px; padding-top:3px; padding-bottom:3px; font-size:10px;' >{{ $detalle->descripcion ?? '' }}</td>
-            <td style='padding-right:10px; padding-top:3px; padding-bottom:3px; font-size:10px;' >{{ $detalle->remitente ?? '' }}</td>
-            <td style='padding-right:10px; padding-top:3px; padding-bottom:3px; font-size:10px;' >{{ $detalle->carpetafiscal ?? '' }}</td>
-            <td style='padding-right:10px; padding-top:3px; padding-bottom:3px; font-size:10px;' >{{ $detalle->folios ?? '' }}</td>
+            <td style='padding-right:5px; padding-top:3px; padding-bottom:3px; font-size:10px;' >{{ $loop->iteration }}</td>
+            <td style='padding-right:5px; padding-top:3px; padding-bottom:3px; font-size:10px;' >{{ $tipos[$detalle->tipo] ?? $detalle->tipo }}</td>
+            <td style='padding-right:5px; padding-top:3px; padding-bottom:3px; font-size:10px;' >{{ $detalle->descripcion ?? '' }}</td>
+            <td style='padding-right:5px; padding-top:3px; padding-bottom:3px; font-size:10px;' >{{ $detalle->dependenciapolicial ?? '' }}</td>
+            <td style='padding-right:5px; padding-top:3px; padding-bottom:3px; font-size:10px;' >{{ $detalle->remitente ?? '' }}</td>
+            <td style='padding-right:5px; padding-top:3px; padding-bottom:3px; font-size:10px;' >{{ $detalle->carpetafiscal ?? '' }}</td>
+            <td style='padding-right:5px; padding-top:3px; padding-bottom:3px; font-size:10px;' >{{ $detalle->folios ?? '' }}</td>
             </tr>
         @endforeach
     </tbody>

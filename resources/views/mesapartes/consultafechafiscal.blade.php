@@ -53,6 +53,7 @@
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">#</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Tipo</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Descripci&oacute;n</th>
+                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Dependencia Policial</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Remitente</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Carpeta Fiscal</th>			      
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Folios</th>			      
@@ -196,6 +197,7 @@ function mostrarescritos(event) {
                             <td style="font-size:12px; padding: 5px 10px !important;">${index + 1}</td>
                             <td style="font-size:12px; padding: 5px 10px !important;">${tipoTexto || ''}</td>
                             <td style="font-size:12px; padding: 5px 10px !important;">${registro.descripcion || ''}</td>
+                            <td style="font-size:12px; padding: 5px 10px !important;">${registro.dependenciapolicial || ''}</td>
                             <td style="font-size:12px; padding: 5px 10px !important;">${registro.remitente || ''}</td>
                             <td style="font-size:12px; padding: 5px 10px !important;">${registro.carpetafiscal || ''}</td>
                             <td style="font-size:12px; padding: 5px 10px !important;">${registro.folios || ''}</td>

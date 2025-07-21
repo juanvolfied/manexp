@@ -49,12 +49,13 @@ function numeroAOrdinal($numero) {
         <table id="tablaexpedientes" class="table table-striped table-bordered">
             <thead class="thead-dark">
                 <tr>
-                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none; width:150px;">N&uacute;mero</th>
+                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">N&uacute;mero</th>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Dependencia</th>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Despacho</th>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fiscal</th>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Tipo</th>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Descripci&oacute;n</th>
+                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Dependencia Policial</th>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Remitente</th>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Carpeta Fiscal</th>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Folios</th>
@@ -72,6 +73,7 @@ function numeroAOrdinal($numero) {
                             {{ $tipos[$p->tipo] ?? $p->tipo }}
                         </td>
                         <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->descripcionescrito }}</td>
+                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->dependenciapolicial }}</td>
                         <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->remitente }}</td>
                         <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->carpetafiscal }}</td>
                         <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->folios }}</td>
@@ -141,14 +143,14 @@ function generacodbarraspdf(url,event) {
 
 $(document).ready(function() {
     $('#tablaexpedientes').DataTable({
-  "columnDefs": [
-    { "orderable": false, "targets": [7,8] }  // Evitar orden en columnas de acción si no es necesario
-  ],
+  //"columnDefs": [
+  //  { "orderable": false, "targets": [7,8] }  // Evitar orden en columnas de acción si no es necesario
+  //],
         "pageLength": 10,  // Número de filas por página
         "lengthMenu": [10, 25, 50, 100],  // Opciones de paginación
         "searching": true,  // Habilitar búsqueda
         "ordering": true,   // Habilitar ordenación
-    order: [[1, 'desc']], 
+    order: [[0, 'desc']], 
         "info": true,       // Mostrar información de la tabla
         "autoWidth": false,  // Ajustar automáticamente el ancho de las columnas
         "lengthChange": false,

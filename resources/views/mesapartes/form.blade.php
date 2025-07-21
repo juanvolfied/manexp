@@ -1,7 +1,7 @@
 
 
 <div class="row">
-    <div class="col-md-6 col-lg-6">
+    <div class="col-md-4 col-lg-4">
         <div class="form-group" style="padding:5px;">
             <label for="fiscal" class="form-label"><b>Fiscal</b></label>
 
@@ -46,30 +46,48 @@
     <div class="col-md-4 col-lg-4">
         <div class="form-group" style="padding:5px;">
             <label for="descripcion" class="form-label"><b>Descripci&oacute;n</b></label>
-            <input type="text" name="descripcion" class="form-control form-control-sm" maxlength="20" value="{{ old('descripcion', $libroescritos->descripcion ?? '') }}">
+            <input type="text" name="descripcion" class="form-control form-control-sm" maxlength="20" style="width:250px;" value="{{ old('descripcion', $libroescritos->descripcion ?? '') }}">
             @error('descripcion') <div class="text-danger">{{ $message }}</div> @enderror
         </div>
     </div>
+    <div class="col-md-4 col-lg-4">
+        <div class="form-group" style="padding:5px;">
+            <label for="iddeppolicial" class="form-label"><b>Dependencia Policial</b></label>
+
+			  <select name="iddeppolicial" id="iddeppolicial" class="" style="width:250px;">
+			          <option value=""></option>
+			          @foreach($deppoli as $p)
+			              <option value="{{ $p->id_deppolicial }}" >
+			                  {{ $p->descripciondep }} 
+			              </option>
+			          @endforeach
+                          </select>
+
+            @error('deppolicial') <div class="text-danger">{{ $message }}</div> @enderror
+        </div>
+    </div>
+    <input type="hidden" id="deppolicial" name="deppolicial" value="">
+
 </div>
 <div class="row">
     <div class="col-md-4 col-lg-4">
         <div class="form-group" style="padding:5px;">
             <label for="remitente" class="form-label"><b>Remitente</b></label>
-            <input type="text" name="remitente" class="form-control form-control-sm" maxlength="20" value="{{ old('remitente', $libroescritos->remitente ?? '') }}">
+            <input type="text" name="remitente" class="form-control form-control-sm" maxlength="20" style="width:250px;" value="{{ old('remitente', $libroescritos->remitente ?? '') }}">
             @error('remitente') <div class="text-danger">{{ $message }}</div> @enderror
         </div>
     </div>
     <div class="col-md-4 col-lg-4">
         <div class="form-group" style="padding:5px;">
-            <label for="carpetafiscal" class="form-label"><b>Carpeta Fiscal</b></label>
-            <input type="text" name="carpetafiscal" class="form-control form-control-sm" maxlength="25" value="{{ old('carpetafiscal', $libroescritos->carpetafiscal ?? '') }}">
+            <label for="carpetafiscal" class="form-label"><b>Carpeta Fiscal (Ejm. 501-2020-12345)</b></label>
+            <input type="text" id="carpetafiscal" name="carpetafiscal" class="form-control form-control-sm" maxlength="25" style="width:250px;" placeholder="000-0000-00000" value="{{ old('carpetafiscal', $libroescritos->carpetafiscal ?? '') }}">
             @error('carpetafiscal') <div class="text-danger">{{ $message }}</div> @enderror
         </div>
     </div>
     <div class="col-md-4 col-lg-4">
         <div class="form-group" style="padding:5px;">
             <label for="folios" class="form-label"><b>Folios</b></label>
-            <input type="text" name="folios" class="form-control form-control-sm" maxlength="15" value="{{ old('folios', $libroescritos->folios ?? '') }}">
+            <input type="text" name="folios" class="form-control form-control-sm" maxlength="15" style="width:150px;" value="{{ old('folios', $libroescritos->folios ?? '') }}">
             @error('folios') <div class="text-danger">{{ $message }}</div> @enderror
         </div>
     </div>
@@ -101,6 +119,39 @@
             }
         }
     });
+
+    $('#iddeppolicial').selectize({
+        create: true, // Permite ingresar nuevos valores
+        sortField: 'text',
+        persist: false, // Evita que los nuevos valores se guarden para futuras sesiones
+
+        onInitialize: function() {
+            // Aplica maxlength al input generado por selectize
+            let input = this.$control_input;
+            input.attr('maxlength', 25); // Cambia 20 por el máximo que quieras
+        },
+        onChange: function(value) {
+            if (value) {
+                const selectize = this;
+                const selectedOption = selectize.options[value];
+
+                if (selectedOption && selectedOption.text) {
+                    $('#deppolicial').val(selectedOption.text); // Pasa el texto visible al input
+                }
+            }
+        }
+
+    });
+
+    
+
+var element = document.getElementById('carpetafiscal');
+var maskOptions = {
+  mask: '000-0000-00000'
+};
+var mask = IMask(element, maskOptions);
+
+
     function muestradato(id) {
         $('#descdependencia').text(numeroAOrdinal(despacho[id]) + " DESPACHO - " + descdependencia[id]);
         //$('#despacho').text(numeroAOrdinal(despacho[id]) + " DESPACHO");

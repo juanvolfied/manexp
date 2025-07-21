@@ -23,6 +23,8 @@ use App\Http\Controllers\ExpedienteController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\MantenimientoController;
 use App\Http\Controllers\MesaController;
+use App\Http\Controllers\DepPoliController;
+
 
 Route::get('/login', [UsuarioLoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [UsuarioLoginController::class, 'login'])->name('usuario.login');
@@ -84,6 +86,21 @@ Route::get('/grafico', [InventarioController::class, 'mostrarVistaGrafico'])->na
 Route::get('/grafico-usuario', [InventarioController::class, 'graficoPorUsuario'])->name('grafico.usuario');
 Route::get('/graficopie', [InventarioController::class, 'mostrarGraficoPie'])->name('graficopie');
 Route::get('/graficopie-fecha', [InventarioController::class, 'graficoPieFecha'])->name('graficopie.fecha');
+
+// Ruta para listar
+Route::get('/deppolicial', [DepPoliController::class, 'index'])->name('deppolicial.index');
+// Ruta para formulario de creaci�n
+Route::get('/deppolicial/create', [DepPoliController::class, 'create'])->name('deppolicial.create');
+// Ruta para guardar nuevo 
+Route::post('/deppolicial', [DepPoliController::class, 'store'])->name('deppolicial.store');
+// Ruta para mostrar un registro (opcional)
+Route::get('/deppolicial/{deppoli}', [DepPoliController::class, 'show'])->name('deppolicial.show');
+// Ruta para formulario de edici�n
+Route::get('/deppolicial/{deppoli}/edit', [DepPoliController::class, 'edit'])->name('deppolicial.edit');
+// Ruta para actualizar un registro existente
+Route::put('/deppolicial/{deppoli}', [DepPoliController::class, 'update'])->name('deppolicial.update');
+// Ruta para eliminar un registro
+Route::delete('/deppolicial/{deppoli}', [DepPoliController::class, 'destroy'])->name('deppolicial.destroy');
 
 // Ruta para listar
 Route::get('/personal', [PersonalController::class, 'index'])->name('personal.index');
