@@ -318,6 +318,8 @@ class MesaController extends Controller
                 'carpetafiscal' => $request->input('carpetafiscal'),
                 'folios' => $request->input('folios'),
                 'fecharegistro' => now(),
+                'id_personal' => Auth::user()->id_personal,
+                'id_usuario' => Auth::user()->id_usuario,
             ]);
         });
 /*

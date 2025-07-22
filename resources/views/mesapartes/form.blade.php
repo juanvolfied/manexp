@@ -46,15 +46,15 @@
     <div class="col-md-4 col-lg-4">
         <div class="form-group" style="padding:5px;">
             <label for="descripcion" class="form-label"><b>Descripci&oacute;n</b></label>
-            <input type="text" name="descripcion" class="form-control form-control-sm" maxlength="20" style="width:250px;" value="{{ old('descripcion', $libroescritos->descripcion ?? '') }}">
+            <input type="text" name="descripcion" class="form-control form-control-sm" maxlength="30" style="width:280px;" value="{{ old('descripcion', $libroescritos->descripcion ?? '') }}">
             @error('descripcion') <div class="text-danger">{{ $message }}</div> @enderror
         </div>
     </div>
     <div class="col-md-4 col-lg-4">
         <div class="form-group" style="padding:5px;">
-            <label for="iddeppolicial" class="form-label"><b>Dependencia Policial</b></label>
+            <label for="iddeppolicial" class="form-label"><b>Dependencia Origen</b></label>
 
-			  <select name="iddeppolicial" id="iddeppolicial" class="" style="width:250px;">
+			  <select name="iddeppolicial" id="iddeppolicial" class="" style="width:280px;">
 			          <option value=""></option>
 			          @foreach($deppoli as $p)
 			              <option value="{{ $p->id_deppolicial }}" >
@@ -73,7 +73,7 @@
     <div class="col-md-4 col-lg-4">
         <div class="form-group" style="padding:5px;">
             <label for="remitente" class="form-label"><b>Remitente</b></label>
-            <input type="text" name="remitente" class="form-control form-control-sm" maxlength="20" style="width:250px;" value="{{ old('remitente', $libroescritos->remitente ?? '') }}">
+            <input type="text" name="remitente" class="form-control form-control-sm" maxlength="30" style="width:280px;" value="{{ old('remitente', $libroescritos->remitente ?? '') }}">
             @error('remitente') <div class="text-danger">{{ $message }}</div> @enderror
         </div>
     </div>
@@ -117,18 +117,31 @@
             if (value) {
                 muestradato(value);
             }
+        },
+        onInitialize: function() {
+            let input = this.$control_input;
+            input.on('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault(); // Evita submit
+                }
+            });
         }
     });
 
     $('#iddeppolicial').selectize({
-        create: true, // Permite ingresar nuevos valores
+        create: false, // Permite ingresar nuevos valores
         sortField: 'text',
         persist: false, // Evita que los nuevos valores se guarden para futuras sesiones
 
         onInitialize: function() {
             // Aplica maxlength al input generado por selectize
             let input = this.$control_input;
-            input.attr('maxlength', 25); // Cambia 20 por el máximo que quieras
+            input.attr('maxlength', 35); // Cambia 20 por el máximo que quieras
+            input.on('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault(); // 🚫 Evita submit
+                }
+            });
         },
         onChange: function(value) {
             if (value) {

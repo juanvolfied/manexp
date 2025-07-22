@@ -55,7 +55,7 @@ function numeroAOrdinal($numero) {
             <th align="left" style="padding-right:5px; font-size:10px;">#</th>			      
             <th align="left" style="padding-right:5px; font-size:10px;">TIPO</th>			      
             <th align="left" style="padding-right:5px; font-size:10px;">DESCRIPCI&Oacute;N</th>
-            <th align="left" style="padding-right:5px; font-size:10px;">DEP. POLICIAL</th>
+            <th align="left" style="padding-right:5px; font-size:10px;">DEP. ORIGEN</th>
             <th align="left" style="padding-right:5px; font-size:10px;">REMITENTE</th>
             <th align="left" style="padding-right:5px; font-size:10px;">CARPETA FISCAL</th>
             <th align="left" style="padding-right:5px; font-size:10px;">FOLIOS</th>

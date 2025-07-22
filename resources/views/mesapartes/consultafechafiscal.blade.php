@@ -53,7 +53,7 @@
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">#</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Tipo</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Descripci&oacute;n</th>
-                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Dependencia Policial</th>
+                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Dependencia Origen</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Remitente</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Carpeta Fiscal</th>			      
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Folios</th>			      
