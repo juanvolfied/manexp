@@ -183,6 +183,7 @@ var mask = IMask(element, maskOptions);
             8: '8vo',
             9: '9no',
             10: '10mo'
+            11: '11er'
         };
         if (numero==0){
             return ' ';

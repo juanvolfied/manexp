@@ -21,7 +21,7 @@ class DepPoliController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'descripciondep' => 'required|max:25',
+            'descripciondep' => 'required|max:35',
         ]);
 
         DepPolicial::create($request->all());
@@ -41,7 +41,7 @@ class DepPoliController extends Controller
     public function update(Request $request, DepPolicial $deppoli)
     {
         $request->validate([
-            'descripciondep' => 'required|max:25',
+            'descripciondep' => 'required|max:35',
         ]);
 
         $deppoli->update($request->all());
