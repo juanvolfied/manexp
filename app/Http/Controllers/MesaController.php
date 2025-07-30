@@ -35,7 +35,8 @@ class MesaController extends Controller
             'libroescritos.dependenciapolicial',
             'libroescritos.remitente',
             'libroescritos.carpetafiscal',
-            'libroescritos.folios'
+            'libroescritos.folios',
+            'libroescritos.fecharegistro'
         )
         ->wheredate('fecharegistro', date('Y-m-d'))
 //        ->wheredate('fecharegistro', date('Y-m-d', strtotime('-2 day')))
@@ -339,32 +340,64 @@ class MesaController extends Controller
         return view('expediente.show', compact('expediente'));
     }
 
-    public function edit(Expedientes $expediente)
+    public function edit($ano, $numero)
     {
-        $delitos = DB::table('delito')
-            ->orderBy('desc_delito', 'asc') 
+        $fiscales = DB::table('personal')
+        ->leftJoin('dependencia', 'personal.id_dependencia', '=', 'dependencia.id_dependencia')
+        ->select(
+            'personal.id_personal',
+            'personal.apellido_paterno',
+            'personal.apellido_materno',
+            'personal.nombres',
+            'personal.id_dependencia',
+            'personal.despacho',
+            'dependencia.descripcion',
+            'dependencia.abreviado'
+        )
+        ->where('fiscal_asistente', 'F')
+        ->orderBy('apellido_paterno', 'asc') 
+        ->orderBy('apellido_materno', 'asc') 
+        ->orderBy('nombres', 'asc') 
+        ->get();
+
+        $deppoli = DB::table('dependenciapolicial')
+            ->orderBy('descripciondep', 'asc') 
             ->get();
-        return view('expediente.edit', compact('expediente','delitos'));
+
+        $libroescritos = DB::table('libroescritos')
+        ->leftJoin('dependencia', 'libroescritos.id_dependencia', '=', 'dependencia.id_dependencia')
+        ->select(
+            'libroescritos.*',
+            'dependencia.descripcion as descridependencia'
+        )
+            ->where('anolibro', $ano) 
+            ->where('numero', $numero) 
+            ->first();
+
+        return view('mesapartes.editescritos', compact('fiscales','deppoli','libroescritos'));
     }
 
-    public function update(Request $request, Expedientes $expediente)
+    public function update(Request $request, $ano, $numero)
     {
-        $request->validate([
-            'imputado' => 'required|max:100',
-            'agraviado' => 'required|max:100',
-            'delito' => 'required|numeric',
-            'nro_oficio' => 'nullable|max:100',
-            'nro_folios' => 'required|max:5',
-        ], [
-            'imputado.required' => 'El imputado es obligatorio.',
-            'agraviado.required' => 'El agraviado es obligatorio.',
-            'delito.required' => 'El delito es obligatorio.',
-            'nro_folios.required' => 'El nro de folios es obligatorio.',
-        ]);
+            DB::table('libroescritos')
+            ->where('anolibro', $ano)
+            ->where('numero', $numero)
+            ->update([
+                'id_dependencia' => $request->input('id_dependencia'),
+                'despacho' => $request->input('despacho'),
+                'id_fiscal' => $request->input('fiscal'),
+                'tipo' => $request->input('tipo'),
+                'descripcion' => $request->input('descripcion'),
+                'dependenciapolicial' => $request->input('deppolicial'),
+                'remitente' => $request->input('remitente'),
+                'carpetafiscal' => $request->input('carpetafiscal'),
+                'folios' => $request->input('folios'),
+                'fecharegistro' => now(),
+                'id_personal' => Auth::user()->id_personal,
+                'id_usuario' => Auth::user()->id_usuario,
+            ]);
 
-        $expediente->update($request->all());
-
-        return redirect()->route('expediente.index')->with('success', 'EXPEDIENTE ACTUALIZADO.');
+        return redirect()->route('mesapartes.index')->with('success', 'INFORMACION ACTUALIZADA DE FORMA SATISFACTORIA.');
     }
 
     public function destroy(Expedientes $expediente)

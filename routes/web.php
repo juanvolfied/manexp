@@ -70,6 +70,10 @@ Route::get('/mesapartes', [MesaController::class, 'index'])->name('mesapartes.in
 Route::get('/mesapartes/registrolibros', [MesaController::class, 'nuevoEscrito'])->name('mesapartes.libroescritos');
 Route::get('/mesapartes/consultafiscal', [MesaController::class, 'consultarFiscal'])->name('mesapartes.consulta');
 Route::post('/mesapartes/store', [MesaController::class, 'store'])->name('mesapartes.store');
+
+Route::get('/mesapartes/{anolibro}/{numero}/edit', [MesaController::class, 'edit'])->name('mesapartes.edit');
+Route::put('/mesapartes/{anolibro}/{numero}', [MesaController::class, 'update'])->name('mesapartes.update');
+
 Route::post('/mesapartes', [MesaController::class, 'consultarFiscaldetalle'])->name('mesapartes.consultadetalle');
 Route::get('/mesapartes/{fiscal}/{fecha}/pdf', [MesaController::class, 'generarConsFiscalPDF'])->name('escritosfiscal.pdf');
 Route::get('/mesapartes/{codigogenerar}/pdf', [MesaController::class, 'generarCodigoBarrasPDF'])->name('mesapartescodbarras.pdf');

@@ -15,6 +15,7 @@ function numeroAOrdinal($numero) {
         8 => '8vo',
         9 => '9no',
         10 => '10mo',
+        11 => '11er',
     ];    
     return $ordinales[$numero] ?? $numero . 'º';
 }    

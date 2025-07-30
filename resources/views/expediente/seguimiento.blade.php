@@ -298,7 +298,7 @@ function numeroAOrdinal(numero) {
         7: '7mo',
         8: '8vo',
         9: '9no',
-        10: '10mo'
+        10: '10mo',
         11: '11er'
     };
 

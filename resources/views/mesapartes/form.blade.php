@@ -1,4 +1,22 @@
-
+<?php
+function numeroAOrdinal($numero) {
+    $ordinales = [
+        0 => '',
+        1 => '1er',
+        2 => '2do',
+        3 => '3er',
+        4 => '4to',
+        5 => '5to',
+        6 => '6to',
+        7 => '7mo',
+        8 => '8vo',
+        9 => '9no',
+        10 => '10mo',
+        11 => '11er',
+    ];    
+    return $ordinales[$numero] ?? $numero . 'º';
+}
+?>
 
 <div class="row">
     <div class="col-md-4 col-lg-4">
@@ -17,10 +35,10 @@
             @error('fiscal') <div class="text-danger">{{ $message }}</div> @enderror
         </div>
         <div class="form-group" style="padding:5px;font-size:12px; color:blue;" id="descdependencia">
-            {{ isset($libroescritos) ? $libroescritos->descripcion : '' }}
+            {{ isset($libroescritos) ? (numeroAOrdinal($libroescritos->despacho) . " DESPACHO - " . $libroescritos->descridependencia) : '' }}
         </div>
-        <input type="hidden" id="id_dependencia" name="id_dependencia">
-        <input type="hidden" id="despacho" name="despacho">
+        <input type="hidden" id="id_dependencia" name="id_dependencia" value="{{ old('id_dependencia', $libroescritos->id_dependencia ?? '') }}">
+        <input type="hidden" id="despacho" name="despacho" value="{{ old('despacho', $libroescritos->despacho ?? '') }}">
         <!--<div class="form-group" style="padding:5px;font-size:12px; color:blue;" id="despacho">
             {{ isset($libroescritos) ? $libroescritos->despacho : '' }}
         </div>-->
@@ -57,8 +75,12 @@
 			  <select name="iddeppolicial" id="iddeppolicial" class="" style="width:280px;">
 			          <option value=""></option>
 			          @foreach($deppoli as $p)
-			              <option value="{{ $p->id_deppolicial }}" >
-			                  {{ $p->descripciondep }} 
+			              <option value="{{ $p->id_deppolicial }}" 
+                            @if(
+                                old('iddeppolicial') == $p->id_deppolicial || 
+                                (isset($libroescritos) && $libroescritos->dependenciapolicial == $p->descripciondep)
+                            ) selected @endif>
+                            {{ $p->descripciondep }}                          
 			              </option>
 			          @endforeach
                           </select>
@@ -66,7 +88,7 @@
             @error('deppolicial') <div class="text-danger">{{ $message }}</div> @enderror
         </div>
     </div>
-    <input type="hidden" id="deppolicial" name="deppolicial" value="">
+    <input type="hidden" id="deppolicial" name="deppolicial" value="{{ old('deppolicial', $libroescritos->dependenciapolicial ?? '') }}">
 
 </div>
 <div class="row">
@@ -105,6 +127,7 @@
     }    
 </style>
 
+
 @section('scripts')
 <script>
   const iddependencia = @json($fiscales->pluck('id_dependencia', 'id_personal'));
@@ -134,6 +157,7 @@
         persist: false, // Evita que los nuevos valores se guarden para futuras sesiones
 
         onInitialize: function() {
+
             // Aplica maxlength al input generado por selectize
             let input = this.$control_input;
             input.attr('maxlength', 35); // Cambia 20 por el máximo que quieras
@@ -182,7 +206,7 @@ var mask = IMask(element, maskOptions);
             7: '7mo',
             8: '8vo',
             9: '9no',
-            10: '10mo'
+            10: '10mo',
             11: '11er'
         };
         if (numero==0){

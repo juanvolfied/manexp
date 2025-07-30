@@ -47,7 +47,7 @@ function numeroAOrdinal($numero) {
         </div>
         <div class="card-body table-responsive">
 
-        <table id="tablaexpedientes" class="table table-striped table-bordered">
+        <table id="tablaexpedientes" class="table table-striped table-bordered" width=100%>
             <thead class="thead-dark">
                 <tr>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">N&uacute;mero</th>
@@ -56,31 +56,49 @@ function numeroAOrdinal($numero) {
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fiscal</th>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Tipo</th>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Descripci&oacute;n</th>
-                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Dependencia Origen</th>
+                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Dependencia<br>Origen</th>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Remitente</th>
-                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Carpeta Fiscal</th>
+                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Carpeta<br>Fiscal</th>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Folios</th>
-                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">C.Barras</th>
+                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;" colspan=2>Acciones</th>
                 </tr>
             </thead>
             <tbody style="font-size:12px;">
                 @foreach($libroescritos as $p)
+                @php
+                    $esHoy = date('Y-m-d') == date('Y-m-d', strtotime($p->fecharegistro));
+                @endphp
+
                     <tr>
-                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->anolibro }}-{{ str_pad($p->numero, 6, '0', STR_PAD_LEFT) }}</td>
-                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->abreviado }}</td>
-                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ numeroAOrdinal($p->despacho) . " DESPACHO" }}</td>
-                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->apellido_paterno ." ". $p->apellido_materno ." ". $p->nombres }}</td>
-                        <td style="padding: 5px 10px!important; font-size: 12px !important;">
+                        <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ $p->anolibro }}-{{ str_pad($p->numero, 6, '0', STR_PAD_LEFT) }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ $p->abreviado }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ numeroAOrdinal($p->despacho) . " DESPACHO" }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ $p->apellido_paterno ." ". $p->apellido_materno ." ". $p->nombres }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 12px !important;">
                             {{ $tipos[$p->tipo] ?? $p->tipo }}
                         </td>
-                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->descripcionescrito }}</td>
-                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->dependenciapolicial }}</td>
-                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->remitente }}</td>
-                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->carpetafiscal }}</td>
-                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->folios }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ $p->descripcionescrito }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ $p->dependenciapolicial }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ $p->remitente }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ $p->carpetafiscal }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ $p->folios }}</td>
                         <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
+                            
+                            @if($esHoy)
+                                <a href="{{ route('mesapartes.edit', ['anolibro' => $p->anolibro, 'numero' => $p->numero]) }}"
+                                data-bs-toggle="tooltip" title="Editar escrito/oficio/...">
+                                    <i class="fas fa-edit fa-lg"></i>
+                                </a>
+                            @else
+                                <a href="#" style="opacity: 0.5; cursor: not-allowed;"
+                                data-bs-toggle="tooltip" title="Solo puede editarse el mismo día de registro">
+                                    <i class="fas fa-edit fa-lg text-muted"></i>
+                                </a>
+                            @endif
+                        </td>
+                        <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;>
                             <a href="#" data-bs-toggle="tooltip" title="Imprime C&oacute;digo de Barras" onclick="generacodbarraspdf('{{ route("mesapartescodbarras.pdf", ["codigogenerar" => $p->anolibro ."-". str_pad($p->numero, 6, '0', STR_PAD_LEFT) ]) }}', event)" style="color: purple;">
-                                <i class="fas fa-print fa-lg"></i><br>Imprimir
+                                <i class="fas fa-print fa-lg"></i>
                             </a>
                         </td>
                     </tr>
@@ -144,9 +162,9 @@ function generacodbarraspdf(url,event) {
 
 $(document).ready(function() {
     $('#tablaexpedientes').DataTable({
-  //"columnDefs": [
-  //  { "orderable": false, "targets": [7,8] }  // Evitar orden en columnas de acción si no es necesario
-  //],
+  "columnDefs": [
+    { "orderable": false, "targets": [10,11] }  // Evitar orden en columnas de acción si no es necesario
+  ],
         "pageLength": 10,  // Número de filas por página
         "lengthMenu": [10, 25, 50, 100],  // Opciones de paginación
         "searching": true,  // Habilitar búsqueda
