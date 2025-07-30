@@ -185,18 +185,24 @@
             <thead>
                 <tr>
                     <th>Dependencia</th>
-                    <th>Total</th>
+                    <th>Cantidad</th>
                 </tr>
             </thead>
             <tbody>`;
-        
+        var total=0;
         for (let i = 0; i < labels.length; i++) {
             tablaHTML += `
                 <tr>
                     <td>${labels[i]}</td>
                     <td>${data[i]}</td>
                 </tr>`;
+                total=total+data[i];
         }
+            tablaHTML += `
+                <tr>
+                    <td><b>ACUMULADO TOTAL</b></td>
+                    <td><b>${total}</b></td>
+                </tr>`;
 
         tablaHTML += `</tbody></table>`;
 

@@ -36,6 +36,7 @@
             <thead class="thead-dark">
                 <tr>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">#</th>
+                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">N&uacute;mero</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Fecha</th>
                     @if(Auth::user()->personal->fiscal_asistente === "A")
                         <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Fiscal</th>
@@ -46,6 +47,7 @@
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Remitente</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Carpeta Fiscal</th>			      
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Folios</th>			      
+                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Ver</th>			      
                 </tr>
             </thead>
             <tbody style="font-size:12px;" >
@@ -55,6 +57,26 @@
 
         </div>
     </div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Visualizar PDF</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <iframe id="pdfViewer" width="100%" height="600px"></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 @endsection
 
@@ -67,7 +89,6 @@
 </style>
 @section('scripts')
    
-
 <script>
 
 function mostrarescritos(event) {
@@ -116,10 +137,14 @@ function mostrarescritos(event) {
                     if (fiscalAsistente === "A") {
                         extraColumn = `<td style="font-size:12px; padding: 5px 10px !important;">${registro.apellido_paterno || ''} ${registro.apellido_materno || ''} ${registro.nombres || ''}</td>`;
                     }
+const fecha = registro.fecharegistro; // "2025-07-08 22:12:54"
+const anio = fecha.substring(0, 4);   // "2025"
+const mes  = fecha.substring(5, 7);   // "07"                    
 
                     tableBody.append(`
                         <tr>
                             <td style="font-size:12px; padding: 5px 10px !important;">${index + 1}</td>
+                            <td style="padding: 5px 10px!important; font-size: 12px !important;">${registro.anolibro }-${String(registro.numero).padStart(6, '0')}</td>
                             <td style="font-size:12px; padding: 5px 10px !important;">${registro.fecharegistro || ''}</td>
                             ${extraColumn}
                             <td style="font-size:12px; padding: 5px 10px !important;">${tipoTexto || ''}</td>
@@ -128,6 +153,11 @@ function mostrarescritos(event) {
                             <td style="font-size:12px; padding: 5px 10px !important;">${registro.remitente || ''}</td>
                             <td style="font-size:12px; padding: 5px 10px !important;">${registro.carpetafiscal || ''}</td>
                             <td style="font-size:12px; padding: 5px 10px !important;">${registro.folios || ''}</td>
+                            <td style="font-size:12px; padding: 5px 10px !important;">
+                            <a href="#" onclick="mostrarDetalle('${anio}', '${mes}', '${registro.anolibro }-${String(registro.numero).padStart(6, '0')}'); return false;">
+                            <i class="fas fa-search"></i>
+                            </a>
+                            </td>
                         </tr>
                     `);
                 
@@ -168,6 +198,19 @@ function numeroAOrdinal(numero) {
     };
 
     return ordinales[numero] || numero + ' ';
+}
+</script>
+
+<script>
+function mostrarDetalle(anio, mes, codigo) {
+    const pdfUrl = `../../storage/app/mesapartes/${anio}/${mes}/${codigo}.pdf`;
+//  const modal = document.getElementById('pdfModal');
+//  const iframe = document.getElementById('pdfViewer');
+//  iframe.src = pdfUrl;
+//  modal.style.display = 'block';
+
+    $('#pdfViewer').attr('src', pdfUrl);
+    $('#pdfModal').modal('show');
 }
 </script>
 @endsection

@@ -203,6 +203,50 @@ class MesaController extends Controller
         ->header('Content-Disposition', 'inline; filename="pdfcodbar'. (Auth::user()->id_personal) .'.pdf"');
 
     }
+    public function showupload()
+    {
+        return view('mesapartes.upload');
+    }
+    public function uploadChunk(Request $request)
+    {
+        if (!$request->hasFile('files')) {
+            return response()->json(['message' => 'No se enviaron archivos'], 400);
+        }
+
+        foreach ($request->file('files') as $file) {
+            $originalName = $file->getClientOriginalName();
+
+            $codigo = pathinfo($originalName, PATHINFO_FILENAME);
+            if (!str_contains($codigo, '-')) {
+                continue; // O registra el error
+            }
+
+            [$ano, $numero] = explode('-', $codigo);
+            $numero = (int) ltrim($numero, '0');
+            $libroescritos = DB::table('libroescritos')
+            ->where('anolibro', $ano) 
+            ->where('numero', $numero) 
+            ->first();
+
+            if ($libroescritos) {
+                $fecha = new \DateTime($libroescritos->fecharegistro);
+                $anio = $fecha->format('Y');
+                $mes  = $fecha->format('m');
+                $directory = storage_path("app/mesapartes/$anio/$mes");
+                if (!file_exists($directory)) {
+                    mkdir($directory, 0777, true);
+                }                
+                //$path = $file->storeAs('uploads/pdfs', $originalName);  
+                $path = $file->storeAs("mesapartes/$anio/$mes", $originalName);
+                chmod(storage_path("app/" . $path), 0777);
+            }     
+            // Puedes guardar directamente o enviar a una job
+            //$path = $file->store('uploads/pdfs'); // en storage/app/uploads/pdfs
+            //ProcessPdfUpload::dispatch($path); // asíncrono, no bloquea
+        }
+
+        return response()->json(['message' => 'Chunk recibido correctamente']);
+    }
 
 
     public function consultarEscritos()

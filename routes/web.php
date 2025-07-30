@@ -81,6 +81,9 @@ Route::get('/mesapartes/{codigogenerar}/pdf', [MesaController::class, 'generarCo
 Route::get('/mesapartes/consultaescritos', [MesaController::class, 'consultarEscritos'])->name('mesapartes.consultaescritos');
 Route::post('/mesapartes/consultaescritosdet', [MesaController::class, 'consultarEscritosdetalle'])->name('mesapartes.consultaescritosdetalle');
 
+Route::get('/mesapartes/upload', [MesaController::class, 'showupload'])->name('mesapartes.showupload');
+Route::post('/mesapartes/uploadchunk', [MesaController::class, 'uploadChunk'])->name('upload.chunk');
+
 
 
 Route::get('/seguimiento', [MenuController::class, 'seguimientoInventario'])->name('seginventario');

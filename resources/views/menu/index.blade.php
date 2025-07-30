@@ -217,6 +217,13 @@
                         <span class="sub-item">Consulta de escritos por fecha y fiscal</span>
                       </a>
                     </li>
+                    <li>
+                      <a href="{{ route('mesapartes.showupload') }}">
+                        <span class="sub-item">Subir pdfs digitalizados</span>
+                      </a>
+                    </li>
+
+
                   </ul>
                 </div>
               </li>
