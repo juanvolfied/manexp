@@ -16,14 +16,14 @@
                 <div class="card">
                   
                   <div class="card-header">
-                    <div class="card-title">Registrar Nuevo Escrito - Recepci&oacute;n F&iacute;sica</div>
+                    <div class="card-title">Registrar Nuevo Escrito - Recepci&oacute;n Virtual</div>
                   </div>
                   <div class="card-body">
 
 
-    <form id="miFormulario" action="{{ route('mesapartes.store') }}" method="POST" autocomplete="off">
+    <form id="miFormulario" action="{{ route('mesapartes.storev') }}" method="POST" autocomplete="off">
         @csrf
-        @include('mesapartes.form')
+        @include('mesapartes.formv')
         <button type="submit" class="btn btn-success mt-3">Guardar</button>
         <a href="{{ route('mesapartes.index') }}" class="btn btn-secondary mt-3">Cancelar</a>
     </form>

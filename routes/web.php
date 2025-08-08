@@ -68,11 +68,15 @@ Route::get('/inventariov2', [MenuController::class, 'nuevoExpedientev2'])->name(
 
 Route::get('/mesapartes', [MesaController::class, 'index'])->name('mesapartes.index');
 Route::get('/mesapartes/registrolibros', [MesaController::class, 'nuevoEscrito'])->name('mesapartes.libroescritos');
+Route::get('/mesapartes/registrolibrosv', [MesaController::class, 'nuevoEscritoV'])->name('mesapartes.libroescritosv');
 Route::get('/mesapartes/consultafiscal', [MesaController::class, 'consultarFiscal'])->name('mesapartes.consulta');
 Route::post('/mesapartes/store', [MesaController::class, 'store'])->name('mesapartes.store');
+Route::post('/mesapartes/storev', [MesaController::class, 'storetpv'])->name('mesapartes.storev');
 
-Route::get('/mesapartes/{anolibro}/{numero}/edit', [MesaController::class, 'edit'])->name('mesapartes.edit');
-Route::put('/mesapartes/{anolibro}/{numero}', [MesaController::class, 'update'])->name('mesapartes.update');
+//Route::get('/mesapartes/{anolibro}/{numero}/edit', [MesaController::class, 'edit'])->name('mesapartes.edit');
+//Route::put('/mesapartes/{anolibro}/{numero}', [MesaController::class, 'update'])->name('mesapartes.update');
+Route::get('/mesapartes/{codescrito}/edit', [MesaController::class, 'edit'])->name('mesapartes.edit');
+Route::put('/mesapartes/{codescrito}', [MesaController::class, 'update'])->name('mesapartes.update');
 
 Route::post('/mesapartes', [MesaController::class, 'consultarFiscaldetalle'])->name('mesapartes.consultadetalle');
 Route::get('/mesapartes/{fiscal}/{fecha}/pdf', [MesaController::class, 'generarConsFiscalPDF'])->name('escritosfiscal.pdf');
@@ -80,9 +84,11 @@ Route::get('/mesapartes/{codigogenerar}/pdf', [MesaController::class, 'generarCo
 
 Route::get('/mesapartes/consultaescritos', [MesaController::class, 'consultarEscritos'])->name('mesapartes.consultaescritos');
 Route::post('/mesapartes/consultaescritosdet', [MesaController::class, 'consultarEscritosdetalle'])->name('mesapartes.consultaescritosdetalle');
+Route::get('/mesapartes/{anio}/{mes}/{codescrito}', [MesaController::class, 'verificarArchivo']);
 
 Route::get('/mesapartes/upload', [MesaController::class, 'showupload'])->name('mesapartes.showupload');
 Route::post('/mesapartes/uploadchunk', [MesaController::class, 'uploadChunk'])->name('upload.chunk');
+Route::post('/mesapartes/uploadchunkcargos', [MesaController::class, 'uploadChunkCargos'])->name('upload.chunkcargos');
 
 
 

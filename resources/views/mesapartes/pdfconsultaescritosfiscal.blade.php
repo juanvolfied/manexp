@@ -45,10 +45,16 @@ function numeroAOrdinal($numero) {
     ];
 @endphp
 
+<div style='position: absolute; top:  25px; right: 20px; width: 220px; height: 65px; overflow: hidden;'>
+    <img src="data:image/png;base64,{{ $barcode }}" alt="Código de barras" style="width: 220px; height: 100px;">
+    <!--<img src="data:image/png;base64,{{ $barcode }}" alt="Código de barras" style="width: 50px; height: 200px;">-->
+</div>
+
+<table width=100%><tr><td align="center" style="font-size: 18px;"><b>ENTREGA DE DOCUMENTOS</b></td></tr></table>
 <div>    
 
 <b>FISCAL :</b> {{ $datosfiscal->apellido_paterno ?? '' }} {{ $datosfiscal->apellido_materno ?? '' }} {{ $datosfiscal->nombres ?? '' }}
-<br>{{ $datosfiscal->abreviado ?? '' }} - {{ numeroAOrdinal($datosfiscal->despacho) ?? '' }} DESPACHO
+<br>{{ $abreviado ?? '' }} - {{ numeroAOrdinal($despacho) ?? '' }} DESPACHO
 <br><b>FECHA :</b> {{ $fechareg }}
     <table id="scanned-list" class="table table-striped table-sm" border=1 style="width:100%; border-collapse: collapse;">
         <thead class="thead-dark" style="font-size:10px;">

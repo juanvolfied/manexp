@@ -40,7 +40,8 @@ function numeroAOrdinal($numero) {
         <div id="messageOK" class="alert alert-success" style="display:none;"><b></b></div>
     @endif
 
-    <a href="{{ route('mesapartes.libroescritos') }}" class="btn btn-primary mb-3">+ Nuevo Registro</a>
+    <a href="{{ route('mesapartes.libroescritos') }}" class="btn btn-primary mb-3">+ Nuevo Registro - Recepci&oacute;n F&iacute;sico</a>
+    <a href="{{ route('mesapartes.libroescritosv') }}" class="btn btn-secondary mb-3">+ Nuevo Registro - Recepci&oacute;n Virtual</a>
     <div class="card">
         <div class="card-header">
         <div class="card-title">Escritos registrados hoy ({{ date('Y-m-d') }})</div>
@@ -50,7 +51,8 @@ function numeroAOrdinal($numero) {
         <table id="tablaexpedientes" class="table table-striped table-bordered" width=100%>
             <thead class="thead-dark">
                 <tr>
-                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">N&uacute;mero</th>
+                    <!--<th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">N&uacute;mero</th>-->
+                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">C&oacute;digo</th>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Dependencia</th>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Despacho</th>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fiscal</th>
@@ -70,7 +72,7 @@ function numeroAOrdinal($numero) {
                 @endphp
 
                     <tr>
-                        <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ $p->anolibro }}-{{ str_pad($p->numero, 6, '0', STR_PAD_LEFT) }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ $p->codescrito }}</td>
                         <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ $p->abreviado }}</td>
                         <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ numeroAOrdinal($p->despacho) . " DESPACHO" }}</td>
                         <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ $p->apellido_paterno ." ". $p->apellido_materno ." ". $p->nombres }}</td>
@@ -85,7 +87,7 @@ function numeroAOrdinal($numero) {
                         <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
                             
                             @if($esHoy)
-                                <a href="{{ route('mesapartes.edit', ['anolibro' => $p->anolibro, 'numero' => $p->numero]) }}"
+                                <a href="{{ route('mesapartes.edit', ['codescrito' => $p->codescrito]) }}"
                                 data-bs-toggle="tooltip" title="Editar escrito/oficio/...">
                                     <i class="fas fa-edit fa-lg"></i>
                                 </a>
@@ -97,7 +99,7 @@ function numeroAOrdinal($numero) {
                             @endif
                         </td>
                         <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;>
-                            <a href="#" data-bs-toggle="tooltip" title="Imprime C&oacute;digo de Barras" onclick="generacodbarraspdf('{{ route("mesapartescodbarras.pdf", ["codigogenerar" => $p->anolibro ."-". str_pad($p->numero, 6, '0', STR_PAD_LEFT) ]) }}', event)" style="color: purple;">
+                            <a href="#" data-bs-toggle="tooltip" title="Imprime C&oacute;digo de Barras" onclick="generacodbarraspdf('{{ route("mesapartescodbarras.pdf", ["codigogenerar" => $p->codescrito ]) }}', event)" style="color: purple;">
                                 <i class="fas fa-print fa-lg"></i>
                             </a>
                         </td>

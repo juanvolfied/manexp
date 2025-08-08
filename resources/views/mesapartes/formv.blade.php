@@ -21,13 +21,6 @@ function numeroAOrdinal($numero) {
 <div class="row">
     <div class="col-md-4 col-lg-4">
         <div class="form-group" style="padding:5px;">
-            <label for="codescrito" class="form-label"><b>C&oacute;digo</b></label>
-            <input type="text" id="codescrito" name="codescrito" class="form-control form-control-sm" maxlength="20" style="width:280px;" value="{{ old('codescrito', $libroescritos->codescrito ?? '') }}" @if(isset($libroescritos)) disabled @endif  onkeydown="verificacodbar(event)">
-            @error('codescrito') <div class="text-danger">{{ $message }}</div> @enderror
-        </div>
-    </div>
-    <div class="col-md-4 col-lg-4">
-        <div class="form-group" style="padding:5px;">
             <label for="fiscal" class="form-label"><b>Fiscal</b></label>
 
 			  <select name="fiscal" id="fiscal" class="">
@@ -187,24 +180,6 @@ function numeroAOrdinal($numero) {
 
     });
 
-
-    
-    function verificacodbar(event) {
-        if (event.key === "Enter") {
-            event.preventDefault(); // Esto previene que el formulario se env�e cuando se presiona Enter
-            limpiarCodigoBarra();
-        }
-    }
-    function limpiarCodigoBarra() {
-        let valor = document.getElementById("codescrito").value;
-    // Buscar patrón: MP + dígitos + letra opcional + espacio opcional + más dígitos
-    let match = valor.match(/MP\d+\s*[A-Z]?\s*\d+/i);
-        if (match) {
-            document.getElementById("codescrito").value = match[0].trim();
-        } else {
-            document.getElementById("codescrito").value = '';
-        }
-    }
 
 
 

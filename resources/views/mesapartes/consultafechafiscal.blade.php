@@ -51,6 +51,7 @@
             <thead class="thead-dark">
                 <tr>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">#</th>
+                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">C&oacute;digo</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Tipo</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Descripci&oacute;n</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Dependencia Origen</th>
@@ -195,6 +196,7 @@ function mostrarescritos(event) {
                     tableBody.append(`
                         <tr>
                             <td style="font-size:12px; padding: 5px 10px !important;">${index + 1}</td>
+                            <td style="font-size:12px; padding: 5px 10px !important;">${registro.codescrito || ''}</td>
                             <td style="font-size:12px; padding: 5px 10px !important;">${tipoTexto || ''}</td>
                             <td style="font-size:12px; padding: 5px 10px !important;">${registro.descripcion || ''}</td>
                             <td style="font-size:12px; padding: 5px 10px !important;">${registro.dependenciapolicial || ''}</td>

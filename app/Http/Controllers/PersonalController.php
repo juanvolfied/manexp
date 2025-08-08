@@ -3,19 +3,36 @@
 namespace App\Http\Controllers;
 
 use App\Models\Personal;
+use App\Models\Dependencia;
+
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PersonalController extends Controller
 {
     public function index()
     {
-        $personal = Personal::all();
+        //$personal = Personal::all();
+        $personal = DB::table('personal')
+        ->leftJoin('dependencia', 'personal.id_dependencia', '=', 'dependencia.id_dependencia')
+        ->select(
+            'personal.*',
+            'dependencia.descripcion',
+        )
+        ->orderBy('apellido_paterno', 'asc')
+        ->orderBy('apellido_materno', 'asc')
+        ->orderBy('nombres', 'asc')
+        ->get();
+
         return view('personal.index', compact('personal'));
     }
 
     public function create()
     {
-        return view('personal.create');
+        $dependencias = Dependencia::where('activo', 'S')
+            ->orderBy('descripcion', 'asc')
+            ->get();
+        return view('personal.create', compact('dependencias'));
     }
 
     public function store(Request $request)
@@ -25,6 +42,8 @@ class PersonalController extends Controller
             'apellido_paterno' => 'required|max:30',
             'apellido_materno' => 'required|max:30',
             'nombres' => 'required|max:30',
+            'id_dependencia' => 'required|integer',
+            'despacho' => 'required|integer',
             'activo' => 'required|in:S,N',
         ]);
 
@@ -39,7 +58,10 @@ class PersonalController extends Controller
 
     public function edit(Personal $personal)
     {
-        return view('personal.edit', compact('personal'));
+        $dependencias = Dependencia::where('activo', 'S')
+            ->orderBy('descripcion', 'asc')
+            ->get();
+        return view('personal.edit', compact('personal', 'dependencias'));
     }
 
     public function update(Request $request, Personal $personal)
@@ -48,6 +70,8 @@ class PersonalController extends Controller
             'apellido_paterno' => 'required|max:30',
             'apellido_materno' => 'required|max:30',
             'nombres' => 'required|max:30',
+            'id_dependencia' => 'required|integer',
+            'despacho' => 'required|integer',
             'activo' => 'required|in:S,N',
         ]);
 

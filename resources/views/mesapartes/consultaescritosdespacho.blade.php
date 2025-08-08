@@ -36,7 +36,7 @@
             <thead class="thead-dark">
                 <tr>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">#</th>
-                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">N&uacute;mero</th>
+                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">C&oacute;digo</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Fecha</th>
                     @if(Auth::user()->personal->fiscal_asistente === "A")
                         <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Fiscal</th>
@@ -122,6 +122,27 @@ function mostrarescritos(event) {
                 var registros = response.registros;
                 registros.forEach(function(registro, index) {                
 
+                const fecha = registro.fecharegistro; // "2025-07-08 22:12:54"
+                const anio = fecha.substring(0, 4);   // "2025"
+                const mes  = fecha.substring(5, 7);   // "07"                    
+
+                const codescrito = registro.codescrito;
+
+
+    fetch(`${anio}/${mes}/${encodeURIComponent(codescrito)}`)
+        .then(response => response.json())
+        .then(data => {
+            const iconoDetalle = data.existe
+                ? `<a href="#" onclick="mostrarDetalle('${anio}', '${mes}', '${registro.codescrito}'); return false;">
+                       <i class="fas fa-search"></i>
+                   </a>`
+                : `<i class="fas fa-search text-muted" title="Documento digital PDF no disponible" style="opacity: 0.5; cursor: not-allowed;"></i>`;
+
+
+
+
+
+
                     const tipos = {
                     'E': 'Escrito',
                     'O': 'Oficio',
@@ -137,14 +158,11 @@ function mostrarescritos(event) {
                     if (fiscalAsistente === "A") {
                         extraColumn = `<td style="font-size:12px; padding: 5px 10px !important;">${registro.apellido_paterno || ''} ${registro.apellido_materno || ''} ${registro.nombres || ''}</td>`;
                     }
-const fecha = registro.fecharegistro; // "2025-07-08 22:12:54"
-const anio = fecha.substring(0, 4);   // "2025"
-const mes  = fecha.substring(5, 7);   // "07"                    
 
                     tableBody.append(`
                         <tr>
                             <td style="font-size:12px; padding: 5px 10px !important;">${index + 1}</td>
-                            <td style="padding: 5px 10px!important; font-size: 12px !important;">${registro.anolibro }-${String(registro.numero).padStart(6, '0')}</td>
+                            <td style="padding: 5px 10px!important; font-size: 12px !important;">${registro.codescrito}</td>
                             <td style="font-size:12px; padding: 5px 10px !important;">${registro.fecharegistro || ''}</td>
                             ${extraColumn}
                             <td style="font-size:12px; padding: 5px 10px !important;">${tipoTexto || ''}</td>
@@ -154,13 +172,16 @@ const mes  = fecha.substring(5, 7);   // "07"
                             <td style="font-size:12px; padding: 5px 10px !important;">${registro.carpetafiscal || ''}</td>
                             <td style="font-size:12px; padding: 5px 10px !important;">${registro.folios || ''}</td>
                             <td style="font-size:12px; padding: 5px 10px !important;">
-                            <a href="#" onclick="mostrarDetalle('${anio}', '${mes}', '${registro.anolibro }-${String(registro.numero).padStart(6, '0')}'); return false;">
-                            <i class="fas fa-search"></i>
-                            </a>
+                            ${iconoDetalle}
                             </td>
                         </tr>
                     `);
                 
+
+        });
+
+
+
                 
                 });
 

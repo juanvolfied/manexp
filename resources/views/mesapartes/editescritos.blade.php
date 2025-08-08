@@ -1,8 +1,8 @@
 @extends('menu.index')
 
 @section('content')
-<div class="container mt-4">
-    <h2 class="mb-4">Editar Escrito</h2>
+<!--<div class="container mt-4">
+    <h2 class="mb-4">Editar Escrito</h2>-->
 
     @if ($errors->any())
         <div class="alert alert-danger">
@@ -10,7 +10,16 @@
         </div>
     @endif
 
-    <form action="{{ route('mesapartes.update', ['anolibro' => $libroescritos->anolibro, 'numero' => $libroescritos->numero]) }}" method="POST">
+            <div class="row" id="datacabe">            
+              <div class="col-md-12">
+                <div class="card">
+                  
+                  <div class="card-header">
+                    <div class="card-title">Editar Escrito {{ $libroescritos->codescrito }}</div>
+                  </div>
+                  <div class="card-body">
+
+    <form action="{{ route('mesapartes.update', ['codescrito' => $libroescritos->codescrito]) }}" method="POST">
         @csrf
         @method('PUT')
 
@@ -19,5 +28,12 @@
         <button type="submit" class="btn btn-success">Actualizar</button>
         <a href="{{ route('mesapartes.index') }}" class="btn btn-secondary">Cancelar</a>
     </form>
-</div>
+
+    
+                  </div>
+                </div>
+              </div>
+            </div>    
+
+<!--</div>-->
 @endsection
