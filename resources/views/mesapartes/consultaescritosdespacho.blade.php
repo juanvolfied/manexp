@@ -224,7 +224,9 @@ function numeroAOrdinal(numero) {
 
 <script>
 function mostrarDetalle(anio, mes, codigo) {
-    const pdfUrl = `../../storage/app/mesapartes/${anio}/${mes}/${codigo}.pdf`;
+    //const pdfUrl = `../../storage/app/mesapartes/${anio}/${mes}/${codigo}.pdf`;
+    const pdfUrl = `../../storage/app/mesapartes/${anio}/${mes}/${codigo.toUpperCase()}.pdf`;
+
 //  const modal = document.getElementById('pdfModal');
 //  const iframe = document.getElementById('pdfViewer');
 //  iframe.src = pdfUrl;

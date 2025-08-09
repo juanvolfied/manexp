@@ -22,7 +22,7 @@ function numeroAOrdinal($numero) {
     <div class="col-md-4 col-lg-4">
         <div class="form-group" style="padding:5px;">
             <label for="codescrito" class="form-label"><b>C&oacute;digo</b></label>
-            <input type="text" id="codescrito" name="codescrito" class="form-control form-control-sm" maxlength="20" style="width:280px;" value="{{ old('codescrito', $libroescritos->codescrito ?? '') }}" @if(isset($libroescritos)) disabled @endif  onkeydown="verificacodbar(event)">
+            <input type="text" id="codescrito" name="codescrito" class="form-control form-control-sm" maxlength="20" style="width:280px;" value="{{ old('codescrito', $libroescritos->codescrito ?? '') }}" @if(isset($libroescritos)) disabled @endif  onkeydown="verificacodbar(event)" onblur="this.value = this.value.toUpperCase()">
             @error('codescrito') <div class="text-danger">{{ $message }}</div> @enderror
         </div>
     </div>
@@ -200,13 +200,50 @@ function numeroAOrdinal($numero) {
     // Buscar patrón: MP + dígitos + letra opcional + espacio opcional + más dígitos
     let match = valor.match(/MP\d+\s*[A-Z]?\s*\d+/i);
         if (match) {
-            document.getElementById("codescrito").value = match[0].trim();
+            document.getElementById("codescrito").value = match[0].trim().toUpperCase();
         } else {
             document.getElementById("codescrito").value = '';
         }
     }
+        
+    
+    document.addEventListener('DOMContentLoaded', function () {
+        const codescritoInputs = document.querySelectorAll('input[name="codescrito"]');
 
+        codescritoInputs.forEach(function (input) {
+            // Al perder foco, convierte a mayúsculas
+            input.addEventListener('blur', function () {
+                this.value = this.value.toUpperCase();
+            });
 
+            // Encuentra el formulario más cercano y añade validación local
+            const form = input.closest('form');
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    const fiscalSelect = form.querySelector('select[name="fiscal"]');
+                    const fiscalValue = fiscalSelect ? fiscalSelect.value.trim() : '';
+
+                    if (!input.value.trim()) {
+                        alert('INGRESE UN CÓDIGO.');
+                        input.focus();
+                        e.preventDefault(); // Evita envío
+                        return;
+                    }
+
+                    if (!fiscalValue) {
+                        alert('SELECCIONE UN FISCAL.');
+                        if (fiscalSelect.selectize) {
+                            fiscalSelect.selectize.focus(); // Enfoca el selectize
+                        } else {
+                            fiscalSelect.focus();
+                        }
+                        e.preventDefault();
+                    }
+
+                });
+            }
+        });
+    });
 
 
 

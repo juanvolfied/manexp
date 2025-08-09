@@ -386,7 +386,8 @@ class MesaController extends Controller
     }    
     public function verificarArchivo($anio, $mes, $codescrito)
     {
-        $ruta = storage_path("app/mesapartes/{$anio}/{$mes}/{$codescrito}.pdf");
+        //$ruta = storage_path("app/mesapartes/{$anio}/{$mes}/{$codescrito}.pdf");
+        $ruta = storage_path("app/mesapartes/{$anio}/{$mes}/" . strtoupper($codescrito) . ".pdf");
         return response()->json(['existe' => file_exists($ruta)]);
     }
 
@@ -493,13 +494,23 @@ class MesaController extends Controller
 
     public function store(Request $request)
     {
+    $codigo = strtoupper($request->input('codescrito'));
 
+    // Verificar si ya existe el código
+    $exists = DB::table('libroescritos')->where('codescrito', $codigo)->exists();
+
+    if ($exists) {
+        return back()
+            ->withInput()
+            ->withErrors(['codescrito' => 'CÓDIGO YA SE ENCUENTRA REGISTRADO']);
+    }
+    
         try {
 
             DB::transaction(function () use ($request) {
                 // Insertar el nuevo documento
                 DB::table('libroescritos')->insert([
-                    'codescrito' => $request->input('codescrito'),
+                    'codescrito' => strtoupper( $request->input('codescrito') ),
                     'tiporecepcion' => 'F',
                     'id_dependencia' => $request->input('id_dependencia'),
                     'despacho' => $request->input('despacho'),
