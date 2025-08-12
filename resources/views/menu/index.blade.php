@@ -199,27 +199,57 @@
     @if ($menumesapartes)
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#mesapartes">
-                  <i class="fas fa-layer-group"></i>
+                  <i class="fas fa-desktop"></i>
                   <p>MESA DE PARTES</p>
                   <span class="caret"></span>
                 </a>
                 <div class="collapse" id="mesapartes">
                   <ul class="nav nav-collapse">
-
                     <li>
                       <a href="{{ route('mesapartes.index') }}">
-                        <span class="sub-item">Registro de ingreso de Escritos</span>
+                        <span class="sub-item">Registro de ESCRITOS</span>
                       </a>
                     </li>
 
+
+
+                    <li>
+                      <a data-bs-toggle="collapse" href="#subnav1">
+                        <span class="sub-item">CONSULTA ESCRITOS</span>
+                        <span class="caret"></span>
+                      </a>
+                      <div class="collapse" id="subnav1">
+                        <ul class="nav nav-collapse subnav">
+
+                          <li>
+                            <a href="{{ route('mesapartes.consultaintervalo') }}">
+                              <span class="sub-item">Por intervalo de fechas</span>
+                            </a>
+                          </li>
+                          <li>
+                            <a href="{{ route('mesapartes.consulta') }}">
+                              <span class="sub-item">Por fecha y fiscal</span>
+                            </a>
+                          </li>
+
+                        </ul>
+                      </div>
+                    </li>
+<!--
+                    <li>
+                      <a href="{{ route('mesapartes.consultaintervalo') }}">
+                        <span class="sub-item">Consulta de escritos por intervalo de fechas</span>
+                      </a>
+                    </li>
                     <li>
                       <a href="{{ route('mesapartes.consulta') }}">
                         <span class="sub-item">Consulta de escritos por fecha y fiscal</span>
                       </a>
-                    </li>
+                    </li>-->
+
                     <li>
                       <a href="{{ route('mesapartes.showupload') }}">
-                        <span class="sub-item">Subir pdfs digitalizados</span>
+                        <span class="sub-item">Anexar archivos digitales PDF</span>
                       </a>
                     </li>
 
@@ -236,7 +266,7 @@
     @if ($menuescritos)
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#escritos">
-                  <i class="fas fa-layer-group"></i>
+                  <i class="fas fa-file"></i>
                   <p>ESCRITOS</p>
                   <span class="caret"></span>
                 </a>
@@ -292,7 +322,7 @@
               </li>
               <li class="nav-item">
                 <a data-bs-toggle="collapse" href="#accesos">
-                  <i class="fas fa-layer-group"></i>
+                  <i class="fas fa-key"></i>
                   <p>ACCESOS</p>
                   <span class="caret"></span>
                 </a>

@@ -615,7 +615,8 @@ class ExpedienteController extends Controller
 
         // Usa el servicio BarcodeGenerator
         $barcodeService = new BarcodeGenerator();
-        $barcodePng = $barcodeService->generate('',"*".$barcodeData."*", 20, 'vertical', 'code128', true,1);
+        //$barcodePng = $barcodeService->generate('',"*".$barcodeData."*", 20, 'vertical', 'code128', true,1);
+        $barcodePng = $barcodeService->generate('',$barcodeData, 20, 'vertical', 'code128', true,1);
 
         // Codifica en base64
         $barcode = base64_encode($barcodePng);

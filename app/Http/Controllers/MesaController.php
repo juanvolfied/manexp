@@ -150,21 +150,6 @@ class MesaController extends Controller
     }
     public function generarConsFiscalPDF($id_fiscal, $fechareg)
     {  
-/*        $datosfiscal = DB::table('personal')
-        ->leftJoin('dependencia', 'personal.id_dependencia', '=', 'dependencia.id_dependencia')
-        ->select(
-            'personal.id_personal',
-            'personal.apellido_paterno',
-            'personal.apellido_materno',
-            'personal.nombres',
-            'personal.id_dependencia',
-            'personal.despacho',
-            'dependencia.descripcion',
-            'dependencia.abreviado'
-        )
-        ->where('id_personal', $id_fiscal)
-        ->first();
-*/
         $datosfiscal = DB::table('personal')
         ->select(
             'personal.id_personal',
@@ -264,7 +249,8 @@ class MesaController extends Controller
         $barcodeData = 'MP' .  substr($year, -2) . str_pad($id_dependencia, 2, '0', STR_PAD_LEFT) . $despachoFinal . $datodistrito . str_pad($nuevoNumero, 4, '0', STR_PAD_LEFT);
         // Usa el servicio BarcodeGenerator
         $barcodeService = new BarcodeGenerator();
-        $barcodePng = $barcodeService->generate('',"*".$barcodeData."*", 20, 'horizontal', 'code128', true,1);
+        //$barcodePng = $barcodeService->generate('',"*".$barcodeData."*", 20, 'horizontal', 'code128', true,1);
+        $barcodePng = $barcodeService->generate('',$barcodeData, 20, 'horizontal', 'code128', true,1);
         // Codifica en base64
         $barcode = base64_encode($barcodePng);
 
@@ -329,6 +315,61 @@ class MesaController extends Controller
         ->header('Content-Disposition', 'inline; filename="pdfcodbar'. (Auth::user()->id_personal) .'.pdf"');
 
     }
+
+    public function consultarIntervalo()
+    {
+        return view('mesapartes.consultaintervalofecha');
+    }
+    public function consultarIntervalodetalle(Request $request)
+    {
+        $fechaini = $request->input('fechaini');    
+        $fechafin = $request->input('fechafin');    
+
+        $segdetalle = DB::table('libroescritos')
+        ->leftJoin('personal', 'libroescritos.id_fiscal', '=', 'personal.id_personal')
+        ->leftJoin('dependencia', 'libroescritos.id_dependencia', '=', 'dependencia.id_dependencia')
+        ->select(
+            'libroescritos.codescrito',
+            'libroescritos.tiporecepcion',
+            'dependencia.abreviado',
+            'libroescritos.despacho',
+            'personal.apellido_paterno',
+            'personal.apellido_materno',
+            'personal.nombres',
+            'libroescritos.tipo',
+            'libroescritos.descripcion as descripcionescrito',
+            'libroescritos.dependenciapolicial',
+            'libroescritos.remitente',
+            'libroescritos.carpetafiscal',
+            'libroescritos.folios',
+            'libroescritos.fecharegistro'
+        )
+        ->whereDate('fecharegistro', '>=', $fechaini)
+        ->whereDate('fecharegistro', '<=', $fechafin)
+        ->orderBy('fecharegistro', 'asc') 
+        ->get();
+
+        if ($segdetalle->isNotEmpty()) {
+            return response()->json([
+                'success' => true,
+                'registros' => $segdetalle,
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'NO SE ENCONTRARON CARPETAS FISCALES DEL'. $fechaini .' AL '. $fechafin .' .',
+            ]);
+        }
+
+    }
+
+
+
+
+
+
+
+
     public function showupload()
     {
         return view('mesapartes.upload');
@@ -1152,7 +1193,8 @@ class MesaController extends Controller
 
         // Usa el servicio BarcodeGenerator
         $barcodeService = new BarcodeGenerator();
-        $barcodePng = $barcodeService->generate('',"*".$barcodeData."*", 20, 'vertical', 'code128', true,1);
+        //$barcodePng = $barcodeService->generate('',"*".$barcodeData."*", 20, 'vertical', 'code128', true,1);
+        $barcodePng = $barcodeService->generate('',$barcodeData, 20, 'vertical', 'code128', true,1);
 
         // Codifica en base64
         $barcode = base64_encode($barcodePng);

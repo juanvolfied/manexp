@@ -70,15 +70,18 @@ Route::get('/mesapartes', [MesaController::class, 'index'])->name('mesapartes.in
 Route::get('/mesapartes/registrolibros', [MesaController::class, 'nuevoEscrito'])->name('mesapartes.libroescritos');
 Route::get('/mesapartes/registrolibrosv', [MesaController::class, 'nuevoEscritoV'])->name('mesapartes.libroescritosv');
 Route::get('/mesapartes/consultafiscal', [MesaController::class, 'consultarFiscal'])->name('mesapartes.consulta');
+Route::post('/mesapartes', [MesaController::class, 'consultarFiscaldetalle'])->name('mesapartes.consultadetalle');
 Route::post('/mesapartes/store', [MesaController::class, 'store'])->name('mesapartes.store');
 Route::post('/mesapartes/storev', [MesaController::class, 'storetpv'])->name('mesapartes.storev');
+Route::get('/mesapartes/consultaintervalofechas', [MesaController::class, 'consultarIntervalo'])->name('mesapartes.consultaintervalo');
+Route::post('/mesapartes/consultaintervalodetalle', [MesaController::class, 'consultarIntervalodetalle'])->name('mesapartes.consultaintervalodetalle');
+
 
 //Route::get('/mesapartes/{anolibro}/{numero}/edit', [MesaController::class, 'edit'])->name('mesapartes.edit');
 //Route::put('/mesapartes/{anolibro}/{numero}', [MesaController::class, 'update'])->name('mesapartes.update');
 Route::get('/mesapartes/{codescrito}/edit', [MesaController::class, 'edit'])->name('mesapartes.edit');
 Route::put('/mesapartes/{codescrito}', [MesaController::class, 'update'])->name('mesapartes.update');
 
-Route::post('/mesapartes', [MesaController::class, 'consultarFiscaldetalle'])->name('mesapartes.consultadetalle');
 Route::get('/mesapartes/{fiscal}/{fecha}/pdf', [MesaController::class, 'generarConsFiscalPDF'])->name('escritosfiscal.pdf');
 Route::get('/mesapartes/{codigogenerar}/pdf', [MesaController::class, 'generarCodigoBarrasPDF'])->name('mesapartescodbarras.pdf');
 
