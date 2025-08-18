@@ -66,11 +66,25 @@ Route::post('/eliminar-item', [MenuController::class, 'eliminarItem'])->name('el
 Route::get('/inventariov2', [MenuController::class, 'nuevoExpedientev2'])->name('inventariov2');
 
 
-Route::get('/mesapartes', [MesaController::class, 'index'])->name('mesapartes.index');
+Route::get('/seguimiento', [MenuController::class, 'seguimientoInventario'])->name('seginventario');
+//Route::get('/detalle/{nro_inv}', [MenuController::class, 'mostrarDetalle'])->name('seguimiento.detalle');
+Route::post('/seguimiento', [MenuController::class, 'mostrarDetalle'])->name('seguimiento.detalle');
+Route::get('/grafico', [InventarioController::class, 'mostrarVistaGrafico'])->name('grafico');
+Route::get('/grafico-usuario', [InventarioController::class, 'graficoPorUsuario'])->name('grafico.usuario');
+Route::get('/graficopie', [InventarioController::class, 'mostrarGraficoPie'])->name('graficopie');
+Route::get('/graficopie-fecha', [InventarioController::class, 'graficoPieFecha'])->name('graficopie.fecha');
+
+
+
+
+
+//Route::get('/mesapartes', [MesaController::class, 'index'])->name('mesapartes.index');
+Route::match(['get', 'post'], '/mesapartes', [MesaController::class, 'index'])->name('mesapartes.index');
+
 Route::get('/mesapartes/registrolibros', [MesaController::class, 'nuevoEscrito'])->name('mesapartes.libroescritos');
 Route::get('/mesapartes/registrolibrosv', [MesaController::class, 'nuevoEscritoV'])->name('mesapartes.libroescritosv');
 Route::get('/mesapartes/consultafiscal', [MesaController::class, 'consultarFiscal'])->name('mesapartes.consulta');
-Route::post('/mesapartes', [MesaController::class, 'consultarFiscaldetalle'])->name('mesapartes.consultadetalle');
+Route::post('/mesapartes/consultafiscaldetalle', [MesaController::class, 'consultarFiscaldetalle'])->name('mesapartes.consultadetalle');
 Route::post('/mesapartes/store', [MesaController::class, 'store'])->name('mesapartes.store');
 Route::post('/mesapartes/storev', [MesaController::class, 'storetpv'])->name('mesapartes.storev');
 Route::get('/mesapartes/consultaintervalofechas', [MesaController::class, 'consultarIntervalo'])->name('mesapartes.consultaintervalo');
@@ -94,14 +108,6 @@ Route::post('/mesapartes/uploadchunk', [MesaController::class, 'uploadChunk'])->
 Route::post('/mesapartes/uploadchunkcargos', [MesaController::class, 'uploadChunkCargos'])->name('upload.chunkcargos');
 
 
-
-Route::get('/seguimiento', [MenuController::class, 'seguimientoInventario'])->name('seginventario');
-//Route::get('/detalle/{nro_inv}', [MenuController::class, 'mostrarDetalle'])->name('seguimiento.detalle');
-Route::post('/seguimiento', [MenuController::class, 'mostrarDetalle'])->name('seguimiento.detalle');
-Route::get('/grafico', [InventarioController::class, 'mostrarVistaGrafico'])->name('grafico');
-Route::get('/grafico-usuario', [InventarioController::class, 'graficoPorUsuario'])->name('grafico.usuario');
-Route::get('/graficopie', [InventarioController::class, 'mostrarGraficoPie'])->name('graficopie');
-Route::get('/graficopie-fecha', [InventarioController::class, 'graficoPieFecha'])->name('graficopie.fecha');
 
 // Ruta para listar
 Route::get('/deppolicial', [DepPoliController::class, 'index'])->name('deppolicial.index');

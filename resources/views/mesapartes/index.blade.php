@@ -31,6 +31,12 @@ function numeroAOrdinal($numero) {
     'Z' => 'OTROS',
     ];
 @endphp
+@auth
+    @php
+        $perfil = optional(Auth::user()->perfil)->descri_perfil;        
+    @endphp
+@endauth
+
 <!--<div class="container mt-4">-->
     <!--<h2 class="mb-4">Expedientes Registrados</h2>-->
 
@@ -44,7 +50,15 @@ function numeroAOrdinal($numero) {
     <a href="{{ route('mesapartes.libroescritosv') }}" class="btn btn-secondary mb-3">+ Nuevo Registro - Recepci&oacute;n Virtual</a>
     <div class="card">
         <div class="card-header">
-        <div class="card-title">Escritos registrados hoy ({{ date('Y-m-d') }})</div>
+        <form action="{{ route('mesapartes.index') }}" method="POST">
+            @csrf
+
+            <div class="card-title">Escritos registrados : 
+            <input type="date" name="fecharegistro" id="fecharegistro" value="{{ $fecha ?? date('Y-m-d') }}">
+            <button type="submit">Refrescar</button></div>
+
+        </form>
+
         </div>
         <div class="card-body table-responsive">
 
@@ -86,7 +100,7 @@ function numeroAOrdinal($numero) {
                         <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ $p->folios }}</td>
                         <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
                             
-                            @if($esHoy)
+                            @if($esHoy || ($perfil=="Admin"))
                                 <a href="{{ route('mesapartes.edit', ['codescrito' => $p->codescrito]) }}"
                                 data-bs-toggle="tooltip" title="Editar escrito/oficio/...">
                                     <i class="fas fa-edit fa-lg"></i>

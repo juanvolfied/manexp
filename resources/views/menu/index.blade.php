@@ -86,38 +86,39 @@
     @php
         $menuinventario = in_array($perfil, ['Admin', 'Inventario','Archivo']);
         $puedeVerGrafico = in_array($perfil, ['Admin','Archivo']);
+        $menuActivo = request()->is('inventario', 'inventariov2', 'seguimiento', 'grafico', 'graficopie');
     @endphp
     @if ($menuinventario)
-              <li class="nav-item">
+              <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
                 <a data-bs-toggle="collapse" href="#dashboard" >
                   <i class="fas fa-home"></i>
                   <p>INVENTARIO</p>
                   <span class="caret"></span>
                 </a>
-                <div class="collapse" id="dashboard">
+                <div class="collapse {{ $menuActivo ? 'show' : '' }}" id="dashboard">
                   <ul class="nav nav-collapse">
-                    <li>
+                    <li class="{{ request()->is('inventario') ? 'active' : '' }}" >
                       <a href="{{ route('inventario') }}">
                         <span class="sub-item">Registro de Inventario</span>
                       </a>
                     </li>
-                    <li>
+                    <li class="{{ request()->is('inventariov2') ? 'active' : '' }}" >
                       <a href="{{ route('inventariov2') }}">
                         <span class="sub-item">Registro de Inventario forma 2</span>
                       </a>
                     </li>
-                    <li>
+                    <li class="{{ request()->is('seguimiento') ? 'active' : '' }}" >
                       <a href="{{ route('seginventario') }}">
                         <span class="sub-item">Seguimiento</span>
                       </a>
                     </li>
       @if($puedeVerGrafico)
-                    <li>
+                    <li class="{{ request()->is('grafico') ? 'active' : '' }}" >
                       <a href="{{ route('grafico') }}">
                         <span class="sub-item">Gr&aacute;fico de Avance</span>
                       </a>
                     </li>
-                    <li>
+                    <li class="{{ request()->is('graficopie') ? 'active' : '' }}" >
                       <a href="{{ route('graficopie') }}">
                         <span class="sub-item">Gr&aacute;fico por Dependencia</span>
                       </a>
@@ -148,32 +149,33 @@
         $puedeRegistrar = in_array($perfil, ['Admin','Despacho']);
         $puedeGenerarGuia = in_array($perfil, ['Admin','Despacho']);
         $puedeRecepcionar = in_array($perfil, ['Admin','Archivo']);
+        $menuActivo = request()->is('expediente', 'internamiento-lista', 'internamiento-recep');
     @endphp
     @if ($menuexpedientes)
-              <li class="nav-item">
+              <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
                 <a data-bs-toggle="collapse" href="#movimientos">
                   <i class="fas fa-layer-group"></i>
                   <p>EXPEDIENTES</p>
                   <span class="caret"></span>
                 </a>
-                <div class="collapse" id="movimientos">
+                <div class="collapse {{ $menuActivo ? 'show' : '' }}" id="movimientos">
                   <ul class="nav nav-collapse">
       @if($puedeRegistrar)
-                    <li>
+                    <li class="{{ request()->is('expediente') ? 'active' : '' }}" >
                       <a href="{{ route('expediente.index') }}">
                         <span class="sub-item">Registro de Expedientes</span>
                       </a>
                     </li>
       @endif
       @if($puedeGenerarGuia)
-                    <li>
+                    <li class="{{ request()->is('internamiento-lista') ? 'active' : '' }}" >
                       <a href="{{ route('internamiento.index') }}">
                         <span class="sub-item">Guia de Internamiento</span>
                       </a>
                     </li>
       @endif
       @if($puedeRecepcionar)
-                    <li>
+                    <li class="{{ request()->is('internamiento-recep') ? 'active' : '' }}" >
                       <a href="{{ route('internamiento.recepcion') }}">
                         <span class="sub-item">Recepción Guia de Internamiento</span>
                       </a>
@@ -195,17 +197,19 @@
 
     @php
         $menumesapartes = in_array($perfil, ['Admin','mesapartes']);
+        $menuActivo = request()->is('mesapartes', 'mesapartes/upload');
+        $submenuActivo = request()->is('mesapartes/consultaintervalofechas', 'mesapartes/consultafiscal');
     @endphp
     @if ($menumesapartes)
-              <li class="nav-item">
+              <li class="nav-item {{ ($menuActivo || $submenuActivo) ? 'active submenu' : '' }}">
                 <a data-bs-toggle="collapse" href="#mesapartes">
                   <i class="fas fa-desktop"></i>
                   <p>MESA DE PARTES</p>
                   <span class="caret"></span>
                 </a>
-                <div class="collapse" id="mesapartes">
+                <div class="collapse {{ ($menuActivo || $submenuActivo) ? 'show' : '' }}" id="mesapartes">
                   <ul class="nav nav-collapse">
-                    <li>
+                    <li class="{{ request()->is('mesapartes') ? 'active' : '' }}" >
                       <a href="{{ route('mesapartes.index') }}">
                         <span class="sub-item">Registro de ESCRITOS</span>
                       </a>
@@ -213,20 +217,20 @@
 
 
 
-                    <li>
+                    <li class="{{ $submenuActivo ? 'active submenu' : '' }}" >
                       <a data-bs-toggle="collapse" href="#subnav1">
                         <span class="sub-item">CONSULTA ESCRITOS</span>
                         <span class="caret"></span>
                       </a>
-                      <div class="collapse" id="subnav1">
+                      <div class="collapse {{ $submenuActivo ? 'show' : '' }}" id="subnav1">
                         <ul class="nav nav-collapse subnav">
 
-                          <li>
+                          <li class="{{ request()->is('mesapartes/consultaintervalofechas') ? 'active' : '' }}">
                             <a href="{{ route('mesapartes.consultaintervalo') }}">
                               <span class="sub-item">Por intervalo de fechas</span>
                             </a>
                           </li>
-                          <li>
+                          <li class="{{ request()->is('mesapartes/consultafiscal') ? 'active' : '' }}">
                             <a href="{{ route('mesapartes.consulta') }}">
                               <span class="sub-item">Por fecha y fiscal</span>
                             </a>
@@ -247,7 +251,7 @@
                       </a>
                     </li>-->
 
-                    <li>
+                    <li class="{{ request()->is('mesapartes/upload') ? 'active' : '' }}">
                       <a href="{{ route('mesapartes.showupload') }}">
                         <span class="sub-item">Anexar archivos digitales PDF</span>
                       </a>
@@ -262,18 +266,19 @@
 
     @php
         $menuescritos = in_array($perfil, ['Admin','Despacho']);
+        $menuActivo = request()->is('mesapartes/consultaescritos', 'otro');
     @endphp
     @if ($menuescritos)
-              <li class="nav-item">
+              <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
                 <a data-bs-toggle="collapse" href="#escritos">
                   <i class="fas fa-file"></i>
                   <p>ESCRITOS</p>
                   <span class="caret"></span>
                 </a>
-                <div class="collapse" id="escritos">
+                <div class="collapse {{ $menuActivo ? 'show' : '' }}" id="escritos">
                   <ul class="nav nav-collapse">
 
-                    <li>
+                    <li class="{{ request()->is('mesapartes/consultaescritos') ? 'active' : '' }}">
                       <a href="{{ route('mesapartes.consultaescritos') }}">
                         <span class="sub-item">Consulta de escritos</span>
                       </a>
@@ -286,33 +291,40 @@
 
 
 
-
-    
+    @php
+        $menuActivo = request()->is('personal', 'deppolicial', 'mantenimiento/reactiva', 'mantenimiento/verdependencias', 'backup');
+        $menuActivo2 = request()->is('usuarios', 'perfilusuario');
+    @endphp    
     @if(in_array($perfil, ['Admin']))
-              <li class="nav-item">
+              <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
                 <a data-bs-toggle="collapse" href="#mantenimiento">
                   <i class="fas fa-wrench"></i>
                   <p>MANTENIMIENTO</p>
                   <span class="caret"></span>
                 </a>
-                <div class="collapse" id="mantenimiento">
+                <div class="collapse {{ $menuActivo ? 'show' : '' }}" id="mantenimiento">
                   <ul class="nav nav-collapse">
-                    <li>
+                    <li class="{{ request()->is('personal') ? 'active' : '' }}">
+                      <a href="{{ route('personal.index') }}">
+                        <span class="sub-item">Personal</span>
+                      </a>
+                    </li>
+                    <li class="{{ request()->is('deppolicial') ? 'active' : '' }}">
                       <a href="{{ route('deppolicial.index') }}">
                         <span class="sub-item">Dependencias Policiales</span>
                       </a>
                     </li>
-                    <li>
+                    <li class="{{ request()->is('mantenimiento/reactiva') ? 'active' : '' }}">
                       <a href="{{ route('reactivainventario') }}">
                         <span class="sub-item">Reactiva Movimiento de Inventario</span>
                       </a>
                     </li>
-                    <li>
+                    <li class="{{ request()->is('mantenimiento/verdependencias') ? 'active' : '' }}">
                       <a href="{{ route('verdependencias') }}">
                         <span class="sub-item">Selecciona Dependencias para Inventarios</span>
                       </a>
                     </li>
-                    <li>
+                    <li class="{{ request()->is('backup') ? 'active' : '' }}">
                       <a href="{{ route('backup') }}">
                         <span class="sub-item">Backup</span>
                       </a>
@@ -320,25 +332,20 @@
                   </ul>
                 </div>
               </li>
-              <li class="nav-item">
+              <li class="nav-item {{ $menuActivo2 ? 'active submenu' : '' }}">
                 <a data-bs-toggle="collapse" href="#accesos">
                   <i class="fas fa-key"></i>
                   <p>ACCESOS</p>
                   <span class="caret"></span>
                 </a>
-                <div class="collapse" id="accesos">
+                <div class="collapse {{ $menuActivo2 ? 'show' : '' }}" id="accesos">
                   <ul class="nav nav-collapse">
-                    <li>
-                      <a href="{{ route('personal.index') }}">
-                        <span class="sub-item">Personal</span>
-                      </a>
-                    </li>
-                    <li>
+                    <li class="{{ request()->is('usuarios') ? 'active' : '' }}">
                       <a href="{{ route('usuarios.index') }}">
                         <span class="sub-item">Usuarios</span>
                       </a>
                     </li>
-                    <li>
+                    <li class="{{ request()->is('perfilusuario') ? 'active' : '' }}">
                       <a href="{{ route('perfilusuario.index') }}">
                         <span class="sub-item">Asigna Perfil a Usuarios</span>
                       </a>
