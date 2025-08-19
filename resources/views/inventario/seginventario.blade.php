@@ -74,7 +74,7 @@ function numeroAOrdinal($numero) {
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->usuario }}</td>
     @endif
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->nro_inventario}}</td>
-                        <td style="padding: 5px 10px!important; font-size: 11px !important;">Archivo 00{{ $datos->archivo}}</td>
+                        <td style="padding: 5px 10px!important; font-size: 11px !important;">Archivo {{ str_pad($datos->archivo, 3, '0', STR_PAD_LEFT) }}</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->anaquel}}</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->nro_paquete}}</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->serie}}</td>

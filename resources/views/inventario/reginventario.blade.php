@@ -51,6 +51,12 @@
 			    <option value="4">Archivo 004</option>
 			    <option value="5">Archivo 005</option>
 			    <option value="6">Archivo 006</option>
+			    <option value="7">Archivo 007</option>
+			    <option value="8">Archivo 008</option>
+			    <option value="9">Archivo 009</option>
+			    <option value="10">Archivo 010</option>
+			    <option value="11">Archivo 011</option>
+			    <option value="12">Archivo 012</option>
 			  </select>
                         </div>
                       </div>

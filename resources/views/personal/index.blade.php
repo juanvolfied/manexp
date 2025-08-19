@@ -47,7 +47,7 @@ function numeroAOrdinal($numero) {
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Dependencia</th>
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Despacho</th>
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Activo</th>
-                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Acciones</th>
+                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;" colspan=2>Acciones</th>
             </tr>
         </thead>
         <tbody>
@@ -60,11 +60,14 @@ function numeroAOrdinal($numero) {
                     <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ $p->descripcion }}</td>
                     <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ numeroAOrdinal($p->despacho) }} DESPACHO</td>
                     <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ $p->activo }}</td>
-                    <td style="padding: 5px 5px!important; font-size: 12px !important;">
-                        <a href="{{ route('personal.edit', $p->id_personal) }}" class="btn btn-sm btn-warning">Editar</a>
+                    <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;" >
+                        <a href="{{ route('personal.edit', $p->id_personal) }}"><i class="fas fa-edit fa-lg"></i><br>Editar</a>
+                    </td>
+                    <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
                         <form action="{{ route('personal.destroy', $p->id_personal) }}" method="POST" class="d-inline">
                             @csrf @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('�Est�s seguro de eliminar este registro?')">Eliminar</button>
+                            <button type="submit" class="btn btn-link p-0 btn-danger" style="font-size: 12px !important;text-decoration: none;" onclick="return confirm('�Est�s seguro de eliminar este registro?')">
+                                <i class="fas fa-trash-alt fa-lg"></i><br>Eliminar</button>
                         </form>
                     </td>
                 </tr>
@@ -85,7 +88,7 @@ function numeroAOrdinal($numero) {
 $(document).ready(function() {
     $('#tablapersonal').DataTable({
   "columnDefs": [
-    { "orderable": false, "targets": [7] }  // Evitar orden en columnas de acción si no es necesario
+    { "orderable": false, "targets": [7,8] }  // Evitar orden en columnas de acción si no es necesario
   ],
         "pageLength": 20,  // Número de filas por página
         "lengthMenu": [10, 25, 50, 100],  // Opciones de paginación
