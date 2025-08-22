@@ -169,6 +169,295 @@ class ExpedienteController extends Controller
             ]);        
 	    }
     }
+
+    //IMPORTACION DE DATOS DESDE PAQ TRANSFERENCIA DE NOTIFICACIONES
+    public function indexImporta()
+    {
+        $dependencias = DB::table('dependencia')
+            ->where('inventario', 'S')
+            ->orderBy('descripcion', 'asc')
+            ->get();
+        //return view('inventario.reginventario', compact('dependencias'));
+
+        return view('expediente_movs.importa', compact('dependencias'));
+    }
+    public function importaBuscaPaq(Request $request)
+    {
+        $codtra = $request->input('codtra');    
+        $paqtransfe = DB::connection('mysql2')->table('invtracarpcab')
+        ->where('codbarraspaquete', $codtra)
+        ->orderBy('codbarraspaquete', 'asc')
+        ->first();
+        if (!$paqtransfe) {
+            return response()->json([
+                'success' => false,
+                'message' => 'INFORMACION NO DISPONIBLE PARA EL CODIGO PROPORCIONADO.',
+            ]);
+        }
+        $idtran = $paqtransfe->autogentran; 
+
+        $carpetasimportar = DB::connection('mysql2')->table('invtracarpdet')
+        ->leftJoin('carpfisc', 'invtracarpdet.idcarp', '=', 'carpfisc.autogencarp')
+        ->leftJoin('maedeli', 'carpfisc.codmateria', '=', 'maedeli.autogendelito')
+        ->select(
+            'carpfisc.codbarras', 
+            'carpfisc.autogencarp',
+            'carpfisc.nrocarp',
+            'carpfisc.folios',
+            'carpfisc.agraviado',
+            'carpfisc.imputado',
+            'carpfisc.codmateria',
+            'maedeli.descripcion',
+            'carpfisc.ano',
+            'carpfisc.observacion',
+        ) 
+        ->where('idtran', $idtran)
+        ->orderBy('orden', 'asc')
+        ->get();
+
+        if ($carpetasimportar->isNotEmpty()) {
+            return response()->json([
+                'success' => true,
+                'registros' => $carpetasimportar,
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'NO SE ENCONTRARON CARPETAS FISCALES CON LOS DATOS PROPORCIONADOS.',
+            ]);
+        }
+
+    }
+    public function grabaImporta(Request $request)
+    {
+        $fechaActual = now()->format('Y-m-d');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $horaActual = now()->format('H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $anoActual = substr($fechaActual,0,4);
+
+        // Convertir el JSON a un array
+        $scannedItems = json_decode($request->scannedItems, true);
+
+        DB::beginTransaction();
+        try {
+                    
+            if (trim($request->observacion) !="" ) {
+                ObsInventario::create([
+                'nro_inventario' => $request->nroinventarioobs,
+                'observacion' => $request->observacion,
+                ]);
+            }
+                DB::table('inventario_reactiva')
+                ->where('nro_inventario', $request->nroinventarioobs)
+                ->where('activo', 'S')
+                ->update(['activo' => 'N']);
+	
+            foreach ($scannedItems as $item) {
+                $registro = DB::table('expediente')
+                ->where('codbarras', $item['codbarras'])
+                ->first();
+                if (!$registro) {
+
+                    $idExpediente = DB::table('expediente')->insertGetId([
+                        'codbarras' => $item['codbarras'],
+                        'nro_expediente' => $item['nroexpediente'],
+                        'ano_expediente' => $item['ano'],
+                        'id_dependencia' => $item['dependencia'],
+                        'id_tipo' => $item['tipo'],
+                        'fecha_ingreso' => $fechaActual,
+                        'hora_ingreso' => $horaActual,
+                        'estado' => 'A',
+                        'fecha_lectura' => $fechaActual,
+                        'hora_lectura' => $horaActual,
+                        'fecha_inventario' => $fechaActual,
+                        'hora_inventario' => $horaActual,
+                        'id_personal' => Auth::user()->id_personal,
+                        'id_usuario' => Auth::user()->id_usuario,
+                        'imputado' => $item['imputado'],
+                        'agraviado' => $item['agraviado'],
+                        'delito' => $item['delito'],
+                        'nro_folios' => $item['folios'],
+                    ]);
+
+                    $ultimoRegistro = DB::table('ubicacion_exp')
+                        ->where('ano_movimiento', $anoActual)
+                        ->orderBy('nro_movimiento', 'desc')
+                        ->first();
+
+                    $nromov = $ultimoRegistro ? $ultimoRegistro->nro_movimiento + 1 : 1;
+
+                    DB::table('ubicacion_exp')->insert([
+                        'nro_movimiento' => $nromov,
+                        'ano_movimiento' => $anoActual,
+                        'id_personal' => Auth::user()->id_personal,
+                        'id_usuario' => Auth::user()->id_usuario,
+                        'archivo' => $request->archivo,
+                        'anaquel' => $request->anaquel,
+                        'nro_paquete' => $request->nropaquete,
+                        'serie' => $request->serie,
+                        'nro_inventario' => $request->codigo,//codigo de paquete de transferencia
+                        'id_expediente' => $idExpediente,
+
+                        'nro_expediente' => $item['nroexpediente'],
+                        'ano_expediente' => $item['ano'],
+                        'id_dependencia' => $item['dependencia'],
+                        'id_tipo' => $item['tipo'],
+
+                        'ubicacion' => 'A',             //A=Archivo D=Despacho
+                        'tipo_ubicacion' => 'I',        //I=Inventario T=Transito
+                        'fecha_movimiento' => $fechaActual,
+                        'hora_movimiento' => $horaActual,
+                        'motivo_movimiento' => 'Internamiento',                
+                        'paq_dependencia' => $request->dependencia,
+                        'despacho' => $request->despacho,
+                        'activo' => 'S',
+                        'estado' => 'A',
+                        'fecha_lectura' => $fechaActual,
+                        'hora_lectura' => $horaActual,
+                        'fecha_inventario' => $fechaActual,
+                        'hora_inventario' => $horaActual,
+                        'tomo' => $item['tomo'],
+                        'acompanados' => ($request->has('checkacomp') ? 'S' : 'N') ,
+                        'cuadernos' => ($request->has('checkcuade') ? 'S' : 'N') ,
+                    ]);
+
+
+                }
+//                    scannedItems.push({ codbarras, dependencia, ano, nroexpediente, tipo, estado, tomo, folios, agraviado, imputado, delito, observacion});
+
+            }
+            DB::commit(); // Confirmar la transacción
+
+            return redirect()->back()->with('messageOK', 'REGISTROS IMPORTADOS EXITOSAMENTE');
+
+        } catch (\Exception $e) {
+            DB::rollBack(); // Deshacer la transacción
+
+            return redirect()->back()->with('messageErr', 'HUBO UN ERROR AL GUARDAR, INTENTELO NUEVAMENTE: ' . $e->getMessage());
+        }
+
+
+
+
+        $codbar = $request->input('codbarras');
+        $existe = DB::table('expediente')->where('codbarras', $codbar)->first();
+        $dep_exp=substr($codbar,0,11);
+        $ano_exp=substr($codbar,11,4);
+        $nro_exp=substr($codbar,15,6);
+        $tip_exp=substr($codbar,21,4);
+        $dep_exp = (int) $dep_exp; 
+        $tomo = $request->input('tomo');
+        $idexpe = 0;
+        if ($existe) {
+            $idexpe = $existe->id_expediente; 
+            $ubitomo = DB::table('ubicacion_exp')
+            ->where('id_expediente', $idexpe)
+            ->where('tomo', $tomo)
+            ->first();
+        }
+            
+        //$fechaHoraActualFormateada = now()->format('Y-m-d H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $fechaActual = now()->format('Y-m-d');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $horaActual = now()->format('H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $anoActual = substr($fechaActual,0,4);
+
+        if ($existe) {
+            if ($ubitomo) {            
+                return response()->json([
+                    'success' => false,
+                    'message' => utf8_encode('El expediente ' . $codbar . ' ya est&aacute; registrado en la base de datos.')
+                ]);        
+            }
+        } 
+
+        try {
+            DB::transaction(function () use (
+                $existe, $idexpe, $codbar, $nro_exp, $ano_exp, $dep_exp, $tip_exp, $fechaActual, $horaActual,
+                $tomo, $anoActual, $request, &$idExpediente
+            ) {
+
+                if ($existe) {
+                    $idExpediente = $idexpe;
+                } else {
+                    $idExpediente = DB::table('expediente')->insertGetId([
+                        'codbarras' => $codbar,
+                        'nro_expediente' => $nro_exp,
+                        'ano_expediente' => $ano_exp,
+                        'id_dependencia' => $dep_exp,
+                        'id_tipo' => $tip_exp,
+                        'fecha_ingreso' => $fechaActual,
+                        'hora_ingreso' => $horaActual,
+                        'estado' => 'L',
+                        'fecha_lectura' => $fechaActual,
+                        'hora_lectura' => $horaActual,
+                        'id_personal' => Auth::user()->id_personal,
+                        'id_usuario' => Auth::user()->id_usuario,
+                    ]);
+                }
+
+                $ultimoRegistro = DB::table('ubicacion_exp')
+                    ->where('ano_movimiento', $anoActual)
+                    ->orderBy('nro_movimiento', 'desc')
+                    ->first();
+
+                $nromov = $ultimoRegistro ? $ultimoRegistro->nro_movimiento + 1 : 1;
+
+                DB::table('ubicacion_exp')->insert([
+                    'nro_movimiento' => $nromov,
+                    'ano_movimiento' => $anoActual,
+                    'id_personal' => Auth::user()->id_personal,
+                    'id_usuario' => Auth::user()->id_usuario,
+                    'archivo' => $request->archivo,
+                    'anaquel' => $request->anaquel,
+                    'nro_paquete' => $request->nropaquete,
+                    'serie' => $request->serie,
+                    'nro_inventario' => $request->nroinventario,
+                    'id_expediente' => $idExpediente,
+
+                    'nro_expediente' => $nro_exp,
+                    'ano_expediente' => $ano_exp,
+                    'id_dependencia' => $dep_exp,
+                    'id_tipo' => $tip_exp,
+                    'ubicacion' => 'A',             //A=Archivo D=Despacho
+                    'tipo_ubicacion' => 'T',        //I=Inventario T=Transito
+                    'fecha_movimiento' => $fechaActual,
+                    'hora_movimiento' => $horaActual,
+                    'motivo_movimiento' => 'Inventario',                
+                    'paq_dependencia' => $request->dependencia,
+                    'despacho' => $request->despacho,
+                    'activo' => 'S',
+                    'estado' => 'L',
+                    'fecha_lectura' => $fechaActual,
+                    'hora_lectura' => $horaActual,
+                    'tomo' => $tomo,
+                    'acompanados' => ($request->has('checkacomp') ? 'S' : 'N') ,
+                    'cuadernos' => ($request->has('checkcuade') ? 'S' : 'N') ,
+                ]);
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Expediente ha guardado la Lectura.',
+                'fechalect' => $fechaActual,
+                'horalect' => $horaActual
+            ]);        
+	    
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'HUBO UN ERROR AL GUARDAR LA LECTURA, INTENTELO NUEVAMENTE : ' . $e->getMessage()
+            ]);
+        }
+
+
+        //return redirect()->back()->with('messageOK', 'Registros guardados exitosamente');
+    }
+
+
+
+
+
+
+
     public function seguimiento()
     {
         return view('expediente.seguimiento');

@@ -173,6 +173,12 @@ Route::delete('/perfilusuario/{id_usuario}/{id_perfil}', [PerfilUsuarioControlle
 
 // Ruta para listar
 Route::get('/expediente', [ExpedienteController::class, 'index'])->name('expediente.index');
+
+Route::get('/expediente/importa', [ExpedienteController::class, 'indexImporta'])->name('expediente.importa');
+Route::post('/expediente/buscapaq', [ExpedienteController::class, 'importaBuscaPaq'])->name('expediente.buscapaqtransfe');
+Route::post('/expediente/grabaimporta', [ExpedienteController::class, 'grabaImporta'])->name('expediente.grabaimporta');
+
+
 // Ruta para formulario de creaci�n
 Route::get('/expediente/create', [ExpedienteController::class, 'create'])->name('expediente.create');
 // Ruta para guardar nuevo personal
@@ -190,6 +196,7 @@ Route::post('/expediente-busca', [ExpedienteController::class, 'buscaExpediente'
 Route::get('/expediente-seg', [ExpedienteController::class, 'seguimiento'])->name('expediente.seguimiento');
 Route::post('/expediente-bus', [ExpedienteController::class, 'buscaseguimiento'])->name('expediente.buscacarpetas');
 Route::post('/expediente-det', [ExpedienteController::class, 'detalleseguimiento'])->name('expediente.segdetalle');
+
 
 
 Route::get('/internamiento-lista', [ExpedienteController::class, 'indexinternamiento'])->name('internamiento.index');

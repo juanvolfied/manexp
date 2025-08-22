@@ -129,6 +129,15 @@
                         <span class="sub-item">B&uacute;squeda y Seguimiento de Carpetas Fiscales</span>
                       </a>
                     </li>
+
+      @if($puedeVerGrafico)
+                    <li>
+                      <a href="{{ route('expediente.importa') }}">
+                        <span class="sub-item">Importa Carpetas Fiscales</span>
+                      </a>
+                    </li>
+      @endif
+                    
                   </ul>
                 </div>
               </li>
