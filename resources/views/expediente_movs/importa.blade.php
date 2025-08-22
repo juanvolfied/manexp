@@ -4,8 +4,13 @@
     @if(session('messageErr'))
         <div id="messageErr" class="alert alert-danger text-danger" style="transition: opacity 0.5s ease;"><b>{{ session('messageErr') }}</b></div>
     @else
-        <div id="messageErr" class="alert alert-danger text-danger" style="transition: opacity 0.5s ease; display:none;"></div>    
+        <div id="messageErr" class="alert alert-danger text-danger" style="transition: opacity 0.5s ease; display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1055; min-width: 50%; max-width: 90%; text-align: center;"></div>    
     @endif
+    @if(session('messageOK'))
+        <div id="messageOK" class="alert alert-success text-success" style="transition: opacity 0.5s ease;"><b>{{ session('messageOK') }}</b></div>
+    @else
+        <div id="messageOK" class="alert alert-success text-success" style="transition: opacity 0.5s ease; display:none;"></div>
+    @endif    
     <!--<h2 class="mb-4">Seguimiento de Expedientes</h2>-->
     <div class="card">
         <div class="card-header">
@@ -42,7 +47,7 @@
                           <button class="btn btn-primary" style="padding:0px 1rem!important; z-index: 1;" type="button" onclick="mostrarcarpetas2(event)">
                           <i class="fas fa-check me-1"></i> Mostrar las Carpetas
                           </button>
-                          
+
                           </div>
                           
                         </div>
@@ -69,6 +74,7 @@
 			    <option value="11">Archivo 011</option>
 			    <option value="12">Archivo 012</option>
 			  </select>
+       
                         </div>
                       </div>
                       <div class="col-6 col-md-3 col-lg-3" id="verocultar2" style="display:none;">
@@ -333,14 +339,34 @@ function mostrarcarpetas2() {
 
 function prepararYMostrarModal() {
   if (event) event.preventDefault(); // Previene recarga
-  if (scannedItems.length > 0) {
+  var msgerr="";
+  if (document.getElementById('codigo').value.trim() === "") {
+      msgerr = "INGRESE EL CODIGO DE TRANSFERENCIA A IMPORTAR Y PRESIONE EL BOTON MOSTRAR CARPETAS FISCALES";
+  } else if (document.getElementById('archivo').value.trim() === "") {
+      msgerr = "SELECCIONE EL ARCHIVO";
+  } else if (document.getElementById('nropaquete').value.trim() === "") {
+      msgerr = "INGRESE EL PAQUETE";
+  } else if (document.getElementById('anaquel').value.trim() === "") {
+      msgerr = "INGRESE EL ANAQUEL";
+  } else if (document.getElementById('dependencia').value.trim() === "") {
+      msgerr = "SELECCIONE LA DEPENDENCIA";
+  } else if (document.getElementById('despacho').value.trim() === "") {
+      msgerr = "SELECCIONE EL DESPACHO";
+  } else if (scannedItems.length == 0) {
+      msgerr = "CARPETAS FISCALES NO DISPONIBLES";
+  }
+  if (msgerr == "") {
+  //if (scannedItems.length > 0) {
       const myModal = new bootstrap.Modal(document.getElementById('textoModal'));
       myModal.show();
   } else {
-      document.getElementById('messageErr').innerHTML = '<b>CARPETAS FISCALES NO DISPONIBLES</b>';
+//      document.getElementById('messageErr').innerHTML = '<b>CARPETAS FISCALES NO DISPONIBLES</b>';
+      document.getElementById('messageErr').innerHTML = '<b>' + msgerr + '</b>';
       var messageErr = document.getElementById('messageErr');
       messageErr.style.opacity = '1';
       messageErr.style.display = 'block';
+          messageErr.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
       setTimeout(function() {
           messageErr.style.opacity = '0';
           setTimeout(() => {
@@ -370,23 +396,27 @@ document.getElementById("grabarBtn").addEventListener("click", function(event) {
     }
 
 });
+window.onload = function() {
+    var messageErr = document.getElementById('messageErr');
+    var messageOK = document.getElementById('messageOK');
+    if (messageErr) {
+        setTimeout(function() {
+            messageErr.style.opacity = '0';
+            setTimeout(() => {
+                messageErr.style.display = 'none';
+            }, 500);
+        }, 3000); 
+    }
+    if (messageOK) {
+        setTimeout(function() {
+            messageOK.style.opacity = '0';
+            setTimeout(() => {
+                messageOK.style.display = 'none';
+            }, 500);
+        }, 3000); 
+    }
+};
 
-function numeroAOrdinal(numero) {
-    const ordinales = {
-        1: '1er',
-        2: '2do',
-        3: '3er',
-        4: '4to',
-        5: '5to',
-        6: '6to',
-        7: '7mo',
-        8: '8vo',
-        9: '9no',
-        10: '10mo',
-        11: '11er'
-    };
 
-    return ordinales[numero] || numero + ' ';
-}
 </script>
 @endsection

@@ -174,7 +174,7 @@ class ExpedienteController extends Controller
     public function indexImporta()
     {
         $dependencias = DB::table('dependencia')
-            ->where('inventario', 'S')
+        //    ->where('inventario', 'S')
             ->orderBy('descripcion', 'asc')
             ->get();
         //return view('inventario.reginventario', compact('dependencias'));
@@ -195,6 +195,17 @@ class ExpedienteController extends Controller
             ]);
         }
         $idtran = $paqtransfe->autogentran; 
+
+        $existe = DB::table('ubicacion_exp')
+        ->where('nro_inventario', $codtra)
+        ->first();
+        if ($existe) {
+            return response()->json([
+                'success' => false,
+                'message' => 'EL CODIGO DE TRANSFERENCIA YA EXISTE O YA HA SIDO IMPORTADA.',
+            ]);
+        }
+
 
         $carpetasimportar = DB::connection('mysql2')->table('invtracarpdet')
         ->leftJoin('carpfisc', 'invtracarpdet.idcarp', '=', 'carpfisc.autogencarp')
@@ -229,7 +240,7 @@ class ExpedienteController extends Controller
 
     }
     public function grabaImporta(Request $request)
-    {
+    {      
         $fechaActual = now()->format('Y-m-d');  // Formato 'YYYY-MM-DD HH:mm:ss'
         $horaActual = now()->format('H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
         $anoActual = substr($fechaActual,0,4);
@@ -336,120 +347,6 @@ class ExpedienteController extends Controller
         }
 
 
-
-
-        $codbar = $request->input('codbarras');
-        $existe = DB::table('expediente')->where('codbarras', $codbar)->first();
-        $dep_exp=substr($codbar,0,11);
-        $ano_exp=substr($codbar,11,4);
-        $nro_exp=substr($codbar,15,6);
-        $tip_exp=substr($codbar,21,4);
-        $dep_exp = (int) $dep_exp; 
-        $tomo = $request->input('tomo');
-        $idexpe = 0;
-        if ($existe) {
-            $idexpe = $existe->id_expediente; 
-            $ubitomo = DB::table('ubicacion_exp')
-            ->where('id_expediente', $idexpe)
-            ->where('tomo', $tomo)
-            ->first();
-        }
-            
-        //$fechaHoraActualFormateada = now()->format('Y-m-d H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
-        $fechaActual = now()->format('Y-m-d');  // Formato 'YYYY-MM-DD HH:mm:ss'
-        $horaActual = now()->format('H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
-        $anoActual = substr($fechaActual,0,4);
-
-        if ($existe) {
-            if ($ubitomo) {            
-                return response()->json([
-                    'success' => false,
-                    'message' => utf8_encode('El expediente ' . $codbar . ' ya est&aacute; registrado en la base de datos.')
-                ]);        
-            }
-        } 
-
-        try {
-            DB::transaction(function () use (
-                $existe, $idexpe, $codbar, $nro_exp, $ano_exp, $dep_exp, $tip_exp, $fechaActual, $horaActual,
-                $tomo, $anoActual, $request, &$idExpediente
-            ) {
-
-                if ($existe) {
-                    $idExpediente = $idexpe;
-                } else {
-                    $idExpediente = DB::table('expediente')->insertGetId([
-                        'codbarras' => $codbar,
-                        'nro_expediente' => $nro_exp,
-                        'ano_expediente' => $ano_exp,
-                        'id_dependencia' => $dep_exp,
-                        'id_tipo' => $tip_exp,
-                        'fecha_ingreso' => $fechaActual,
-                        'hora_ingreso' => $horaActual,
-                        'estado' => 'L',
-                        'fecha_lectura' => $fechaActual,
-                        'hora_lectura' => $horaActual,
-                        'id_personal' => Auth::user()->id_personal,
-                        'id_usuario' => Auth::user()->id_usuario,
-                    ]);
-                }
-
-                $ultimoRegistro = DB::table('ubicacion_exp')
-                    ->where('ano_movimiento', $anoActual)
-                    ->orderBy('nro_movimiento', 'desc')
-                    ->first();
-
-                $nromov = $ultimoRegistro ? $ultimoRegistro->nro_movimiento + 1 : 1;
-
-                DB::table('ubicacion_exp')->insert([
-                    'nro_movimiento' => $nromov,
-                    'ano_movimiento' => $anoActual,
-                    'id_personal' => Auth::user()->id_personal,
-                    'id_usuario' => Auth::user()->id_usuario,
-                    'archivo' => $request->archivo,
-                    'anaquel' => $request->anaquel,
-                    'nro_paquete' => $request->nropaquete,
-                    'serie' => $request->serie,
-                    'nro_inventario' => $request->nroinventario,
-                    'id_expediente' => $idExpediente,
-
-                    'nro_expediente' => $nro_exp,
-                    'ano_expediente' => $ano_exp,
-                    'id_dependencia' => $dep_exp,
-                    'id_tipo' => $tip_exp,
-                    'ubicacion' => 'A',             //A=Archivo D=Despacho
-                    'tipo_ubicacion' => 'T',        //I=Inventario T=Transito
-                    'fecha_movimiento' => $fechaActual,
-                    'hora_movimiento' => $horaActual,
-                    'motivo_movimiento' => 'Inventario',                
-                    'paq_dependencia' => $request->dependencia,
-                    'despacho' => $request->despacho,
-                    'activo' => 'S',
-                    'estado' => 'L',
-                    'fecha_lectura' => $fechaActual,
-                    'hora_lectura' => $horaActual,
-                    'tomo' => $tomo,
-                    'acompanados' => ($request->has('checkacomp') ? 'S' : 'N') ,
-                    'cuadernos' => ($request->has('checkcuade') ? 'S' : 'N') ,
-                ]);
-            });
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Expediente ha guardado la Lectura.',
-                'fechalect' => $fechaActual,
-                'horalect' => $horaActual
-            ]);        
-	    
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'HUBO UN ERROR AL GUARDAR LA LECTURA, INTENTELO NUEVAMENTE : ' . $e->getMessage()
-            ]);
-        }
-
-
-        //return redirect()->back()->with('messageOK', 'Registros guardados exitosamente');
     }
 
 
