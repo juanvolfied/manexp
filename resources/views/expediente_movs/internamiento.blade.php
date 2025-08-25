@@ -64,8 +64,12 @@ function numeroAOrdinal($numero) {
                       </div>
                       <div class="col-md-6 col-lg-6" >
                         <div class="form-group" style="padding:5px;">
+                    @if(Auth::user()->personal->despacho == "F" || Auth::user()->personal->despacho =="A")                            
                             <b>DEPENDENCIA : </b> {{ $dependencia->descripcion }}<br>
                             <b>DESPACHO : </b> {{ numeroAOrdinal(Auth::user()->personal->despacho) }} DESPACHO
+                    @else
+                            <b>NECESITA SER FISCAL O ASISTENTE<br>
+                    @endif    
                         </div>
                       </div>
                     </div>

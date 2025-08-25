@@ -124,19 +124,6 @@
                       </a>
                     </li>
       @endif
-                    <li>
-                      <a href="{{ route('expediente.seguimiento') }}">
-                        <span class="sub-item">B&uacute;squeda y Seguimiento de Carpetas Fiscales</span>
-                      </a>
-                    </li>
-
-      @if($puedeVerGrafico)
-                    <li>
-                      <a href="{{ route('expediente.importa') }}">
-                        <span class="sub-item">Importa Carpetas Fiscales</span>
-                      </a>
-                    </li>
-      @endif
                     
                   </ul>
                 </div>
@@ -164,7 +151,7 @@
               <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
                 <a data-bs-toggle="collapse" href="#movimientos">
                   <i class="fas fa-layer-group"></i>
-                  <p>EXPEDIENTES</p>
+                  <p>CARPETAS FISCALES</p>
                   <span class="caret"></span>
                 </a>
                 <div class="collapse {{ $menuActivo ? 'show' : '' }}" id="movimientos">
@@ -172,7 +159,7 @@
       @if($puedeRegistrar)
                     <li class="{{ request()->is('expediente') ? 'active' : '' }}" >
                       <a href="{{ route('expediente.index') }}">
-                        <span class="sub-item">Registro de Expedientes</span>
+                        <span class="sub-item">Registro carpetas fiscales</span>
                       </a>
                     </li>
       @endif
@@ -190,15 +177,63 @@
                       </a>
                     </li>
       @endif
-                    <li>
-                      <a href="{{ route('expediente.seguimiento') }}">
-                        <span class="sub-item">B&uacute;squeda y Seguimiento de Carpetas Fiscales</span>
+                  </ul>
+                </div>
+              </li>
+    @endif <!--menuexpedientes-->
+
+
+    @php
+        $menutransferencia = in_array($perfil, ['Admin','Archivo']);
+        $menuActivo = request()->is('expediente/importa', 'otro');
+    @endphp
+    @if ($menutransferencia)
+              <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
+                <a data-bs-toggle="collapse" href="#transferencia">
+                  <i class="fas fa-exchange-alt"></i>
+                  <p>TRANSFERENCIA</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse {{ $menuActivo ? 'show' : '' }}" id="transferencia">
+                  <ul class="nav nav-collapse">
+
+                    <li class="{{ request()->is('expediente/importa') ? 'active' : '' }}">
+                      <a href="{{ route('expediente.importa') }}">
+                        <span class="sub-item">Paquetes y Carpetas Fiscales</span>
                       </a>
                     </li>
                   </ul>
                 </div>
               </li>
-    @endif <!--menuexpedientes-->
+    @endif <!--menutransferencia-->
+
+
+    @php
+        $menubusqueda = in_array($perfil, ['Admin', 'Inventario','Archivo','Despacho']);
+        $menuActivo = request()->is('expediente-seg', 'otro');
+    @endphp
+    @if ($menubusqueda)
+              <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
+                <a data-bs-toggle="collapse" href="#busquedaseguimiento">
+                  <i class="fas fa-search"></i>
+                  <p>BUSQUEDA C.FISCALES</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse {{ $menuActivo ? 'show' : '' }}" id="busquedaseguimiento">
+                  <ul class="nav nav-collapse">
+
+                    <li class="{{ request()->is('expediente-seg') ? 'active' : '' }}">
+                      <a href="{{ route('expediente.seguimiento') }}">
+                        <span class="sub-item">Seguimiento Carpetas Fiscales</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+    @endif <!--menubusqueda-->
+
+
+
 
 
     
