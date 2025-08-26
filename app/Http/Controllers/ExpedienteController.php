@@ -185,6 +185,9 @@ class ExpedienteController extends Controller
     {
         $codtra = $request->input('codtra');    
         $paqtransfe = DB::connection('mysql2')->table('invtracarpcab')
+        ->leftJoin('maecor', 'invtracarpcab.codcorp', '=', 'maecor.corautogen')
+        ->leftJoin('maedes', 'invtracarpcab.coddesp', '=', 'maedes.desautogen')
+        ->select('invtracarpcab.*','maecor.codnuevosistema','maedes.nrodespacho')
         ->where('codbarraspaquete', $codtra)
         ->orderBy('codbarraspaquete', 'asc')
         ->first();
@@ -195,6 +198,9 @@ class ExpedienteController extends Controller
             ]);
         }
         $idtran = $paqtransfe->autogentran; 
+        $coddep = $paqtransfe->codnuevosistema; 
+        $despac = $paqtransfe->nrodespacho; 
+        $nropaq = $paqtransfe->nropaq; 
 
         $existe = DB::table('ubicacion_exp')
         ->where('nro_inventario', $codtra)
@@ -230,6 +236,10 @@ class ExpedienteController extends Controller
             return response()->json([
                 'success' => true,
                 'registros' => $carpetasimportar,
+                'coddepen' => $coddep,
+                'despacho' => $despac,
+                'paquete' => $nropaq,
+                
             ]);
         } else {
             return response()->json([

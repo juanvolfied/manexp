@@ -243,7 +243,17 @@ function mostrarcarpetas(event) {
                 codtra: codtra
             },
             success: function(response) {
-                if (response.success) {                                
+                if (response.success) {
+                    var coddep = response.coddepen;
+                    var despac = response.despacho;
+                    var nropaq = response.paquete;
+
+    const selectizeInstance = $('#dependencia')[0].selectize;
+    selectizeInstance.setValue(coddep);     
+    document.getElementById("despacho").value=despac;
+    document.getElementById("nropaquete").value=nropaq;
+
+
                     var registros = response.registros;
                     registros.forEach(function(registro, index) {
 
