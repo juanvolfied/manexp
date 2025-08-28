@@ -231,7 +231,7 @@ class MesaController extends Controller
                 }
 
         $despachoFinal = ($despacho == 0) ? 'UU' : str_pad($despacho, 2, '0', STR_PAD_LEFT);
-        $codcargo = 'MP' .  substr($year, -2) . str_pad($id_dependencia, 2, '0', STR_PAD_LEFT) . $despachoFinal . $datodistrito . str_pad($nuevoNumero, 4, '0', STR_PAD_LEFT);
+        $codcargo = 'MP' .  substr($year, -2) . $datodistrito . $despachoFinal . str_pad($nuevoNumero, 5, '0', STR_PAD_LEFT);
 
                 // Insertar el nuevo documento
                 DB::table('librocargos')->insert([
@@ -248,7 +248,7 @@ class MesaController extends Controller
         }
 
         $despachoFinal = ($despacho == 0) ? 'UU' : str_pad($despacho, 2, '0', STR_PAD_LEFT);
-        $barcodeData = 'MP' .  substr($year, -2) . str_pad($id_dependencia, 2, '0', STR_PAD_LEFT) . $despachoFinal . $datodistrito . str_pad($nuevoNumero, 4, '0', STR_PAD_LEFT);
+        $barcodeData = 'MP' .  substr($year, -2) . $datodistrito . $despachoFinal . str_pad($nuevoNumero, 5, '0', STR_PAD_LEFT);
         // Usa el servicio BarcodeGenerator
         $barcodeService = new BarcodeGenerator();
         //$barcodePng = $barcodeService->generate('',"*".$barcodeData."*", 20, 'horizontal', 'code128', true,1);

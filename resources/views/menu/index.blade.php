@@ -240,7 +240,7 @@
 
 
     @php
-        $menumesapartes = in_array($perfil, ['Admin','mesapartes']);
+        $menumesapartes = in_array($perfil, ['Admin','mesapartes','MesaPartesAdmin']);
         $menuActivo = request()->is('mesapartes', 'mesapartes/upload');
         $submenuActivo = request()->is('mesapartes/consultaintervalofechas', 'mesapartes/consultafiscal');
     @endphp
@@ -336,10 +336,11 @@
 
 
     @php
+        $menumantenimiento = in_array($perfil, ['Admin','MesaPartesAdmin']);
         $menuActivo = request()->is('personal', 'deppolicial', 'mantenimiento/reactiva', 'mantenimiento/verdependencias', 'backup');
         $menuActivo2 = request()->is('usuarios', 'perfilusuario');
     @endphp    
-    @if(in_array($perfil, ['Admin']))
+    @if($menumantenimiento)
               <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
                 <a data-bs-toggle="collapse" href="#mantenimiento">
                   <i class="fas fa-wrench"></i>
@@ -358,6 +359,7 @@
                         <span class="sub-item">Dependencias Policiales</span>
                       </a>
                     </li>
+        @if(in_array($perfil, ['Admin']))
                     <li class="{{ request()->is('mantenimiento/reactiva') ? 'active' : '' }}">
                       <a href="{{ route('reactivainventario') }}">
                         <span class="sub-item">Reactiva Movimiento de Inventario</span>
@@ -368,6 +370,7 @@
                         <span class="sub-item">Selecciona Dependencias para Inventarios</span>
                       </a>
                     </li>
+        @endif
                     <li class="{{ request()->is('backup') ? 'active' : '' }}">
                       <a href="{{ route('backup') }}">
                         <span class="sub-item">Backup</span>
@@ -376,6 +379,7 @@
                   </ul>
                 </div>
               </li>
+        @if(in_array($perfil, ['Admin','MesaPartesAdmin']))
               <li class="nav-item {{ $menuActivo2 ? 'active submenu' : '' }}">
                 <a data-bs-toggle="collapse" href="#accesos">
                   <i class="fas fa-key"></i>
@@ -397,6 +401,7 @@
                   </ul>
                 </div>
               </li>
+        @endif
     @endif
 @endauth
 
