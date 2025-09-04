@@ -222,6 +222,8 @@ Route::post('/solicitud/graba', [SolicitudCarpetasController::class, 'grabaSolic
 Route::post('/solicitud/envio', [SolicitudCarpetasController::class, 'envioSolicitud'])->name('solicitud.envio');
 Route::get('/solicitud/atencion', [SolicitudCarpetasController::class, 'indexAtencionSolicitud'])->name('solicitud.atencion');
 Route::post('/solicitud/atenciongraba', [SolicitudCarpetasController::class, 'grabaAtencionSolicitud'])->name('solicitud.grabaatencion');
+Route::post('/solicitud/recepcion/det', [SolicitudCarpetasController::class, 'detalleRecepcionSolicitud'])->name('solicitud.recepcion');
+Route::post('/solicitud/recepciongraba', [SolicitudCarpetasController::class, 'grabaRecepcionCarpetasSolicitud'])->name('solicitud.grabarecepcion');
 
 Route::get('/solicitud/atencion/{tipo_mov}/{ano_mov}/{nro_mov}/ver', [SolicitudCarpetasController::class, 'verifAtencionSolicitud'])->name('solicitud.ver');
 Route::get('/solicitud/{tipo_mov}/{ano_mov}/{nro_mov}/edit', [SolicitudCarpetasController::class, 'editSolicitud'])->name('solicitud.edit');

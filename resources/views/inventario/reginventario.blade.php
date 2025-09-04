@@ -63,7 +63,7 @@
                       <div class="col-6 col-md-3 col-lg-3" id="verocultar2" style="display:none;">
                         <div class="form-group" style="padding:5px;">
                           <label for="nropaquete"><b>Nro Paquete:</b></label>
-                          <input type="text" class="form-control form-control-sm" name="nropaquete" id="nropaquete" maxlength="5" style="width: 100px;"/>
+                          <input type="text" class="form-control form-control-sm" name="nropaquete" id="nropaquete" maxlength="10" style="width: 100px;"/>
                         </div>
                       </div>
                       <div class="col-4 col-md-2 col-lg-2" id="verocultar6" style="display:none;">

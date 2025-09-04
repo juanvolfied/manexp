@@ -74,7 +74,9 @@ function numeroAOrdinal($numero) {
                     </td>
                     <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
                     @if($p->estado_mov == 'E')
-                        <a href="#" data-bs-toggle="tooltip" title="Recibir Carpetas Fiscales" onclick="prepararYMostrarModal('{{ $p->tipo_mov }}',{{ $p->ano_mov }},{{ $p->nro_mov }},event)" style="color: green;"><i class="fas fa-download fa-lg"></i><br>Recibir</a>
+                        <!--<a href="#" data-bs-toggle="tooltip" title="Recibir Carpetas Fiscales" onclick="prepararYMostrarModal('{{ $p->tipo_mov }}',{{ $p->ano_mov }},{{ $p->nro_mov }},event)" style="color: green;"><i class="fas fa-download fa-lg"></i><br>Recibir</a>-->
+                        <a href="#" onclick="mostrardetalle('{{ $p->tipo_mov }}',{{ $p->ano_mov }},{{ $p->nro_mov }}, event)" title="Ver detalle" style="color: green;"><i class="fas fa-download fa-lg" ></i><br>Recibir</a>                        
+
                     @else
                         <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-download fa-lg text-muted" ></i><br>Recibir</a>
                     @endif 
@@ -134,6 +136,50 @@ function numeroAOrdinal($numero) {
     </div>
   </div>
 </div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="miModal" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content custom-modal-height">
+      
+      <div class="modal-header">
+        <h5 class="modal-title" id="miModalLabel">CARPETAS ENVIADAS DE ARCHIVO</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      
+      <div class="modal-body" id="detalleseguimiento">
+        <b>VERIFIQUE QUE LAS CARPETAS ENTREGADAS CORRESPONDAN A LA LISTA MOSTRADA<br>
+        SI DESEA CONTINUAR CON LA RECEPCION PRESIONE EL BOTON [RECIBIR CARPETAS] </b><br><br>
+          <table id="scanned-list" class="table table-striped table-sm">
+              <thead class="thead-dark">
+                  <tr>
+                      <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Carpeta Fiscal</th>
+                      <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Imputado</th>
+                      <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Agraviado</th>
+                      <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Delito</th>
+                      <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Folios</th>
+                      <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Tomo</th>
+                  </tr>
+              </thead>
+              <tbody style="font-size:12px;" >
+		<!-- Los datos escaneados se irán añadiendo aquí -->
+              </tbody>
+          </table>        
+      <input type='hidden' id='tpmov2' name='tpmov2'>
+      <input type='hidden' id='anomov2' name='anomov2'>
+      <input type='hidden' id='nromov2' name='nromov2'>
+      </div>
+      
+      <div class="modal-footer">
+        <a href="#" onclick="recibircarpetas(event)" class="btn btn-primary">RECIBIR CARPETAS</a>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 
 </form>
 
@@ -232,6 +278,141 @@ function enviarsolicitud(event) {
     });
 }
 </script>
+
+<script>
+
+let scannedItems = []; 
+
+function mostrardetalle(tpmov, anomov, nromov,event) {
+    document.getElementById('tpmov2').value=tpmov;
+    document.getElementById('anomov2').value=anomov;
+    document.getElementById('nromov2').value=nromov;
+
+scannedItems = [];
+var nroreg=0;
+
+            const tableBody = $('#scanned-list tbody');
+            const tableBodycel = $('#scanned-listcel tbody');
+            tableBody.empty(); // Limpiar la tabla antes de volver a renderizarla
+            tableBodycel.empty(); // Limpiar la tabla antes de volver a renderizarla
+
+    if (event) event.preventDefault(); // Previene recarga
+
+                    $.ajax({
+                        url: '{{ route("solicitud.recepcion") }}',
+                        method: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            tpmov: tpmov,
+                            anomov: anomov,
+                            nromov: nromov
+                        },
+                        success: function(response) {
+
+                           if (response.success) {
+                                				
+                                var registros = response.registros;
+                                registros.forEach(function(registro) {
+                                
+                                nroreg=nroreg+1;
+                            	if (nroreg==1) {
+                                    // Rellenar los otros inputs con los datos del producto
+                                    //$('#archivo').val(registro.archivo);
+                                    //$('#nropaquete').val(registro.nro_paquete);
+                                    //$('#dependencia').val(registro.paq_dependencia);
+                                    //choices.setChoiceByValue(registro.paq_dependencia);
+                                    //$('#despacho').val(registro.despacho);
+                                }
+                                var codbarras = registro.codbarras;
+                                var dependencia = registro.id_dependencia;
+                                var ano = registro.ano_expediente;
+                                var nroexpediente = registro.nro_expediente;
+                                var tipo = registro.id_tipo;
+                                var estado = registro.estado;
+                                if (estado=="L") {
+                                    var lafecha = registro.fecha_lectura;
+                                    var lahora = registro.hora_lectura;
+                                }
+                                if (estado=="I") {
+                                    var lafecha = registro.fecha_inventario;
+                                    var lahora = registro.hora_inventario;
+                                }
+                                
+                tableBody.append(`
+                    <tr>
+                        <td style="font-size:12px; padding: 5px 10px !important;">${registro.codbarras}</td>
+                        <td style="font-size:12px; padding: 5px 10px !important;">${registro.imputado || ''}</td>
+                        <td style="font-size:12px; padding: 5px 10px !important;">${registro.agraviado || ''}</td>
+                        <td style="font-size:12px; padding: 5px 10px !important;">${registro.desc_delito || ''}</td>
+                        <td style="font-size:12px; padding: 5px 10px !important;">${registro.nro_folios || ''}</td>                        
+                        <td style="font-size:12px; padding: 5px 10px !important;">${registro.tomo}</td>
+                    </tr>
+                `);
+                                
+                                
+                                });
+                                
+
+      var miModal = new bootstrap.Modal(document.getElementById('miModal'));
+      miModal.show();
+                                                                
+                            } else {
+                                alert(response.message);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            if (xhr.status === 419) {
+                                // No autorizado - probablemente sesión expirada
+                                alert('TU SESION HA EXPIRADO. SERAS REDIRIGIDO AL LOGIN.');
+                                window.location.href = '{{ route("usuario.login") }}';
+                            } else {
+                                // Otro tipo de error
+                                console.error('Error en la petición:', xhr.status);
+                                alert('Hubo un error al buscar las carpetas de la solicitud.');
+                            }
+                        }
+
+
+
+
+
+                        
+                    });
+}
+</script>
+
+<script>
+function recibircarpetas(event) {
+    if (event) event.preventDefault(); // Previene recarga
+    const tipo = document.getElementById('tpmov2').value;
+    const ano = document.getElementById('anomov2').value;
+    const nro = document.getElementById('nromov2').value;
+    myModal.hide();
+    $.ajax({
+        url: '{{ route("solicitud.grabarecepcion") }}', 
+        method: 'POST',
+        data: {
+            _token: '{{ csrf_token() }}',
+            tipo_mov: tipo,
+            ano_mov: ano,
+            nro_mov: nro
+        },
+        success: function(response) {
+          if (response.success) {
+              // Guardar el mensaje para mostrarlo en la siguiente vista
+              sessionStorage.setItem('successMessage', response.message);
+              // Redirigir manualmente
+              window.location.href = response.redirect_url;
+          }
+        },
+        error: function() {
+            alert('Error en proceso de recepcion.');
+        }
+    });
+}  
+</script>
+
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const msg = sessionStorage.getItem('successMessage');

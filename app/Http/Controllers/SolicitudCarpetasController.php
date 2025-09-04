@@ -364,7 +364,7 @@ class SolicitudCarpetasController extends Controller
         //return response()->json(['success' => true]);
         return response()->json([
             'success' => true,
-            'redirect_url' => route('internamiento.index'),
+            'redirect_url' => route('solicitud.index'),
             'message' => 'ENVIO REALIZADO CORRECTAMENTE.',
         ]);
     }
@@ -588,6 +588,7 @@ class SolicitudCarpetasController extends Controller
 
             $reg_exp_tomo = DB::table('ubicacion_exp')
             ->where('id_expediente', $registro->id_expediente)
+            ->where('activo', "S")
             ->select('tomo')
             ->distinct()
             ->get();
@@ -596,6 +597,7 @@ class SolicitudCarpetasController extends Controller
                 DB::table('ubicacion_exp')
                 ->where('id_expediente', $registro->id_expediente)
                 ->where('tomo', $regtomo->tomo)
+                ->where('activo', "S")
                 ->update([
                     'activo' => 'N',
                 ]);
@@ -643,6 +645,161 @@ class SolicitudCarpetasController extends Controller
             'message' => 'ENVIO DE CARPETAS REALIZADA CORRECTAMENTE.',
         ]);
     }
+    public function detalleRecepcionSolicitud(Request $request)
+    {
+        $tipo_mov = $request->input('tpmov');    
+        $ano_mov = $request->input('anomov');    
+        $nro_mov = $request->input('nromov');    
+
+        $guiacab = DB::table('movimiento_exp_cab')
+        ->leftJoin('personal', 'movimiento_exp_cab.fiscal', '=', 'personal.id_personal')
+        ->leftJoin('dependencia', 'movimiento_exp_cab.id_dependencia', '=', 'dependencia.id_dependencia')
+        ->where('tipo_mov', $tipo_mov)
+        ->where('ano_mov', $ano_mov)
+        ->where('nro_mov', $nro_mov)
+        ->select('movimiento_exp_cab.*', 'personal.apellido_paterno','personal.apellido_materno','personal.nombres','dependencia.descripcion') // Puedes ajustar campos
+        ->first();
+
+        $segdetalle = DB::table('movimiento_exp_det')
+            ->where('movimiento_exp_det.tipo_mov', $tipo_mov)
+            ->where('movimiento_exp_det.ano_mov', $ano_mov)
+            ->where('movimiento_exp_det.nro_mov', $nro_mov)
+            ->where('ubicacion_exp.activo', 'S')
+            ->leftJoin('expediente', 'movimiento_exp_det.id_expediente', '=', 'expediente.id_expediente')
+            ->leftJoin('ubicacion_exp', 'movimiento_exp_det.id_expediente', '=', 'ubicacion_exp.id_expediente')
+            ->leftJoin('delito', 'expediente.delito', '=', 'delito.id_delito')
+            ->select(
+                'movimiento_exp_det.*',
+                'expediente.codbarras',
+                'expediente.imputado',
+                'expediente.agraviado',
+                'delito.desc_delito',
+                'expediente.nro_folios',
+                'ubicacion_exp.tomo'
+            )
+            ->orderBy('id_movimiento', 'asc') 
+            ->orderBy('tomo', 'asc') 
+            ->get();
+
+        if ($segdetalle->isNotEmpty()) {
+            return response()->json([
+                'success' => true,
+                'registros' => $segdetalle,
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se encontraron registros para el nro de inventario proporcionado.',
+            ]);
+        }
+    }
+    public function grabaRecepcionCarpetasSolicitud(Request $request)
+    {    
+        $fechaHoraActualFormateada = now()->format('Y-m-d H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $fechaActual = now()->format('Y-m-d');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $horaActual = now()->format('H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $anoActual = substr($fechaActual,0,4);
+        $tipo_mov = $request->input('tipo_mov');
+        $ano_mov = $request->input('ano_mov');
+        $nro_mov = $request->input('nro_mov');
+        DB::table('movimiento_exp_cab')
+        ->where('tipo_mov', $tipo_mov)
+        ->where('ano_mov', $ano_mov)
+        ->where('nro_mov', $nro_mov)
+        ->update([
+            'estado_mov' => 'R',
+            'fechahora_recepcion' => $fechaHoraActualFormateada,
+            'activo' => 'S',
+            'cantidad_exp_recep' => DB::raw('cantidad_exp')
+        ]);
+
+        $ultimoRegistro = DB::table('ubicacion_exp')
+            ->where('ano_movimiento', $anoActual)
+            ->orderBy('ano_movimiento', 'desc')
+            ->orderBy('nro_movimiento', 'desc')
+            ->first();
+        $nromov=0;
+        if ($ultimoRegistro) {
+            $nromov = $ultimoRegistro->nro_movimiento;
+        }
+
+
+        $registrosOrigen = DB::table('movimiento_exp_det')
+        ->where('tipo_mov', $tipo_mov)
+        ->where('ano_mov', $ano_mov)
+        ->where('nro_mov', $nro_mov)
+        ->where('estado_mov', 'E')        
+        ->get();
+        foreach ($registrosOrigen as $registro) {
+            DB::table('expediente')
+            ->where('id_expediente', $registro->id_expediente)
+            ->update([
+                'estado' => 'D'
+            ]);
+
+            $reg_exp_tomo = DB::table('ubicacion_exp')
+            ->where('id_expediente', $registro->id_expediente)
+            ->where('activo', "S")
+            ->select('tomo')
+            ->distinct()
+            ->get();
+            foreach ($reg_exp_tomo as $regtomo) {
+
+                DB::table('ubicacion_exp')
+                ->where('id_expediente', $registro->id_expediente)
+                ->where('tomo', $regtomo->tomo)
+                ->where('activo', "S")
+                ->update([
+                    'activo' => 'N',
+                ]);
+                $nromov++;
+                DB::table('ubicacion_exp')->insert([
+                    'nro_movimiento' => $nromov,
+                    'ano_movimiento' => $anoActual,
+                    'id_personal' => Auth::user()->id_personal,
+                    'id_usuario' => Auth::user()->id_usuario,
+                    // 'archivo' => $request->archivo,
+                    // 'anaquel' => $request->anaquel,
+                    // 'nro_paquete' => $request->nropaquete,
+                    // 'nro_inventario' => $request->nroinventario,
+                    'id_expediente' => $registro->id_expediente,
+                    'nro_expediente' => $registro->nro_expediente,
+                    'ano_expediente' => $registro->ano_expediente,
+                    'id_dependencia' => $registro->id_dependencia,
+                    'id_tipo' => $registro->id_tipo,
+                    'tomo' => $regtomo->tomo,
+                    'ubicacion' => 'D',             // A=Archivo D=Despacho
+                    'tipo_ubicacion' => 'T',        // I=Inventario T=Transito
+                    'fecha_movimiento' => $fechaActual,
+                    'hora_movimiento' => $horaActual,
+                    'motivo_movimiento' => 'Solicitud',
+                    'paq_dependencia' => Auth::user()->personal->id_dependencia,
+                    'despacho' => Auth::user()->personal->despacho,
+                    'activo' => 'S',
+                    'estado' => 'D',
+                ]);
+            }//filtro tomo
+        }
+        DB::table('movimiento_exp_det')
+        ->where('tipo_mov', $tipo_mov)
+        ->where('ano_mov', $ano_mov)
+        ->where('nro_mov', $nro_mov)
+        ->where('estado_mov', 'E')        
+        ->update([
+            'estado_mov' => 'R'
+        ]);
+
+        //return response()->json(['success' => true]);
+        return response()->json([
+            'success' => true,
+            'redirect_url' => route('solicitud.index'),
+            'message' => 'RECEPCION DE CARPETAS REALIZADA CORRECTAMENTE.',
+        ]);
+    }
+
+
+
+
 
 
     public function grabarecepcioncodigoInternamiento(Request $request)
