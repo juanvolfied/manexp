@@ -348,10 +348,21 @@ class MesaController extends Controller
         )
         ->whereDate('fecharegistro', '>=', $fechaini)
         ->whereDate('fecharegistro', '<=', $fechafin)
-        ->orderBy('fecharegistro', 'asc') 
+        ->orderBy('codescrito', 'asc') 
         ->get();
 
         if ($segdetalle->isNotEmpty()) {
+            
+            $segdetalle->transform(function ($doc) {
+                $anio = substr($doc->fecharegistro, 0, 4); // "2025"
+                $mes  = substr($doc->fecharegistro, 5, 2); // "09"
+                //$ruta = 'mesapartes/{$anio}/{$mes}/' . strtoupper($doc->codescrito) . ".pdf";
+                //$doc->existepdf = Storage::exists($ruta); // true o false
+                $ruta = storage_path("app/mesapartes/{$anio}/{$mes}/" . strtoupper($doc->codescrito) . ".pdf");
+                $doc->existepdf = file_exists($ruta); // true o false
+                return $doc;
+            });
+
             return response()->json([
                 'success' => true,
                 'registros' => $segdetalle,
@@ -506,6 +517,15 @@ class MesaController extends Controller
             ->get();
         
         if ($segdetalle->isNotEmpty()) {
+
+            $segdetalle->transform(function ($doc) {
+                $anio = substr($doc->fecharegistro, 0, 4); // "2025"
+                $mes  = substr($doc->fecharegistro, 5, 2); // "09"
+                $ruta = storage_path("app/mesapartes/{$anio}/{$mes}/" . strtoupper($doc->codescrito) . ".pdf");
+                $doc->existepdf = file_exists($ruta); // true o false
+                return $doc;
+            });
+
             return response()->json([
                 'success' => true,
                 'registros' => $segdetalle,

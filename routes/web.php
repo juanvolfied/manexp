@@ -24,7 +24,7 @@ use App\Http\Controllers\BackupController;
 use App\Http\Controllers\MantenimientoController;
 use App\Http\Controllers\MesaController;
 use App\Http\Controllers\DepPoliController;
-
+use App\Http\Controllers\SolicitudCarpetasController;
 
 Route::get('/login', [UsuarioLoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [UsuarioLoginController::class, 'login'])->name('usuario.login');
@@ -213,3 +213,16 @@ Route::get('/internamiento/{tipo_mov}/{ano_mov}/{nro_mov}/edit', [ExpedienteCont
 Route::put('/internamiento/{tipo_mov}/{ano_mov}/{nro_mov}', [ExpedienteController::class, 'updateInternamiento'])->name('internamiento.update');
 Route::get('/internamiento/{tipo_mov}/{ano_mov}/{nro_mov}/pdf', [ExpedienteController::class, 'generarGuiaIntPDF'])->name('internamiento.pdf');
 Route::post('/internamiento-rechaza', [ExpedienteController::class, 'rechazarecepcionInternamiento'])->name('internamiento.rechazarecepcion');
+
+
+Route::get('/solicitud', [SolicitudCarpetasController::class, 'indexSolicitud'])->name('solicitud.index');
+Route::get('/solicitud/create', [SolicitudCarpetasController::class, 'createSolicitud'])->name('solicitud.create');
+Route::post('/solicitud/busca', [SolicitudCarpetasController::class, 'buscaCarpetaSolicitud'])->name('solicitud.buscacarpeta');
+Route::post('/solicitud/graba', [SolicitudCarpetasController::class, 'grabaSolicitud'])->name('solicitud.graba');
+Route::post('/solicitud/envio', [SolicitudCarpetasController::class, 'envioSolicitud'])->name('solicitud.envio');
+Route::get('/solicitud/atencion', [SolicitudCarpetasController::class, 'indexAtencionSolicitud'])->name('solicitud.atencion');
+Route::post('/solicitud/atenciongraba', [SolicitudCarpetasController::class, 'grabaAtencionSolicitud'])->name('solicitud.grabaatencion');
+
+Route::get('/solicitud/atencion/{tipo_mov}/{ano_mov}/{nro_mov}/ver', [SolicitudCarpetasController::class, 'verifAtencionSolicitud'])->name('solicitud.ver');
+Route::get('/solicitud/{tipo_mov}/{ano_mov}/{nro_mov}/edit', [SolicitudCarpetasController::class, 'editSolicitud'])->name('solicitud.edit');
+Route::put('/solicitud/{tipo_mov}/{ano_mov}/{nro_mov}', [SolicitudCarpetasController::class, 'updateSolicitud'])->name('solicitud.update');

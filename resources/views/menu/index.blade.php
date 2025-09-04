@@ -145,7 +145,7 @@
         $puedeRegistrar = in_array($perfil, ['Admin','Despacho']);
         $puedeGenerarGuia = in_array($perfil, ['Admin','Despacho']);
         $puedeRecepcionar = in_array($perfil, ['Admin','Archivo']);
-        $menuActivo = request()->is('expediente', 'internamiento-lista', 'internamiento-recep');
+        $menuActivo = request()->is('expediente', 'internamiento-lista', 'internamiento-recep', 'solicitud', 'solicitud/atencion');
     @endphp
     @if ($menuexpedientes)
               <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
@@ -177,6 +177,21 @@
                       </a>
                     </li>
       @endif
+      @if($puedeGenerarGuia)
+                    <li class="{{ request()->is('solicitud') ? 'active' : '' }}" >
+                      <a href="{{ route('solicitud.index') }}">
+                        <span class="sub-item">Solicitud de Carpetas</span>
+                      </a>
+                    </li>
+      @endif
+      @if($puedeRecepcionar)
+                    <li class="{{ request()->is('solicitud/atencion') ? 'active' : '' }}" >
+                      <a href="{{ route('solicitud.atencion') }}">
+                        <span class="sub-item">Atenci&oacute;n de Solicitudes</span>
+                      </a>
+                    </li>
+      @endif
+
                   </ul>
                 </div>
               </li>

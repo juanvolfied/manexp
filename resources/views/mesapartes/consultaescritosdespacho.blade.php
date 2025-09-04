@@ -129,10 +129,8 @@ function mostrarescritos(event) {
                 const codescrito = registro.codescrito;
 
 
-    fetch(`${anio}/${mes}/${encodeURIComponent(codescrito)}`)
-        .then(response => response.json())
-        .then(data => {
-            const iconoDetalle = data.existe
+
+                const iconoDetalle = registro.existepdf
                 ? `<a href="#" onclick="mostrarDetalle('${anio}', '${mes}', '${registro.codescrito}'); return false;">
                        <i class="fas fa-search"></i>
                    </a>`
@@ -176,9 +174,6 @@ function mostrarescritos(event) {
                             </td>
                         </tr>
                     `);
-                
-
-        });
 
 
 

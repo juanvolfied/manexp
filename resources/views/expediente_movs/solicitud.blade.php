@@ -27,10 +27,10 @@ function numeroAOrdinal($numero) {
                   <div class="card-header">
                     <div class="card-title">
                     @if(isset($regcab))
-                        Actualizar Gu&iacute;a de Internamiento : {{ str_pad($regcab->nro_mov, 5, '0', STR_PAD_LEFT) }}-{{ $regcab->ano_mov }}-{{ $regcab->tipo_mov == 'GI' ? 'I' : $regcab->tipo_mov }}
+                        Actualizar Solicitud de Carpetas : {{ str_pad($regcab->nro_mov, 5, '0', STR_PAD_LEFT) }}-{{ $regcab->ano_mov }}-{{ $regcab->tipo_mov == 'SO' ? 'S' : $regcab->tipo_mov }}
                         <span style='color:red;' > {{ $regcab->estado_mov == 'Z' ? "(RECHAZADO EN ARCHIVO)" : "" }}</span>
                     @else
-                        Generar nueva Gu&iacute;a de Internamiento
+                        Generar nueva Solicitud de Carpetas
                     @endif    
                         
                     </div>
@@ -77,7 +77,7 @@ function numeroAOrdinal($numero) {
                     <div class="row" style="background-color:#F2F5A9;">
                       <div class="col-md-6 col-lg-6">
                         <div class="form-group">
-                          <label for="codbarras"><b>C&oacute;digo de Barras (25 caracteres)</b></label>
+                          <label for="codbarras"><b>C&oacute;digo de Carpeta Fiscal</b></label>
                           <input type="text" class="form-control" name="codbarras" id="codbarras" placeholder="c&oacute;d. barras" onkeydown="verificarEnter(event)" autofocus/>
                           <small id="msgerr" class="form-text text-muted text-danger" style="display:none;">Escanee con lector o digite el codigo y presione enter.</small>
                         </div>
@@ -122,12 +122,12 @@ function numeroAOrdinal($numero) {
         	    <!--<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#textoModal">Inventariar c&oacute;digos escaneados</button>-->
         	    <button type="button" class="btn btn-primary" onclick="prepararYMostrarModal()">
                     @if(isset($regcab))
-                        Actualizar gu&iacute;a de Internamiento
+                        Actualizar Solicitud de Carpeta
                     @else
-                        Generar gu&iacute;a de Internamiento
+                        Generar Solicitud de Carpeta
                     @endif    
                 </button>
-                <a href="{{ route('internamiento.index') }}" class="btn btn-secondary">Regresar al Listado de Gu&iacute;as</a>
+                <a href="{{ route('solicitud.index') }}" class="btn btn-secondary">Regresar al Listado de Solicitudes</a>
 
             </div>
                 </div>
@@ -135,8 +135,7 @@ function numeroAOrdinal($numero) {
             </div>
             
     </form>
-    <!--<form action="{{ route('internamiento.graba') }}" method="POST" id="miFormulario2" autocomplete="off">-->
-    <form action="{{ isset($regcab) ? route('internamiento.update', ['tipo_mov' => $regcab->tipo_mov, 'ano_mov' => $regcab->ano_mov, 'nro_mov' => $regcab->nro_mov]) : route('internamiento.graba') }}"
+    <form action="{{ isset($regcab) ? route('solicitud.update', ['tipo_mov' => $regcab->tipo_mov, 'ano_mov' => $regcab->ano_mov, 'nro_mov' => $regcab->nro_mov]) : route('solicitud.graba') }}"
       method="POST" id="miFormulario2" autocomplete="off">
 
     @csrf  <!-- Este campo incluir� el token CSRF autom�ticamente -->
@@ -152,12 +151,12 @@ function numeroAOrdinal($numero) {
     <div class="modal-content">
     
       <div class="modal-header">
-        <h5 class="modal-title" id="textoModalLabel">CONFIRMAR GRABACION DE INVENTARIO</h5>
+        <h5 class="modal-title" id="textoModalLabel">CONFIRMAR GRABACION</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       
       <div class="modal-body">
-        Se va a guardar la gu&iacute;a de internamiento, confirma la grabaci&oacute;n ?
+        Se va a guardar la solicitud de carpetas, confirma la grabaci&oacute;n ?
 <!--        <label for="observacion"><b>Puede ingresar una OBSERVACI&Oacute;N (Opcional) de hasta 100 caracteres</b></label>
         <input type="text" name="observacion" id="observacion" class="form-control" maxlength="100" >-->
       </div>
@@ -233,10 +232,10 @@ function verificarEnter(event) {
 
         valor = valor.trim();
         document.getElementById("codbarras").value = valor;
-        if (valor.length !== 25) {
-            alert("El c\u00F3digo de barras " + valor + " no es v\u00E1lido. Solo tiene "+ valor.length +" caracteres.");
-            return false;
-        }
+//        if (valor.length !== 25) {
+//            alert("El c\u00F3digo de barras " + valor + " no es v\u00E1lido. Solo tiene "+ valor.length +" caracteres.");
+//            return false;
+//        }
 	
 	const codbarras = valor;
 	const dependencia = parseInt(valor.substring(0, 11)); 
@@ -246,7 +245,7 @@ function verificarEnter(event) {
 
         var formData = $('#miFormulario').serialize();
         $.ajax({
-            url: '{{ route("expedientemov.busca") }}',
+            url: '{{ route("solicitud.buscacarpeta") }}',
             method: 'POST',
             data: formData,
             success: function(response) {
@@ -323,7 +322,7 @@ function prepararYMostrarModal() {
       const myModal = new bootstrap.Modal(document.getElementById('textoModal'));
       myModal.show();
   } else {
-      document.getElementById('messageErr').innerHTML = '<b>No puedes generar guia, escanee codigos de expedientes</b>';
+      document.getElementById('messageErr').innerHTML = '<b>No puedes generar solicitud, ingrese carpetas fiscales</b>';
       var messageErr = document.getElementById('messageErr');
       messageErr.style.opacity = '1';
       messageErr.style.display = 'block';
@@ -343,7 +342,7 @@ document.getElementById("grabarBtn").addEventListener("click", function(event) {
         event.preventDefault();  // Prevenir el comportamiento por defecto
         document.getElementById("miFormulario2").submit();
     } else {
-        document.getElementById('messageErr').innerHTML = '<b>No puedes generar guia, escanee codigos de expedientes</b>';
+        document.getElementById('messageErr').innerHTML = '<b>No puedes generar solicitud, ingrese carpetas fiscales</b>';
         var messageErr = document.getElementById('messageErr');
         messageErr.style.opacity = '1';
         messageErr.style.display = 'block';
