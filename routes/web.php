@@ -228,3 +228,14 @@ Route::post('/solicitud/recepciongraba', [SolicitudCarpetasController::class, 'g
 Route::get('/solicitud/atencion/{tipo_mov}/{ano_mov}/{nro_mov}/ver', [SolicitudCarpetasController::class, 'verifAtencionSolicitud'])->name('solicitud.ver');
 Route::get('/solicitud/{tipo_mov}/{ano_mov}/{nro_mov}/edit', [SolicitudCarpetasController::class, 'editSolicitud'])->name('solicitud.edit');
 Route::put('/solicitud/{tipo_mov}/{ano_mov}/{nro_mov}', [SolicitudCarpetasController::class, 'updateSolicitud'])->name('solicitud.update');
+
+Route::get('/devolucion', [SolicitudCarpetasController::class, 'indexDevolucion'])->name('devolucion.index');
+Route::get('/devolucion/create', [SolicitudCarpetasController::class, 'createDevolucion'])->name('devolucion.create');
+Route::post('/devolucion/busca', [SolicitudCarpetasController::class, 'buscaCarpetaDevolucion'])->name('devolucion.buscacarpeta');
+Route::post('/devolucion/graba', [SolicitudCarpetasController::class, 'grabaDevolucion'])->name('devolucion.graba');
+Route::post('/devolucion/envio', [SolicitudCarpetasController::class, 'envioDevolucion'])->name('devolucion.envio');
+Route::get('/devolucion/atencion', [SolicitudCarpetasController::class, 'indexAtencionDevolucion'])->name('devolucion.atencion');
+Route::get('/devolucion/atencion/{tipo_mov}/{ano_mov}/{nro_mov}/ver', [SolicitudCarpetasController::class, 'verifAtencionDevolucion'])->name('devolucion.ver');
+Route::put('/devolucion/{tipo_mov}/{ano_mov}/{nro_mov}', [SolicitudCarpetasController::class, 'updateDevolucion'])->name('devolucion.update');
+Route::get('/devolucion/{tipo_mov}/{ano_mov}/{nro_mov}/edit', [SolicitudCarpetasController::class, 'editDevolucion'])->name('devolucion.edit');
+Route::post('/devolucion/recepciongraba', [SolicitudCarpetasController::class, 'grabaRecepcionCarpetasDevolucion'])->name('devolucion.grabarecepcion');

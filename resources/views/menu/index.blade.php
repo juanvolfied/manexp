@@ -145,7 +145,7 @@
         $puedeRegistrar = in_array($perfil, ['Admin','Despacho']);
         $puedeGenerarGuia = in_array($perfil, ['Admin','Despacho']);
         $puedeRecepcionar = in_array($perfil, ['Admin','Archivo']);
-        $menuActivo = request()->is('expediente', 'internamiento-lista', 'internamiento-recep', 'solicitud', 'solicitud/atencion');
+        $menuActivo = request()->is('expediente', 'internamiento-lista', 'internamiento-recep', 'solicitud', 'solicitud/atencion', 'devolucion', 'devolucion/atencion');
     @endphp
     @if ($menuexpedientes)
               <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
@@ -188,6 +188,20 @@
                     <li class="{{ request()->is('solicitud/atencion') ? 'active' : '' }}" >
                       <a href="{{ route('solicitud.atencion') }}">
                         <span class="sub-item">Atenci&oacute;n de Solicitudes</span>
+                      </a>
+                    </li>
+      @endif
+      @if($puedeGenerarGuia)
+                    <li class="{{ request()->is('devolucion') ? 'active' : '' }}" >
+                      <a href="{{ route('devolucion.index') }}">
+                        <span class="sub-item">Devoluci&oacute;n de Carpetas</span>
+                      </a>
+                    </li>
+      @endif
+      @if($puedeRecepcionar)
+                    <li class="{{ request()->is('devolucion/atencion') ? 'active' : '' }}" >
+                      <a href="{{ route('devolucion.atencion') }}">
+                        <span class="sub-item">Atenci&oacute;n de Devoluciones</span>
                       </a>
                     </li>
       @endif
