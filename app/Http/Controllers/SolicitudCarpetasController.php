@@ -100,66 +100,122 @@ class SolicitudCarpetasController extends Controller
     }
     public function buscaCarpetaSolicitud(Request $request)
     {
-        $request->validate([
-            'codbarras' => 'required|string',
-        ]);
-        $codbar = $request->input('codbarras');
-/*
-        $dep_exp=substr($codbar,0,11);
-        $ano_exp=substr($codbar,11,4);
-        $nro_exp=substr($codbar,15,6);
-        $tip_exp=substr($codbar,21,4);
-        $dep_exp = (int) $dep_exp;
-        $nro_exp = (int) $nro_exp; 
-        $existe = Expedientes::where('id_dependencia', $dep_exp)
-            ->leftJoin('delito', 'expediente.delito', '=', 'delito.id_delito')
-            ->where('ano_expediente', $ano_exp)
-            ->where('nro_expediente', $nro_exp)
-            ->where('id_tipo', $tip_exp)
-            ->first();
-*/
-        $existe = DB::table('expediente')->where('codbarras', $codbar)
-            ->leftJoin('delito', 'expediente.delito', '=', 'delito.id_delito')
-            ->first();
+        if ($request->has('codbarras')) {        
+            $request->validate([
+                'codbarras' => 'required|string',
+            ]);
+            $codbar = $request->input('codbarras');
+    /*
+            $dep_exp=substr($codbar,0,11);
+            $ano_exp=substr($codbar,11,4);
+            $nro_exp=substr($codbar,15,6);
+            $tip_exp=substr($codbar,21,4);
+            $dep_exp = (int) $dep_exp;
+            $nro_exp = (int) $nro_exp; 
+            $existe = Expedientes::where('id_dependencia', $dep_exp)
+                ->leftJoin('delito', 'expediente.delito', '=', 'delito.id_delito')
+                ->where('ano_expediente', $ano_exp)
+                ->where('nro_expediente', $nro_exp)
+                ->where('id_tipo', $tip_exp)
+                ->first();
+    */
+            $existe = DB::table('expediente')->where('codbarras', $codbar)
+                ->leftJoin('delito', 'expediente.delito', '=', 'delito.id_delito')
+                ->first();
 
-        if ($existe) {
-            $estado = $existe->estado; 
-            if ($estado=="I") {
-                $existe2 = DB::table('movimiento_exp_det')
-                ->where('id_expediente', $existe->id_expediente)
-                ->where('tipo_mov', "SO")
-                ->where('estado_mov', "S")
-                    ->first();
-                if ($existe2) {
+            if ($existe) {
+                $estado = $existe->estado; 
+                if ($estado=="I") {
+                    $existe2 = DB::table('movimiento_exp_det')
+                    ->where('id_expediente', $existe->id_expediente)
+                    ->where('tipo_mov', "SO")
+                    ->where('estado_mov', "S")
+                        ->first();
+                    if ($existe2) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => utf8_encode('EL EXPEDIENTE ' . $codbar . ' SE ENCUENTRA EN OTRA SOLICITUD.'),
+                        ]);                            
+                    } else {
+                        return response()->json([
+                            'success' => true,
+                            'id_expediente' => $existe->id_expediente,
+                            'imputado' => $existe->imputado,
+                            'agraviado' => $existe->agraviado,
+                            'desc_delito' => $existe->desc_delito,
+                            'nro_folios' => $existe->nro_folios,
+                            'message' => 'OK'
+                        ]);        
+                    }
+                } else {
+
                     return response()->json([
                         'success' => false,
-                        'message' => utf8_encode('EL EXPEDIENTE ' . $codbar . ' SE ENCUENTRA EN OTRA SOLICITUD.'),
-                    ]);                            
-                } else {
-                    return response()->json([
-                        'success' => true,
-                        'id_expediente' => $existe->id_expediente,
-                        'imputado' => $existe->imputado,
-                        'agraviado' => $existe->agraviado,
-                        'desc_delito' => $existe->desc_delito,
-                        'nro_folios' => $existe->nro_folios,
-                        'message' => 'OK'
-                    ]);        
+                        'message' => utf8_encode('EL EXPEDIENTE ' . $codbar . ' SE ENCUENTRA FUERA DE ARCHIVO.')
+                    ]);
+
                 }
             } else {
-
                 return response()->json([
                     'success' => false,
-                    'message' => utf8_encode('EL EXPEDIENTE ' . $codbar . ' SE ENCUENTRA FUERA DE ARCHIVO.')
+                    'message' => utf8_encode('EL EXPEDIENTE ' . $codbar . ' NO HA SIDO REGISTRADO.'),
+                ]);        
+            }
+        
+        }
+        // Si viene año y nro expediente
+        elseif ($request->has('ano') && $request->has('nroexp')) {
+            $ano_expediente = $request->input('ano');    
+            $nro_expediente = $request->input('nroexp');    
+
+            $query = DB::table('expediente')
+                ->leftJoin('delito', 'expediente.delito', '=', 'delito.id_delito')
+                ->select('expediente.*','delito.desc_delito');
+            if (!empty($ano_expediente)) {
+                $query->where('expediente.ano_expediente', $ano_expediente);
+            }
+            if (!empty($nro_expediente)) {
+                //$query->where('expediente.nro_expediente', 'like', "%{$nro_expediente}%");
+                $query->where('expediente.nro_expediente', 'like', "{$nro_expediente}");
+            }
+            $segdetalle = $query
+                ->orderBy('codbarras', 'asc')
+                ->get();
+
+            if ($segdetalle->isNotEmpty()) {
+                $numeroRegistros = $segdetalle->count();
+                $segdetalle->transform(function ($doc) {
+                    $existe2 = DB::table('movimiento_exp_det')
+                    ->where('id_expediente', $doc->id_expediente)
+                    ->where('tipo_mov', "SO")
+                    ->where('estado_mov', "S")
+                    ->first();
+                    $doc->otrasolicitud = $existe2; // true o false
+                    return $doc;
+                });
+                return response()->json([
+                    'success' => true,
+                    'registros' => $segdetalle,
+                    'nroregistros' => $numeroRegistros,
                 ]);
 
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'NO SE ENCONTRARON CARPETAS FISCALES CON LOS DATOS PROPORCIONADOS.',
+                ]);
             }
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => utf8_encode('EL EXPEDIENTE ' . $codbar . ' NO HA SIDO REGISTRADO.'),
-            ]);        
-	    }
+
+        }
+        // Si no viene ninguno o vienen incompletos
+        else {
+                return response()->json([
+                    'success' => false,
+                    'message' => utf8_encode('DEBE INGRESAR UN CODIGO DE CARPETA FISCAL O EL AÑO Y NUMERO DE EXPEDIENTE.'),
+                ]);   
+        }
+
+
     }
     public function grabaSolicitud(Request $request)
     {

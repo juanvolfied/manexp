@@ -74,17 +74,52 @@ function numeroAOrdinal($numero) {
                       </div>
                     </div>
 
-                    <div class="row" style="background-color:#F2F5A9;">
+                    <div class="row" >
                       <div class="col-md-6 col-lg-6">
-                        <div class="form-group">
-                          <label for="codbarras"><b>C&oacute;digo de Carpeta Fiscal</b></label>
-                          <input type="text" class="form-control" name="codbarras" id="codbarras" placeholder="c&oacute;d. barras" onkeydown="verificarEnter(event)" autofocus/>
+                        <div class="form-group border p-3 rounded shadow-sm bg-light">
+                            <h5 class="text-primary"><i class="fas fa-barcode"></i> Buscar por Código de Carpeta Fiscal</h5>
+                            <p class="text-muted small"><b>Escanee con lector o escriba el código completo, luego presione Enter o el botón.</b></p>
+
+                          <!--<label for="codbarras"><b>C&oacute;digo de Carpeta Fiscal</b></label>-->
+                          
+                          <div class="input-group">
+
+                          <input type="text" class="form-control" name="codbarras" id="codbarras" placeholder="C&oacute;d. Carpeta Fiscal" onkeydown="verificarEnter(event)" autofocus/>
+                          <button class="btn btn-primary" style="padding:0px 1rem!important; z-index: 1;" type="button" onclick="verificarEnter(event)">
+                          <i class="fas fa-check me-1"></i> Buscar Carpeta Fiscal
+                          </button>
                           <small id="msgerr" class="form-text text-muted text-danger" style="display:none;">Escanee con lector o digite el codigo y presione enter.</small>
+
+                          </div>
+
                         </div>
                       </div>
+
+
+
                       <div class="col-md-6 col-lg-6">
-                        <div class="form-group">
-                          <div class="card-title mt-0 text-danger text-center" id="cantexp"></div>
+                        <div class="form-group border p-3 rounded shadow-sm bg-light">
+                        <h5 class="text-primary"><i class="fas fa-folder-open"></i> Buscar por Año y Nº de Expediente</h5>
+                        <p class="text-muted small"><b>Complete ambos campos y presione el botón para buscar.</b></p>
+
+                          <div class="card-title mt-0 text-danger text-center" id="cantexp" style="display:none;"></div>
+
+        <div class="row">
+        <div class="col-md-2">
+          <!--<label for="ano" class="form-label"><b>A&ntilde;o</b></label>-->
+          <input type="text" id="ano" name="ano" class="form-control text-center" maxlength="4" placeholder="A&ntilde;o" style="width:70px;">
+        </div>
+        <div class="col-md-3">
+          <!--<label for="nroexp" class="form-label"><b>Nro Expediente</b></label>-->
+          <input type="text" id="nroexp" name="nroexp" class="form-control text-center" maxlength="6" placeholder="Expediente" style="width:100px;">
+        </div>
+        <div class="col-md-6 d-flex align-items-end">
+          <a href="#" onclick="buscaporanoexpediente(event)" class="btn btn-primary w-100">Buscar Carpeta por A&ntilde;o y Expediente</a>
+        </div>
+        </div>
+                          <small id="msgerr2" class="form-text text-muted text-danger" style="display:none;">Escanee con lector o digite el codigo y presione enter.</small>
+                          
+
                         </div>
                       </div>
                     </div>
@@ -189,6 +224,37 @@ function numeroAOrdinal($numero) {
   </div>
 </div>
 
+
+<div class="modal fade" id="textoModal3" tabindex="-1" aria-labelledby="textoModal3Label" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="textoModal3Label">Selecciona la Carpeta</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div id="textomodalelimina" class="modal-body">
+        <table id="resultados" class="table" >        
+            <thead class="table-dark">
+                <tr>
+                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Carpeta Fiscal</th>
+                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Nro Expediente</th>
+                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Imputado</th>
+                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Agraviado</th>
+                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Delito</th>
+                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Folios</th>
+                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Seleccionar</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>        
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
     </form>
 
 
@@ -278,6 +344,112 @@ function verificarEnter(event) {
 
     }
 
+
+    function buscaporanoexpediente() {
+        let ano = document.getElementById("ano").value;
+        let nroexp = document.getElementById("nroexp").value;
+	
+        $.ajax({
+            url: '{{ route("solicitud.buscacarpeta") }}',
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                ano: ano,
+                nroexp: nroexp
+            },            
+            success: function(response) {
+                let mensaje = response.message || 'Respuesta sin mensaje';
+                let id_expediente = response.id_expediente;
+                let imputado = response.imputado;
+                let agraviado = response.agraviado;
+                let desc_delito = response.desc_delito;
+                let nro_folios = response.nro_folios;
+
+                if (response.success) {
+
+                    var registros = response.registros;
+
+                    let $tbody = $('#resultados tbody');
+                    $tbody.empty();
+
+                    registros.forEach(function (registro) {
+                        $tbody.append(`
+                            <tr>
+                                <td style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">${registro.codbarras}</td>
+                                <td style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">${registro.id_dependencia}-${registro.ano_expediente}-${registro.nro_expediente}-${registro.id_tipo}</td>
+                                <td style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">${registro.imputado || ''}</td>
+                                <td style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">${registro.agraviado || ''}</td>
+                                <td style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">${registro.desc_delito || ''}</td>
+                                <td style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">${registro.nro_folios || ''}</td>
+                                <td style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">
+                                <button class="btn btn-primary btn-sm seleccionar-registro" 
+                                data-codbarras="${registro.codbarras}" 
+                                data-dependencia="${registro.id_dependencia}" 
+                                data-ano="${registro.ano_expediente}"
+                                data-nroexpediente="${registro.nro_expediente}"
+                                data-tipo="${registro.id_tipo}"
+                                data-id_expediente="${registro.id_expediente}"
+                                data-imputado="${registro.imputado}"
+                                data-agraviado="${registro.agraviado}"
+                                data-desc_delito="${registro.desc_delito}"
+                                data-nro_folios="${registro.nro_folios}"
+                                >Seleccionar</button></td>
+                            </tr>
+                        `);
+                    });
+
+      let myModal3 = new bootstrap.Modal(document.getElementById('textoModal3'));
+      myModal3.show();
+
+//                    scannedItems.unshift({ codbarras, dependencia, ano, nroexpediente, tipo, id_expediente, imputado, agraviado, desc_delito, nro_folios});
+//                    updateScannedList();
+//                    document.getElementById('scannedItemsInput').value = JSON.stringify(scannedItems);
+                } else {
+                    $('#msgerr2').html('<b>' + mensaje + '</b>');
+                    msgerr2.style.display = 'block';
+                    setTimeout(function() {
+                        msgerr2.style.display = 'none';
+                    }, 4000);                 }
+            },
+            error: function(xhr) {
+                //$('#mensaje-guardar').html('<div style="color: red;">Error inesperado</div>');
+                //console.error(xhr.responseText);
+            }
+        });
+
+	document.getElementById("ano").value='';
+	document.getElementById("nroexp").value='';
+//	document.getElementById('codbarras').focus();        
+
+    }
+$(document).on('click', '.seleccionar-registro', function () {
+    let codbarras = $(this).data('codbarras');
+    let dependencia = $(this).data('dependencia');
+    let ano = $(this).data('ano');
+    let nroexpediente = $(this).data('nroexpediente');
+    let tipo = $(this).data('tipo');
+    let id_expediente = $(this).data('id_expediente');
+    let imputado = $(this).data('imputado');
+    let agraviado = $(this).data('agraviado');
+    let desc_delito = $(this).data('desc_delito');
+    let nro_folios = $(this).data('nro_folios');
+
+
+    scannedItems.unshift({ codbarras, dependencia, ano, nroexpediente, tipo, id_expediente, imputado, agraviado, desc_delito, nro_folios});
+    updateScannedList();
+    document.getElementById('scannedItemsInput').value = JSON.stringify(scannedItems);
+
+    let myModal3 = bootstrap.Modal.getInstance(document.getElementById('textoModal3'));
+    myModal3.hide();
+
+    // Opcional: limpiar resultados
+    $('#resultados tbody').empty();
+});
+
+
+
+
+
 function updateScannedList() {
     const tableBody = $('#scanned-list tbody');
     const tableBodycel = $('#scanned-listcel tbody');
@@ -290,10 +462,10 @@ function updateScannedList() {
 	    <tr>
 		<!--<td style="font-size:12px; padding: 5px 10px !important;">${item.codbarras}</td>-->
 		<td style="font-size:12px; padding: 5px 10px !important;">${item.dependencia}-${item.ano}-${item.nroexpediente}-${item.tipo}</td>
-		<td style="font-size:12px; padding: 5px 10px !important;">${item.imputado}</td>
-		<td style="font-size:12px; padding: 5px 10px !important;">${item.agraviado}</td>
-		<td style="font-size:12px; padding: 5px 10px !important;">${item.desc_delito}</td>                        
-		<td style="font-size:12px; padding: 5px 10px !important;">${item.nro_folios}</td>                        
+		<td style="font-size:12px; padding: 5px 10px !important;">${item.imputado || ''}</td>
+		<td style="font-size:12px; padding: 5px 10px !important;">${item.agraviado || ''}</td>
+		<td style="font-size:12px; padding: 5px 10px !important;">${item.desc_delito || ''}</td>                        
+		<td style="font-size:12px; padding: 5px 10px !important;">${item.nro_folios || ''}</td>                        
 		<td style="font-size:12px; padding: 5px 10px !important;">
 		    <button onclick="prepararYMostrarModal2(${index},event)" style="border: none; background: transparent; cursor: pointer;">
 		    <i class="fas fa-trash-alt fa-lg" style="color: red;"></i>
