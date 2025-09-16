@@ -24,6 +24,7 @@ class MesaController extends Controller
         $libroescritos = DB::table('libroescritos')
         ->leftJoin('personal', 'libroescritos.id_fiscal', '=', 'personal.id_personal')
         ->leftJoin('dependencia', 'libroescritos.id_dependencia', '=', 'dependencia.id_dependencia')
+        ->leftJoin('usuarios', 'libroescritos.id_usuario', '=', 'usuarios.id_usuario')
         ->select(
             //'libroescritos.anolibro',
             //'libroescritos.numero',
@@ -40,7 +41,8 @@ class MesaController extends Controller
             'libroescritos.remitente',
             'libroescritos.carpetafiscal',
             'libroescritos.folios',
-            'libroescritos.fecharegistro'
+            'libroescritos.fecharegistro',
+            'usuarios.usuario'
         )
         ->wheredate('fecharegistro', $fecha)
 //        ->wheredate('fecharegistro', date('Y-m-d', strtotime('-2 day')))
@@ -330,6 +332,7 @@ class MesaController extends Controller
         $segdetalle = DB::table('libroescritos')
         ->leftJoin('personal', 'libroescritos.id_fiscal', '=', 'personal.id_personal')
         ->leftJoin('dependencia', 'libroescritos.id_dependencia', '=', 'dependencia.id_dependencia')
+        ->leftJoin('usuarios', 'libroescritos.id_usuario', '=', 'usuarios.id_usuario')
         ->select(
             'libroescritos.codescrito',
             'libroescritos.tiporecepcion',
@@ -344,7 +347,8 @@ class MesaController extends Controller
             'libroescritos.remitente',
             'libroescritos.carpetafiscal',
             'libroescritos.folios',
-            'libroescritos.fecharegistro'
+            'libroescritos.fecharegistro',
+            'usuarios.usuario'
         )
         ->whereDate('fecharegistro', '>=', $fechaini)
         ->whereDate('fecharegistro', '<=', $fechafin)

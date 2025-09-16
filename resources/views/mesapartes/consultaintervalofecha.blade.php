@@ -36,22 +36,23 @@
         <table id="scanned-list" class="table table-striped table-sm">
             <thead class="thead-dark">
                 <tr>
-                    <th style="padding: 5px 5px!important; font-size:12px !important; text-transform:none;">#</th>
-                    <th style="padding: 5px 5px!important; font-size: 12px !important; text-transform:none;">Fecha</th>
-                    <th style="padding: 5px 5px!important; font-size: 12px !important; text-transform:none;">C&oacute;digo</th>
-                    <th style="padding: 5px 5px!important; font-size: 12px !important; text-transform:none;">Dependencia</th>
-                    <th style="padding: 5px 5px!important; font-size: 12px !important; text-transform:none;">Despacho</th>
-                    <th style="padding: 5px 5px!important; font-size: 12px !important; text-transform:none;">Fiscal</th>
-                    <th style="padding: 5px 5px!important; font-size: 12px !important; text-transform:none;">Tipo</th>
-                    <th style="padding: 5px 5px!important; font-size: 12px !important; text-transform:none;">Descripci&oacute;n</th>
-                    <th style="padding: 5px 5px!important; font-size: 12px !important; text-transform:none;">Dependencia<br>Origen</th>
-                    <th style="padding: 5px 5px!important; font-size: 12px !important; text-transform:none;">Remitente</th>
-                    <th style="padding: 5px 5px!important; font-size: 12px !important; text-transform:none;">Carpeta<br>Fiscal</th>
-                    <th style="padding: 5px 5px!important; font-size: 12px !important; text-transform:none;">Folios</th>
-                    <th style="padding: 5px 5px!important; font-size:12px !important; text-transform:none;">Ver</th>			      
+                    <th style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">#</th>
+                    <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Fecha</th>
+                    <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">C&oacute;digo</th>
+                    <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Dependencia</th>
+                    <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Despacho</th>
+                    <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Fiscal</th>
+                    <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Tipo</th>
+                    <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Descripci&oacute;n</th>
+                    <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Dependencia<br>Origen</th>
+                    <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Remitente</th>
+                    <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Carpeta<br>Fiscal</th>
+                    <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Folios</th>
+                    <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Usuario</th>
+                    <th style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">Ver</th>			      
                 </tr>
             </thead>
-            <tbody style="font-size:12px;" >
+            <tbody style="font-size:11px;" >
             </tbody>
         </table>        
     </div>
@@ -174,20 +175,21 @@ function mostrarescritos(event) {
 
                     tableBody.append(`
                         <tr>
-                            <td style="font-size:12px; padding: 5px 5px !important;">${index + 1}</td>
-                            <td style="font-size:12px; padding: 5px 5px !important;">${registro.fecharegistro || ''}</td>
-                            <td style="font-size:12px; padding: 5px 5px !important;">${registro.codescrito || ''}</td>
-                            <td style="font-size:12px; padding: 5px 5px !important;">${registro.abreviado || ''}</td>
-                            <td style="font-size:12px; padding: 5px 5px !important;">
+                            <td style="font-size:11px; padding: 5px 5px !important;">${index + 1}</td>
+                            <td style="font-size:11px; padding: 5px 5px !important;">${registro.fecharegistro || ''}</td>
+                            <td style="font-size:11px; padding: 5px 5px !important;">${registro.codescrito || ''}</td>
+                            <td style="font-size:11px; padding: 5px 5px !important;">${registro.abreviado || ''}</td>
+                            <td style="font-size:11px; padding: 5px 5px !important;">
                             ${registro.despacho ? numeroAOrdinal(registro.despacho) : ''} DESPACHO
-                            <td style="font-size:12px; padding: 5px 5px !important;">${registro.apellido_paterno || ''} ${registro.apellido_materno || ''} ${registro.nombres || ''}</td>
-                            <td style="font-size:12px; padding: 5px 5px !important;">${tipoTexto || ''}</td>
-                            <td style="font-size:12px; padding: 5px 5px !important;">${registro.descripcionescrito || ''}</td>
-                            <td style="font-size:12px; padding: 5px 5px !important;">${registro.dependenciapolicial || ''}</td>
-                            <td style="font-size:12px; padding: 5px 5px !important;">${registro.remitente || ''}</td>
-                            <td style="font-size:12px; padding: 5px 5px !important;">${registro.carpetafiscal || ''}</td>
-                            <td style="font-size:12px; padding: 5px 5px !important;">${registro.folios || ''}</td>
-                            <td style="font-size:12px; padding: 5px 5px !important;">
+                            <td style="font-size:11px; padding: 5px 5px !important;">${registro.apellido_paterno || ''} ${registro.apellido_materno || ''} ${registro.nombres || ''}</td>
+                            <td style="font-size:11px; padding: 5px 5px !important;">${tipoTexto || ''}</td>
+                            <td style="font-size:11px; padding: 5px 5px !important;">${registro.descripcionescrito || ''}</td>
+                            <td style="font-size:11px; padding: 5px 5px !important;">${registro.dependenciapolicial || ''}</td>
+                            <td style="font-size:11px; padding: 5px 5px !important;">${registro.remitente || ''}</td>
+                            <td style="font-size:11px; padding: 5px 5px !important;">${registro.carpetafiscal || ''}</td>
+                            <td style="font-size:11px; padding: 5px 5px !important;">${registro.folios || ''}</td>
+                            <td style="font-size:11px; padding: 5px 5px !important;">${registro.usuario || ''}</td>
+                            <td style="font-size:11px; padding: 5px 5px !important;">
                             ${iconoDetalle}
                             </td>
                         </tr>

@@ -3,7 +3,7 @@
 @section('content')
 @php
 //    $estados = ['G' => 'Generado', 'E' => 'Enviado', 'R' => 'Recepcionado', 'Z' => 'RECHAZADO'];
-    $estados = ['G' => 'Generado', 'E' => 'Enviado', 'R' => 'Recepcionado'];
+    $estados = ['G' => 'Generado', 'E' => 'Enviado', 'D' => 'Devuelto'];
 
 function numeroAOrdinal($numero) {
     $ordinales = [0 => '',1 => '1er',2 => '2do',3 => '3er',4 => '4to',5 => '5to',6 => '6to',7 => '7mo',8 => '8vo',9 => '9no',10 => '10mo',11 => '11er',];
@@ -52,7 +52,7 @@ function numeroAOrdinal($numero) {
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->abreviado }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ numeroAOrdinal($p->despacho) }} DESPACHO</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->cantidad_exp }}</td>
-                    <td style="padding: 5px 10px!important; font-size: 12px !important; {{ $p->estado_mov == 'E' ? 'color:blue;' : ($p->estado_mov == 'R' ? 'color:green;' : '') }}"><b>{{ $estados[$p->estado_mov] ?? $p->estado_mov }}</b></td>
+                    <td style="padding: 5px 10px!important; font-size: 12px !important; {{ $p->estado_mov == 'E' ? 'color:blue;' : ($p->estado_mov == 'D' ? 'color:green;' : '') }}"><b>{{ $estados[$p->estado_mov] ?? $p->estado_mov }}</b></td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_movimiento }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_envio }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_recepcion }}</td>
@@ -65,23 +65,13 @@ function numeroAOrdinal($numero) {
                     </td>
                     <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
                     @if($p->estado_mov == 'G' || $p->estado_mov == 'Z')
-                        <a href="#" data-bs-toggle="tooltip" title="Enviar Gu&iacute;a para Archivo" onclick="prepararYMostrarModal('{{ $p->tipo_mov }}',{{ $p->ano_mov }},{{ $p->nro_mov }},event)" style="color: green;"><i class="fas fa-hand-paper fa-lg"></i><br>Enviar</a>
+                        <a href="#" data-bs-toggle="tooltip" title="Enviar Gu&iacute;a para Archivo" onclick="prepararYMostrarModal('{{ $p->tipo_mov }}',{{ $p->ano_mov }},{{ $p->nro_mov }},event)" style="color: green;"><i class="fas fa-paper-plane fa-lg"></i><br>Enviar</a>
                     @else
-                        <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-hand-paper fa-lg text-muted" ></i><br>Enviar</a>
+                        <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-paper-plane fa-lg text-muted" ></i><br>Enviar</a>
                     @endif 
                     </td>
                     <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
-                    @if($p->estado_mov == 'E')
-                        <!--<a href="#" data-bs-toggle="tooltip" title="Recibir Carpetas Fiscales" onclick="prepararYMostrarModal('{{ $p->tipo_mov }}',{{ $p->ano_mov }},{{ $p->nro_mov }},event)" style="color: green;"><i class="fas fa-download fa-lg"></i><br>Recibir</a>-->
-                        <a href="#" onclick="mostrardetalle('{{ $p->tipo_mov }}',{{ $p->ano_mov }},{{ $p->nro_mov }}, event)" title="Ver detalle" style="color: green;"><i class="fas fa-download fa-lg" ></i><br>Recibir</a>                        
-
-                    @else
-                        <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-download fa-lg text-muted" ></i><br>Recibir</a>
-                    @endif 
-<!--
-                        <a href="#" data-bs-toggle="tooltip" title="Imprime Solicitud de Carpetas" onclick="generapdf('{{ route("internamiento.pdf", ["tipo_mov" => $p->tipo_mov, "ano_mov" => $p->ano_mov, "nro_mov" => $p->nro_mov]) }}', event)" style="color: purple;">
-                            <i class="fas fa-print fa-lg"></i><br>Imprimir
-                        </a>-->
+                        <a href="#" onclick="mostrardetalle('{{ $p->tipo_mov }}',{{ $p->ano_mov }},{{ $p->nro_mov }}, event)" title="Ver detalle" style="color: green;"><i class="fas fa-search fa-lg" ></i><br>Detalle</a>                        
                     </td>
                 </tr>
             @endforeach
@@ -142,13 +132,13 @@ function numeroAOrdinal($numero) {
     <div class="modal-content custom-modal-height">
       
       <div class="modal-header">
-        <h5 class="modal-title" id="miModalLabel">CARPETAS ENVIADAS DE ARCHIVO</h5>
+        <h5 class="modal-title" id="miModalLabel">CARPETAS FISCALES EN MOVIMIENTO DE DEVOLUCION</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       
       <div class="modal-body" id="detalleseguimiento">
-        <b>VERIFIQUE QUE LAS CARPETAS ENTREGADAS CORRESPONDAN A LA LISTA MOSTRADA<br>
-        SI DESEA CONTINUAR CON LA RECEPCION PRESIONE EL BOTON [RECIBIR CARPETAS] </b><br><br>
+        <b>CARPETAS FISCALES<br>
+        </b><br><br>
           <table id="scanned-list" class="table table-striped table-sm">
               <thead class="thead-dark">
                   <tr>
@@ -164,13 +154,9 @@ function numeroAOrdinal($numero) {
 		<!-- Los datos escaneados se irán añadiendo aquí -->
               </tbody>
           </table>        
-      <input type='hidden' id='tpmov2' name='tpmov2'>
-      <input type='hidden' id='anomov2' name='anomov2'>
-      <input type='hidden' id='nromov2' name='nromov2'>
       </div>
       
       <div class="modal-footer">
-        <a href="#" onclick="recibircarpetas(event)" class="btn btn-primary">RECIBIR CARPETAS</a>
         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
       </div>
 
@@ -278,21 +264,10 @@ function enviardevolucion(event) {
 </script>
 
 <script>
-
-let scannedItems = []; 
-
 function mostrardetalle(tpmov, anomov, nromov,event) {
-    document.getElementById('tpmov2').value=tpmov;
-    document.getElementById('anomov2').value=anomov;
-    document.getElementById('nromov2').value=nromov;
-
-scannedItems = [];
-var nroreg=0;
 
             const tableBody = $('#scanned-list tbody');
-            const tableBodycel = $('#scanned-listcel tbody');
             tableBody.empty(); // Limpiar la tabla antes de volver a renderizarla
-            tableBodycel.empty(); // Limpiar la tabla antes de volver a renderizarla
 
     if (event) event.preventDefault(); // Previene recarga
 
@@ -312,30 +287,6 @@ var nroreg=0;
                                 var registros = response.registros;
                                 registros.forEach(function(registro) {
                                 
-                                nroreg=nroreg+1;
-                            	if (nroreg==1) {
-                                    // Rellenar los otros inputs con los datos del producto
-                                    //$('#archivo').val(registro.archivo);
-                                    //$('#nropaquete').val(registro.nro_paquete);
-                                    //$('#dependencia').val(registro.paq_dependencia);
-                                    //choices.setChoiceByValue(registro.paq_dependencia);
-                                    //$('#despacho').val(registro.despacho);
-                                }
-                                var codbarras = registro.codbarras;
-                                var dependencia = registro.id_dependencia;
-                                var ano = registro.ano_expediente;
-                                var nroexpediente = registro.nro_expediente;
-                                var tipo = registro.id_tipo;
-                                var estado = registro.estado;
-                                if (estado=="L") {
-                                    var lafecha = registro.fecha_lectura;
-                                    var lahora = registro.hora_lectura;
-                                }
-                                if (estado=="I") {
-                                    var lafecha = registro.fecha_inventario;
-                                    var lahora = registro.hora_inventario;
-                                }
-                                
                 tableBody.append(`
                     <tr>
                         <td style="font-size:12px; padding: 5px 10px !important;">${registro.codbarras}</td>
@@ -346,7 +297,6 @@ var nroreg=0;
                         <td style="font-size:12px; padding: 5px 10px !important;">${registro.tomo}</td>
                     </tr>
                 `);
-                                
                                 
                                 });
                                 
@@ -379,37 +329,6 @@ var nroreg=0;
 }
 </script>
 
-<script>
-function recibircarpetas(event) {
-    if (event) event.preventDefault(); // Previene recarga
-    const tipo = document.getElementById('tpmov2').value;
-    const ano = document.getElementById('anomov2').value;
-    const nro = document.getElementById('nromov2').value;
-    myModal.hide();
-    $.ajax({
-        url: '{{ route("solicitud.grabarecepcion") }}', 
-        method: 'POST',
-        data: {
-            _token: '{{ csrf_token() }}',
-            tipo_mov: tipo,
-            ano_mov: ano,
-            nro_mov: nro
-        },
-        success: function(response) {
-          if (response.success) {
-              // Guardar el mensaje para mostrarlo en la siguiente vista
-              sessionStorage.setItem('successMessage', response.message);
-              // Redirigir manualmente
-              window.location.href = response.redirect_url;
-          }
-        },
-        error: function() {
-            alert('Error en proceso de recepcion.');
-        }
-    });
-}  
-</script>
-
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -431,14 +350,7 @@ function recibircarpetas(event) {
         }
     });
 </script>
-    // Inicializar todos los tooltips al cargar la página
-    document.addEventListener('DOMContentLoaded', function () {
-        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        })
-    });
-</script>
+
 
 <script>
 window.onload = function() {

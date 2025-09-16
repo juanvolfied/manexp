@@ -178,6 +178,7 @@ class SolicitudCarpetasController extends Controller
                 //$query->where('expediente.nro_expediente', 'like', "%{$nro_expediente}%");
                 $query->where('expediente.nro_expediente', 'like', "{$nro_expediente}");
             }
+            $query->where('expediente.estado', 'I');
             $segdetalle = $query
                 ->orderBy('codbarras', 'asc')
                 ->get();
@@ -202,7 +203,7 @@ class SolicitudCarpetasController extends Controller
             } else {
                 return response()->json([
                     'success' => false,
-                    'message' => 'NO SE ENCONTRARON CARPETAS FISCALES CON LOS DATOS PROPORCIONADOS.',
+                    'message' => 'NO SE ENCONTRARON CARPETAS FISCALES INTERNADAS EN ARCHIVO CON LOS DATOS PROPORCIONADOS.',
                 ]);
             }
 
@@ -539,7 +540,7 @@ class SolicitudCarpetasController extends Controller
             DB::table('expediente')
             ->where('id_expediente', $registro->id_expediente)
             ->update([
-                'estado' => 'T'
+                'estado' => 'T'//TRANSITO
             ]);
 
             $reg_exp_tomo = DB::table('ubicacion_exp')
@@ -584,7 +585,7 @@ class SolicitudCarpetasController extends Controller
                     'paq_dependencia' => Auth::user()->personal->id_dependencia,
                     'despacho' => Auth::user()->personal->despacho,
                     'activo' => 'S',
-                    'estado' => 'A',
+                    'estado' => 'E',//ENVIADO
                 ]);
             }//filtro tomo
         }
@@ -693,7 +694,7 @@ class SolicitudCarpetasController extends Controller
             DB::table('expediente')
             ->where('id_expediente', $registro->id_expediente)
             ->update([
-                'estado' => 'D'
+                'estado' => 'P'//PRESTADO
             ]);
 
             $reg_exp_tomo = DB::table('ubicacion_exp')
@@ -738,7 +739,7 @@ class SolicitudCarpetasController extends Controller
                     'paq_dependencia' => Auth::user()->personal->id_dependencia,
                     'despacho' => Auth::user()->personal->despacho,
                     'activo' => 'S',
-                    'estado' => 'D',
+                    'estado' => 'P',//PRESTADO
                 ]);
             }//filtro tomo
         }
@@ -847,64 +848,125 @@ class SolicitudCarpetasController extends Controller
 
     public function buscaCarpetaDevolucion(Request $request)
     {
-        $request->validate([
-            'codbarras' => 'required|string',
-        ]);
-        $codbar = $request->input('codbarras');
-        $existe = DB::table('expediente')->where('codbarras', $codbar)
-            ->leftJoin('delito', 'expediente.delito', '=', 'delito.id_delito')
-            ->first();
+        if ($request->has('codbarras')) {        
 
-        if ($existe) {
-/*            $existe1 = DB::table('ubicacion_exp')
-            ->where('id_expediente', $existe->id_expediente)
-            ->where('activo', 'S')
-            ->where('estado', 'D')
-            ->first();*/
-
-
-//            if ($existe1) {
-            $estado = $existe->estado; 
-            if ($estado=="D") {
-                $existe2 = DB::table('movimiento_exp_det')
-                ->where('id_expediente', $existe->id_expediente)
-                ->where('tipo_mov', "DE")
-                ->where(function($query) {
-                    $query->where('estado_mov', 'G')
-                        ->orWhere('estado_mov', 'E');
-                })
+            $request->validate([
+                'codbarras' => 'required|string',
+            ]);
+            $codbar = $request->input('codbarras');
+            $existe = DB::table('expediente')->where('codbarras', $codbar)
+                ->leftJoin('delito', 'expediente.delito', '=', 'delito.id_delito')
                 ->first();
 
-                if ($existe2) {
+            if ($existe) {
+    /*            $existe1 = DB::table('ubicacion_exp')
+                ->where('id_expediente', $existe->id_expediente)
+                ->where('activo', 'S')
+                ->where('estado', 'D')
+                ->first();*/
+
+
+    //            if ($existe1) {
+                $estado = $existe->estado; 
+                if ($estado=="P") {//CARPETA FISCAL P=PRESTADO
+                    $existe2 = DB::table('movimiento_exp_det')
+                    ->where('id_expediente', $existe->id_expediente)
+                    ->where('tipo_mov', "DE")
+                    ->where(function($query) {
+                        $query->where('estado_mov', 'G')
+                            ->orWhere('estado_mov', 'E');
+                    })
+                    ->first();
+
+                    if ($existe2) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => utf8_encode('EL EXPEDIENTE ' . $codbar . ' SE ENCUENTRA EN OTRA DEVOLUCION.'),
+                        ]);                            
+                    } else {
+                        return response()->json([
+                            'success' => true,
+                            'id_expediente' => $existe->id_expediente,
+                            'imputado' => $existe->imputado,
+                            'agraviado' => $existe->agraviado,
+                            'desc_delito' => $existe->desc_delito,
+                            'nro_folios' => $existe->nro_folios,
+                            'message' => 'OK'
+                        ]);        
+                    }
+                } else {
+
                     return response()->json([
                         'success' => false,
-                        'message' => utf8_encode('EL EXPEDIENTE ' . $codbar . ' SE ENCUENTRA EN OTRA DEVOLUCION.'),
-                    ]);                            
-                } else {
-                    return response()->json([
-                        'success' => true,
-                        'id_expediente' => $existe->id_expediente,
-                        'imputado' => $existe->imputado,
-                        'agraviado' => $existe->agraviado,
-                        'desc_delito' => $existe->desc_delito,
-                        'nro_folios' => $existe->nro_folios,
-                        'message' => 'OK'
-                    ]);        
+                        'message' => utf8_encode('EL EXPEDIENTE ' . $codbar . ' NO SE ENCUENTRA EN DESPACHO.')
+                    ]);
+
                 }
             } else {
-
                 return response()->json([
                     'success' => false,
-                    'message' => utf8_encode('EL EXPEDIENTE ' . $codbar . ' NO SE ENCUENTRA EN DESPACHO.')
+                    'message' => utf8_encode('EL EXPEDIENTE ' . $codbar . ' NO HA SIDO REGISTRADO.'),
+                ]);        
+            }
+            
+        }
+        // Si viene año y nro expediente
+        elseif ($request->has('ano') && $request->has('nroexp')) {
+            $ano_expediente = $request->input('ano');    
+            $nro_expediente = $request->input('nroexp');    
+
+            $query = DB::table('expediente')
+                ->leftJoin('delito', 'expediente.delito', '=', 'delito.id_delito')
+                ->select('expediente.*','delito.desc_delito');
+            if (!empty($ano_expediente)) {
+                $query->where('expediente.ano_expediente', $ano_expediente);
+            }
+            if (!empty($nro_expediente)) {
+                //$query->where('expediente.nro_expediente', 'like', "%{$nro_expediente}%");
+                $query->where('expediente.nro_expediente', 'like', "{$nro_expediente}");
+            }
+            $query->where('expediente.estado', 'P');
+            $segdetalle = $query
+                ->orderBy('codbarras', 'asc')
+                ->get();
+
+            if ($segdetalle->isNotEmpty()) {
+                $numeroRegistros = $segdetalle->count();
+                $segdetalle->transform(function ($doc) {
+                    $existe2 = DB::table('movimiento_exp_det')
+                    ->where('id_expediente', $doc->id_expediente)
+                    ->where('tipo_mov', "DE")
+                    ->where(function($query) {
+                        $query->where('estado_mov', 'G')
+                            ->orWhere('estado_mov', 'E');
+                    })
+                    ->first();
+                    $doc->otrasolicitud = $existe2; // true o false
+                    return $doc;
+                });
+                return response()->json([
+                    'success' => true,
+                    'registros' => $segdetalle,
+                    'nroregistros' => $numeroRegistros,
                 ]);
 
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'NO SE ENCONTRARON CARPETAS FISCALES PRESTADAS CON LOS DATOS PROPORCIONADOS.',
+                ]);
             }
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => utf8_encode('EL EXPEDIENTE ' . $codbar . ' NO HA SIDO REGISTRADO.'),
-            ]);        
-	    }
+
+        }
+        // Si no viene ninguno o vienen incompletos
+        else {
+                return response()->json([
+                    'success' => false,
+                    'message' => utf8_encode('DEBE INGRESAR UN CODIGO DE CARPETA FISCAL O EL AÑO Y NUMERO DE EXPEDIENTE.'),
+                ]);   
+        }
+
+
     }
     public function grabaDevolucion(Request $request)
     {
@@ -1069,7 +1131,7 @@ class SolicitudCarpetasController extends Controller
             DB::table('expediente')
             ->where('id_expediente', $registro->id_expediente)
             ->update([
-                'estado' => 'T'
+                'estado' => 'T'//TRANSITO
             ]);
 
             $reg_exp_tomo = DB::table('ubicacion_exp')
@@ -1114,7 +1176,7 @@ class SolicitudCarpetasController extends Controller
                     'paq_dependencia' => Auth::user()->personal->id_dependencia,
                     'despacho' => Auth::user()->personal->despacho,
                     'activo' => 'S',
-                    'estado' => 'D',
+                    'estado' => 'D',//DEVUELTO
                 ]);
             }//filtro tomo
         }
@@ -1201,7 +1263,7 @@ class SolicitudCarpetasController extends Controller
         ->where('ano_mov', $ano_mov)
         ->where('nro_mov', $nro_mov)
         ->update([
-            'estado_mov' => 'R',
+            'estado_mov' => 'D',//DEVUELTO
             'fechahora_recepcion' => $fechaHoraActualFormateada,
             'activo' => 'S',
             'cantidad_exp_recep' => DB::raw('cantidad_exp')
@@ -1283,7 +1345,7 @@ class SolicitudCarpetasController extends Controller
         ->where('nro_mov', $nro_mov)
         ->where('estado_mov', 'E')        
         ->update([
-            'estado_mov' => 'R'
+            'estado_mov' => 'D'//DEVUELTO
         ]);
 
         //return response()->json(['success' => true]);

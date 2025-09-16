@@ -66,41 +66,43 @@ function numeroAOrdinal($numero) {
             <thead class="thead-dark">
                 <tr>
                     <!--<th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">N&uacute;mero</th>-->
-                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">C&oacute;digo</th>
-                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Dependencia</th>
-                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Despacho</th>
-                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fiscal</th>
-                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Tipo</th>
-                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Descripci&oacute;n</th>
-                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Dependencia<br>Origen</th>
-                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Remitente</th>
-                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Carpeta<br>Fiscal</th>
-                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Folios</th>
-                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;" colspan=2>Acciones</th>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">C&oacute;digo</th>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Dependencia</th>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Despacho</th>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Fiscal</th>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Tipo</th>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Descripci&oacute;n</th>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Dependencia<br>Origen</th>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Remitente</th>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Carpeta<br>Fiscal</th>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Folios</th>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Usuario</th>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;" colspan=2>Acciones</th>
                 </tr>
             </thead>
-            <tbody style="font-size:12px;">
+            <tbody style="font-size:11px;">
                 @foreach($libroescritos as $p)
                 @php
                     $esHoy = date('Y-m-d') == date('Y-m-d', strtotime($p->fecharegistro));
                 @endphp
 
                     <tr>
-                        <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ $p->codescrito }}</td>
-                        <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ $p->abreviado }}</td>
-                        <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ numeroAOrdinal($p->despacho) . " DESPACHO" }}</td>
-                        <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ $p->apellido_paterno ." ". $p->apellido_materno ." ". $p->nombres }}</td>
-                        <td style="padding: 5px 5px!important; font-size: 12px !important;">
+                        <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->codescrito }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->abreviado }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ numeroAOrdinal($p->despacho) . " DESPACHO" }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->apellido_paterno ." ". $p->apellido_materno ." ". $p->nombres }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 11px !important;">
                             {{ $tipos[$p->tipo] ?? $p->tipo }}
                         </td>
-                        <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ $p->descripcionescrito }}</td>
-                        <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ $p->dependenciapolicial }}</td>
-                        <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ $p->remitente }}</td>
-                        <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ $p->carpetafiscal }}</td>
-                        <td style="padding: 5px 5px!important; font-size: 12px !important;">{{ $p->folios }}</td>
-                        <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
+                        <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->descripcionescrito }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->dependenciapolicial }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->remitente }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->carpetafiscal }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->folios }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->usuario }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 11px !important; text-align:center;">
                             
-                            @if($esHoy || ($perfil=="Admin"))
+                            @if($esHoy || ($perfil=="Admin") || ($perfil=="MesaPartesAdmin") )
                                 <a href="{{ route('mesapartes.edit', ['codescrito' => $p->codescrito]) }}"
                                 data-bs-toggle="tooltip" title="Editar escrito/oficio/...">
                                     <i class="fas fa-edit fa-lg"></i>
@@ -112,7 +114,7 @@ function numeroAOrdinal($numero) {
                                 </a>
                             @endif
                         </td>
-                        <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;>
+                        <td style="padding: 5px 5px!important; font-size: 11px !important; text-align:center;>
                             <a href="#" data-bs-toggle="tooltip" title="Imprime C&oacute;digo de Barras" onclick="generacodbarraspdf('{{ route("mesapartescodbarras.pdf", ["codigogenerar" => $p->codescrito ]) }}', event)" style="color: purple;">
                                 <i class="fas fa-print fa-lg"></i>
                             </a>
@@ -179,7 +181,7 @@ function generacodbarraspdf(url,event) {
 $(document).ready(function() {
     $('#tablaexpedientes').DataTable({
   "columnDefs": [
-    { "orderable": false, "targets": [10,11] }  // Evitar orden en columnas de acción si no es necesario
+    { "orderable": false, "targets": [11,12] }  // Evitar orden en columnas de acción si no es necesario
   ],
         "pageLength": 10,  // Número de filas por página
         "lengthMenu": [10, 25, 50, 100],  // Opciones de paginación

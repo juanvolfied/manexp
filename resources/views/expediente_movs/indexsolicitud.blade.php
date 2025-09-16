@@ -42,7 +42,7 @@ function numeroAOrdinal($numero) {
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha<br>Solicitud</th>
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha<br>Envio&nbsp;CF</th>
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha<br>Recepci&oacute;n</th>
-                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none; text-align:center;" colspan=3>Acciones</th>
+                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none; text-align:center;" colspan=4>Acciones</th>
             </tr>
           </thead>
         <tbody style="font-size:12px;">
@@ -84,6 +84,9 @@ function numeroAOrdinal($numero) {
                         <a href="#" data-bs-toggle="tooltip" title="Imprime Solicitud de Carpetas" onclick="generapdf('{{ route("internamiento.pdf", ["tipo_mov" => $p->tipo_mov, "ano_mov" => $p->ano_mov, "nro_mov" => $p->nro_mov]) }}', event)" style="color: purple;">
                             <i class="fas fa-print fa-lg"></i><br>Imprimir
                         </a>-->
+                    </td>
+                    <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
+                        <a href="#" onclick="mostrardetalle2('{{ $p->tipo_mov }}',{{ $p->ano_mov }},{{ $p->nro_mov }}, event)" title="Ver detalle" style="color: green;"><i class="fas fa-search fa-lg" ></i><br>Detalle</a>                        
                     </td>
                 </tr>
             @endforeach
@@ -181,6 +184,45 @@ function numeroAOrdinal($numero) {
 </div>
 
 
+<!-- Modal -->
+<div class="modal fade" id="ModalDetalle" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content custom-modal-height">
+      
+      <div class="modal-header">
+        <h5 class="modal-title" id="miModalLabel">CARPETAS ENVIADAS DE ARCHIVO</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      
+      <div class="modal-body" id="detalleregistros">
+        <b>CARPETAS FISCALES CORRESPONDIENTES A ESTE MOVIMIENTO<br>
+        </b><br><br>
+          <table id="listadetalle" class="table table-striped table-sm">
+              <thead class="thead-dark">
+                  <tr>
+                      <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Carpeta Fiscal</th>
+                      <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Imputado</th>
+                      <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Agraviado</th>
+                      <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Delito</th>
+                      <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Folios</th>
+                      <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Tomo</th>
+                  </tr>
+              </thead>
+              <tbody style="font-size:12px;" >
+		<!-- Los datos escaneados se irán añadiendo aquí -->
+              </tbody>
+          </table>        
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
 </form>
 
 
@@ -200,7 +242,7 @@ function generapdf(url,event) {
   $(document).ready(function() {
     $('#tablaexpedientes').DataTable({
   "columnDefs": [
-    { "orderable": false, "targets": [9,10,11] }  // Evitar orden en columnas de acción si no es necesario
+    { "orderable": false, "targets": [10,11,12,13] }  // Evitar orden en columnas de acción si no es necesario
   ],
       "pageLength": 10,  // Número de filas por página
       "lengthMenu": [10, 25, 50, 100],  // Opciones de paginación
@@ -292,9 +334,7 @@ scannedItems = [];
 var nroreg=0;
 
             const tableBody = $('#scanned-list tbody');
-            const tableBodycel = $('#scanned-listcel tbody');
             tableBody.empty(); // Limpiar la tabla antes de volver a renderizarla
-            tableBodycel.empty(); // Limpiar la tabla antes de volver a renderizarla
 
     if (event) event.preventDefault(); // Previene recarga
 
@@ -379,7 +419,75 @@ var nroreg=0;
                         
                     });
 }
+
+function mostrardetalle2(tpmov, anomov, nromov,event) {
+            const tableBody = $('#listadetalle tbody');
+            tableBody.empty(); // Limpiar la tabla antes de volver a renderizarla
+
+    if (event) event.preventDefault(); // Previene recarga
+
+                    $.ajax({
+                        url: '{{ route("solicitud.recepcion") }}',
+                        method: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            tpmov: tpmov,
+                            anomov: anomov,
+                            nromov: nromov
+                        },
+                        success: function(response) {
+
+                           if (response.success) {
+                                				
+                                var registros = response.registros;
+                                registros.forEach(function(registro) {
+                                                                
+                tableBody.append(`
+                    <tr>
+                        <td style="font-size:12px; padding: 5px 10px !important;">${registro.codbarras}</td>
+                        <td style="font-size:12px; padding: 5px 10px !important;">${registro.imputado || ''}</td>
+                        <td style="font-size:12px; padding: 5px 10px !important;">${registro.agraviado || ''}</td>
+                        <td style="font-size:12px; padding: 5px 10px !important;">${registro.desc_delito || ''}</td>
+                        <td style="font-size:12px; padding: 5px 10px !important;">${registro.nro_folios || ''}</td>                        
+                        <td style="font-size:12px; padding: 5px 10px !important;">${registro.tomo}</td>
+                    </tr>
+                `);
+                                
+                                });
+                                
+
+      var miModal = new bootstrap.Modal(document.getElementById('ModalDetalle'));
+      miModal.show();
+                                                                
+                            } else {
+                                alert(response.message);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            if (xhr.status === 419) {
+                                // No autorizado - probablemente sesión expirada
+                                alert('TU SESION HA EXPIRADO. SERAS REDIRIGIDO AL LOGIN.');
+                                window.location.href = '{{ route("usuario.login") }}';
+                            } else {
+                                // Otro tipo de error
+                                console.error('Error en la petición:', xhr.status);
+                                alert('Hubo un error al buscar las carpetas de la solicitud.');
+                            }
+                        }
+
+
+
+
+
+                        
+                    });
+}
 </script>
+
+
+
+
+
 
 <script>
 function recibircarpetas(event) {

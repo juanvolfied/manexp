@@ -3,7 +3,7 @@
 @section('content')
 @php
 //    $estados = ['G' => 'Generado', 'E' => 'Pendiente', 'R' => 'Recepcionado'];
-    $estados = ['G' => 'Generado','E' => 'Enviado', 'R' => 'Recepcionado'];
+    $estados = ['G' => 'Generado','E' => 'Enviado', 'D' => 'Devuelto'];
 function numeroAOrdinal($numero) {
     $ordinales = [0 => '',1 => '1er',2 => '2do',3 => '3er',4 => '4to',5 => '5to',6 => '6to',7 => '7mo',8 => '8vo',9 => '9no',10 => '10mo',11 => '11er',];
     return $ordinales[$numero] ?? $numero . 'º';
@@ -37,8 +37,7 @@ function numeroAOrdinal($numero) {
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha<br>Generaci&oacute;n</th>
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha<br>Envio&nbsp;CF</th>
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha<br>Recepci&oacute;n</th>
-                <!--<th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none; text-align:center;" width="120" colspan="2">Acciones</th>-->
-                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none; text-align:center;" width="80">Acci&oacute;n</th>
+                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none; text-align:center;" width="120" colspan="2">Acciones</th>
             </tr>
         </thead>
         <tbody style="font-size:12px;">
@@ -48,22 +47,23 @@ function numeroAOrdinal($numero) {
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->apellido_paterno }} {{ $p->apellido_materno }} {{ $p->nombres }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->abreviado }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ numeroAOrdinal($p->despacho) }} DESPACHO</td>
-                    <td style="padding: 5px 10px!important; font-size: 12px !important; {{ $p->estado_mov == 'S' ? 'color:red;' : ($p->estado_mov == 'R' ? 'color:green;' : '') }}"><b>{{ $estados[$p->estado_mov] ?? $p->estado_mov }}</b></td>
+                    <td style="padding: 5px 10px!important; font-size: 12px !important; {{ $p->estado_mov == 'E' ? 'color:red;' : ($p->estado_mov == 'D' ? 'color:green;' : '') }}"><b>{{ $estados[$p->estado_mov] ?? $p->estado_mov }}</b></td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->cantidad_exp }}</td>
 <!--                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->cantidad_exp_recep }}</td>-->
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_movimiento }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_envio }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_recepcion }}</td>
-<!--                    <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
-                        <a href="{{ route('internamiento.det', ['tipo_mov' => $p->tipo_mov, 'ano_mov' => $p->ano_mov, 'nro_mov' => $p->nro_mov] ) }}" data-bs-toggle="tooltip" title="Mostrar el detalle de la Gu&iacute;a de Internamiento" style="color: blue;"><i class="fas fa-search fa-lg"></i><br>Detalle</a>
-                    </td>-->
                     <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
                     @if($p->estado_mov == 'E')
-                        <a href="{{ route('devolucion.ver', ['tipo_mov' => $p->tipo_mov, 'ano_mov' => $p->ano_mov, 'nro_mov' => $p->nro_mov] ) }}" data-bs-toggle="tooltip" title="Verificar Carpetas y enviar a Fiscal Solicitante" style="color: green;"><i class="fas fa-paper-plane fa-lg"></i><br>Enviar CF</a>
+                        <a href="{{ route('devolucion.ver', ['tipo_mov' => $p->tipo_mov, 'ano_mov' => $p->ano_mov, 'nro_mov' => $p->nro_mov] ) }}" data-bs-toggle="tooltip" title="Verificar Carpetas Devueltas a Recibir" style="color: green;"><i class="fas fa-download fa-lg"></i><br>Recibir</a>
                     @else
-                        <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-paper-plane fa-lg text-muted" ></i><br>Enviar CF</a>
+                        <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-download fa-lg text-muted" ></i><br>Recibir</a>
                     @endif 
                     </td>
+                    <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
+                        <a href="#" onclick="mostrardetalle('{{ $p->tipo_mov }}',{{ $p->ano_mov }},{{ $p->nro_mov }}, event)" title="Ver detalle" style="color: green;"><i class="fas fa-search fa-lg" ></i><br>Detalle</a>                        
+                    </td>
+
                 </tr>
             @endforeach
         </tbody>
@@ -99,6 +99,43 @@ function numeroAOrdinal($numero) {
   </div>
 </div>
 
+<!-- Modal -->
+<div class="modal fade" id="miModal" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content custom-modal-height">
+      
+      <div class="modal-header">
+        <h5 class="modal-title" id="miModalLabel">CARPETAS FISCALES EN MOVIMIENTO DE DEVOLUCION</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      
+      <div class="modal-body" id="detalleseguimiento">
+        <b>CARPETAS FISCALES<br>
+        </b><br><br>
+          <table id="scanned-list" class="table table-striped table-sm">
+              <thead class="thead-dark">
+                  <tr>
+                      <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Carpeta Fiscal</th>
+                      <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Imputado</th>
+                      <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Agraviado</th>
+                      <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Delito</th>
+                      <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Folios</th>
+                      <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Tomo</th>
+                  </tr>
+              </thead>
+              <tbody style="font-size:12px;" >
+		<!-- Los datos escaneados se irán añadiendo aquí -->
+              </tbody>
+          </table>        
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
 
 <!--</div>-->
 @endsection
@@ -182,6 +219,71 @@ function recibirinternamiento(event) {
 }
 </script>
 
+<script>
+function mostrardetalle(tpmov, anomov, nromov,event) {
+
+            const tableBody = $('#scanned-list tbody');
+            tableBody.empty(); // Limpiar la tabla antes de volver a renderizarla
+
+    if (event) event.preventDefault(); // Previene recarga
+
+                    $.ajax({
+                        url: '{{ route("solicitud.recepcion") }}',//detalle por tipo de movimiento (en este caso DE=Devolucion)
+                        method: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            tpmov: tpmov,
+                            anomov: anomov,
+                            nromov: nromov
+                        },
+                        success: function(response) {
+
+                           if (response.success) {
+                                				
+                                var registros = response.registros;
+                                registros.forEach(function(registro) {
+                                
+                tableBody.append(`
+                    <tr>
+                        <td style="font-size:12px; padding: 5px 10px !important;">${registro.codbarras}</td>
+                        <td style="font-size:12px; padding: 5px 10px !important;">${registro.imputado || ''}</td>
+                        <td style="font-size:12px; padding: 5px 10px !important;">${registro.agraviado || ''}</td>
+                        <td style="font-size:12px; padding: 5px 10px !important;">${registro.desc_delito || ''}</td>
+                        <td style="font-size:12px; padding: 5px 10px !important;">${registro.nro_folios || ''}</td>                        
+                        <td style="font-size:12px; padding: 5px 10px !important;">${registro.tomo}</td>
+                    </tr>
+                `);
+                                
+                                });
+                                
+
+      var miModal = new bootstrap.Modal(document.getElementById('miModal'));
+      miModal.show();
+                                                                
+                            } else {
+                                alert(response.message);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            if (xhr.status === 419) {
+                                // No autorizado - probablemente sesión expirada
+                                alert('TU SESION HA EXPIRADO. SERAS REDIRIGIDO AL LOGIN.');
+                                window.location.href = '{{ route("usuario.login") }}';
+                            } else {
+                                // Otro tipo de error
+                                console.error('Error en la petición:', xhr.status);
+                                alert('Hubo un error al buscar las carpetas de la solicitud.');
+                            }
+                        }
+
+
+
+
+
+                        
+                    });
+}
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {

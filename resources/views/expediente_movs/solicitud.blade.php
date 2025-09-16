@@ -85,12 +85,12 @@ function numeroAOrdinal($numero) {
                           <div class="input-group">
 
                           <input type="text" class="form-control" name="codbarras" id="codbarras" placeholder="C&oacute;d. Carpeta Fiscal" onkeydown="verificarEnter(event)" autofocus/>
-                          <button class="btn btn-primary" style="padding:0px 1rem!important; z-index: 1;" type="button" onclick="verificarEnter(event)">
+                          <button class="btn btn-primary" style="padding:0px 1rem!important; z-index: 1;" type="button" onclick="limpiarCodigoBarra()">
                           <i class="fas fa-check me-1"></i> Buscar Carpeta Fiscal
                           </button>
-                          <small id="msgerr" class="form-text text-muted text-danger" style="display:none;">Escanee con lector o digite el codigo y presione enter.</small>
 
                           </div>
+                          <small id="msgerr" class="form-text text-muted text-danger" style="display:none;">Escanee con lector o digite el codigo y presione enter.</small>
 
                         </div>
                       </div>
@@ -309,6 +309,15 @@ function verificarEnter(event) {
 	const nroexpediente = parseInt(valor.substring(15, 21)); 
 	const tipo = parseInt(valor.substring(21, 25)); 
 
+
+            const yaExiste = scannedItems.some(item => item.codbarras === codbarras);
+            if (yaExiste) {
+              alert("El c\u00F3digo de barras " + valor + " ya se encuentra en la lista.");
+              document.getElementById("codbarras").value='';
+              document.getElementById('codbarras').focus();        
+              return false;
+            }
+
         var formData = $('#miFormulario').serialize();
         $.ajax({
             url: '{{ route("solicitud.buscacarpeta") }}',
@@ -434,6 +443,11 @@ $(document).on('click', '.seleccionar-registro', function () {
     let desc_delito = $(this).data('desc_delito');
     let nro_folios = $(this).data('nro_folios');
 
+    const yaExiste = scannedItems.some(item => item.codbarras === codbarras);
+    if (yaExiste) {
+      alert("El c\u00F3digo de barras " + codbarras + " ya se encuentra en la lista.");     
+      return false;
+    }    
 
     scannedItems.unshift({ codbarras, dependencia, ano, nroexpediente, tipo, id_expediente, imputado, agraviado, desc_delito, nro_folios});
     updateScannedList();

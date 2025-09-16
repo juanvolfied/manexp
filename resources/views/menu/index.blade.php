@@ -145,6 +145,9 @@
         $puedeRegistrar = in_array($perfil, ['Admin','Despacho']);
         $puedeGenerarGuia = in_array($perfil, ['Admin','Despacho']);
         $puedeRecepcionar = in_array($perfil, ['Admin','Archivo']);
+        $puedeRegistrarx=false;
+        $puedeGenerarGuiax=false;
+        $puedeRecepcionarx=false;
         $menuActivo = request()->is('expediente', 'internamiento-lista', 'internamiento-recep', 'solicitud', 'solicitud/atencion', 'devolucion', 'devolucion/atencion');
     @endphp
     @if ($menuexpedientes)
@@ -156,21 +159,21 @@
                 </a>
                 <div class="collapse {{ $menuActivo ? 'show' : '' }}" id="movimientos">
                   <ul class="nav nav-collapse">
-      @if($puedeRegistrar)
+      @if($puedeRegistrarx)
                     <li class="{{ request()->is('expediente') ? 'active' : '' }}" >
                       <a href="{{ route('expediente.index') }}">
                         <span class="sub-item">Registro carpetas fiscales</span>
                       </a>
                     </li>
       @endif
-      @if($puedeGenerarGuia)
+      @if($puedeGenerarGuiax)
                     <li class="{{ request()->is('internamiento-lista') ? 'active' : '' }}" >
                       <a href="{{ route('internamiento.index') }}">
                         <span class="sub-item">Guia de Internamiento</span>
                       </a>
                     </li>
       @endif
-      @if($puedeRecepcionar)
+      @if($puedeRecepcionarx)
                     <li class="{{ request()->is('internamiento-recep') ? 'active' : '' }}" >
                       <a href="{{ route('internamiento.recepcion') }}">
                         <span class="sub-item">Recepción Guia de Internamiento</span>
@@ -345,7 +348,7 @@
               <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
                 <a data-bs-toggle="collapse" href="#escritos">
                   <i class="fas fa-file"></i>
-                  <p>ESCRITOS</p>
+                  <p>ESCRITOS (MESA)</p>
                   <span class="caret"></span>
                 </a>
                 <div class="collapse {{ $menuActivo ? 'show' : '' }}" id="escritos">
