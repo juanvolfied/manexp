@@ -629,11 +629,11 @@ codigo = codigo.replace("'", "-");
     codigo = codigo.trim();
     
     
-    document.getElementById('nroinventario').value=codigo;
     document.getElementById('nroinventarioobs').value=codigo;
     scannedItems = [];
     var nroreg=0;
 	if (event.keyCode === 13) {
+    document.getElementById('nroinventario').value=document.getElementById('nroinventarioobs').value;
 
     if ($.trim($('#nroinventario').val())==="") {
     	alert("Ingrese y verifique el Nro de Inventario");
