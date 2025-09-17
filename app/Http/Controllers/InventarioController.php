@@ -25,7 +25,9 @@ class InventarioController extends Controller
 //        $usuarios = Usuarios::all(); // O lo que uses para listar usuarios
         $usuarios = DB::table('usuarios')
             ->leftJoin('personal', 'usuarios.id_personal', '=', 'personal.id_personal')
-            ->select('id_usuario', 'apellido_paterno', 'apellido_materno', 'nombres', 'usuario')
+            ->leftJoin('perfil_usuario', 'usuarios.id_usuario', '=', 'perfil_usuario.id_usuario')
+            ->select('usuarios.id_usuario', 'apellido_paterno', 'apellido_materno', 'nombres', 'usuario')
+            ->whereBetween('id_perfil', [1, 3])
             ->orderBy('apellido_paterno', 'asc') 
             ->orderBy('apellido_materno', 'asc') 
             ->orderBy('nombres', 'asc') 

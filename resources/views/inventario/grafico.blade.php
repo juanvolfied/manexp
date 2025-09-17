@@ -53,6 +53,7 @@
     <div class="mt-5">
         <canvas id="graficoBarras" height="100"></canvas>
     </div>
+<div id="tablaDatos" style="margin-top: 20px;"></div>
 
 
     
@@ -129,7 +130,42 @@
                         }
                     }
                 });
+
+                generarTabla(data.labels, data.data);
+
             });
     });
+
+
+    function generarTabla(labels, data) {
+        let tablaHTML = `<table border="1" cellpadding="5" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Cantidad</th>
+                </tr>
+            </thead>
+            <tbody>`;
+        var total=0;
+        for (let i = 0; i < labels.length; i++) {
+            if (data[i]>0) {
+            tablaHTML += `
+                <tr>
+                    <td>${labels[i]}</td>
+                    <td>${data[i]}</td>
+                </tr>`;
+                total=total+data[i];
+            }
+        }
+            tablaHTML += `
+                <tr>
+                    <td><b>ACUMULADO TOTAL</b></td>
+                    <td><b>${total}</b></td>
+                </tr>`;
+
+        tablaHTML += `</tbody></table>`;
+
+        document.getElementById('tablaDatos').innerHTML = tablaHTML;
+    }    
 </script>
 @endsection
