@@ -312,6 +312,8 @@ function enviarsolicitud(event) {
 
               // Redirigir manualmente
               window.location.href = response.redirect_url;
+          } else {
+            alert(response.message);
           }
         },
         error: function() {
@@ -506,12 +508,14 @@ function recibircarpetas(event) {
             nro_mov: nro
         },
         success: function(response) {
-          if (response.success) {
-              // Guardar el mensaje para mostrarlo en la siguiente vista
-              sessionStorage.setItem('successMessage', response.message);
-              // Redirigir manualmente
-              window.location.href = response.redirect_url;
-          }
+            if (response.success) {
+                // Guardar el mensaje para mostrarlo en la siguiente vista
+                sessionStorage.setItem('successMessage', response.message);
+                // Redirigir manualmente
+                window.location.href = response.redirect_url;
+            } else {
+                alert(response.message);
+            }          
         },
         error: function() {
             alert('Error en proceso de recepcion.');

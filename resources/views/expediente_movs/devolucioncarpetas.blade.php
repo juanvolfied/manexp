@@ -161,7 +161,7 @@ function numeroAOrdinal($numero) {
         DESEA CONTINUAR CON LA RECEPCION DE LAS CARPETAS FISCALES DEVUELTAS?
       </div>
       <div class="modal-footer">
-        <a href="#" onclick="recepcionarinternamiento(event)" class="btn btn-primary">Recepcionar Carpetas Devueltas</a>
+        <a href="#" onclick="recepcionarDevolucion(event)" class="btn btn-primary">Recepcionar Carpetas Devueltas</a>
         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
       </div>
     
@@ -307,7 +307,7 @@ function prepararYMostrarModal(xtipo,xano,xnro,event) {
     myModal.show();
 }
 
-function recepcionarinternamiento(event) {
+function recepcionarDevolucion(event) {
     if (event) event.preventDefault(); // Previene recarga
     const tipo = document.getElementById('tpmov').value;
     const ano = document.getElementById('anomov').value;
@@ -331,6 +331,8 @@ function recepcionarinternamiento(event) {
 
                     // Redirigir manualmente
                     window.location.href = response.redirect_url;
+                } else {
+                  alert(response.message);
                 }
 
             },

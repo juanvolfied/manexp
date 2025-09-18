@@ -401,9 +401,23 @@ document.getElementById("miFormulario").addEventListener("keydown", function(eve
     
 let scannedItems = []; // Array para almacenar los c�digos escaneados
 let datoscab = []; // Array 
+    let ultimaLectura = '';
+    let tiempoUltimaLectura = 0;
 function verificarEnter(event) {
     if (event.key === "Enter") {
         event.preventDefault(); // Esto previene que el formulario se env�e cuando se presiona Enter
+
+        const ahora = Date.now();
+        let codigo = document.getElementById("codbarras").value;
+        // Si el mismo código fue enviado hace menos de 1000ms, ignorar
+        if (codigo === ultimaLectura && (ahora - tiempoUltimaLectura) < 1000) {
+          document.getElementById("codbarras").value='';
+          document.getElementById('codbarras').focus();   
+          return;
+        }
+        ultimaLectura = codigo;
+        tiempoUltimaLectura = ahora;
+                
         limpiarCodigoBarra();
     }
 }

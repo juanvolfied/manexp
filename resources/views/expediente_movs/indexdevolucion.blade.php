@@ -41,7 +41,7 @@ function numeroAOrdinal($numero) {
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha<br>Generada</th>
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha<br>Envio&nbsp;CF</th>
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha<br>Recepci&oacute;n</th>
-                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none; text-align:center;" colspan=3>Acciones</th>
+                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none; text-align:center;" colspan=2>Acciones</th>
             </tr>
           </thead>
         <tbody style="font-size:12px;">
@@ -56,13 +56,15 @@ function numeroAOrdinal($numero) {
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_movimiento }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_envio }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_recepcion }}</td>
-                    <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
+                    
+                    <!--<td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
                     @if($p->estado_mov == 'G' || $p->estado_mov == 'Z')
                       <a href="{{ route('devolucion.edit', ['tipo_mov' => $p->tipo_mov, 'ano_mov' => $p->ano_mov, 'nro_mov' => $p->nro_mov]) }}" data-bs-toggle="tooltip" title="Editar Gu&iacute;a de Internamiento"><i class="fas fa-edit fa-lg"></i><br>Editar</a>
                     @else
                       <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-edit fa-lg text-muted"></i><br>Editar</a>
                     @endif 
-                    </td>
+                    </td>-->
+
                     <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
                     @if($p->estado_mov == 'G' || $p->estado_mov == 'Z')
                         <a href="#" data-bs-toggle="tooltip" title="Enviar Gu&iacute;a para Archivo" onclick="prepararYMostrarModal('{{ $p->tipo_mov }}',{{ $p->ano_mov }},{{ $p->nro_mov }},event)" style="color: green;"><i class="fas fa-paper-plane fa-lg"></i><br>Enviar</a>
@@ -254,6 +256,8 @@ function enviardevolucion(event) {
 
               // Redirigir manualmente
               window.location.href = response.redirect_url;
+          } else {
+            alert(response.message);
           }
         },
         error: function() {

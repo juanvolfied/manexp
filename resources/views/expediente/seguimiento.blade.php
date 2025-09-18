@@ -11,25 +11,32 @@
 
     <form id="form-filtros" class="row g-3" autocomplete="off">
         @csrf
+        
         <div class="col-md-1">
             <label for="dependencia" class="form-label"><b>A&ntilde;o</b></label>
             <div class="d-flex align-items-center gap-2">
                 <input type="text" id="ano" name="ano" class="form-control text-center" maxlength="4" style="width: 70px;" >
             </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-2" >
             <label for="dependencia" class="form-label"><b>Nro Expediente</b></label>
             <div class="d-flex align-items-center gap-2">
                 <input type="text" id="nroexp" name="nroexp" class="form-control text-center" maxlength="6" style="width: 80px;" >
             </div>
         </div>
-        <div class="col-md-2 d-flex align-items-end">
+        <div class="col-md-2 align-center">
+            <div class="form-check form-switch ms-2">
+                <input class="form-check-input" type="checkbox" id="exactMatch" name="exactMatch" style="width: 50px; height:20px;">
+                <label class="form-check-label text-primary" for="exactMatch" ><b>Busca A&ntilde;o y Nro exactos</b></label>
+            </div>
+        </div>
+        <div class="col-md-2 d-flex align-items-center">
             <a href="#" onclick="mostrarcarpetas(event)" class="btn btn-primary w-100">Mostrar Carpeta(s)</a>
-        </div>        
-        <div class="col-md-5 d-flex align-items-end" id="nroexpediente" style="font-size:20px;font-weight:bold; color:red;">
-            
-        </div>        
+        </div> 
+
+
     </form>
+
 
     <div class="mt-5">
         <table id="scanned-list" class="table table-striped table-sm">
@@ -134,11 +141,10 @@ function mostrarcarpetas(event) {
             tableBody.empty(); // Limpiar la tabla antes de volver a renderizarla
             tableBodycel.empty(); // Limpiar la tabla antes de volver a renderizarla
 
-    document.getElementById('nroexpediente').innerHTML="";
-
     if (event) event.preventDefault(); // Previene recarga
     const ano = document.getElementById('ano').value;
     const nroexp = document.getElementById('nroexp').value;
+    const exactMatch = document.getElementById('exactMatch').checked;
     if ( ano=="" && nroexp=="" ) {
         alert ("EL NRO DE EXPEDIENTE NO ESTA INGRESADO CORRECTAMENTE");
         return false;
@@ -150,11 +156,11 @@ function mostrarcarpetas(event) {
         data: {
             _token: '{{ csrf_token() }}',
             ano_expediente: ano,
-            nro_expediente: nroexp
+            nro_expediente: nroexp,
+            exactMatch: exactMatch
         },
         success: function(response) {
             if (response.success) {                                
-                //document.getElementById('nroexpediente').innerHTML="Nro Expediente: "+dependencia+"-"+ano+"-"+nroexp+"-"+idtipo;
                 var registros = response.registros;
                 registros.forEach(function(registro, index) {                
                     var codbarras = registro.codbarras;
@@ -206,8 +212,6 @@ function mostrardetalle(idexp, event) {
             tableBody.empty(); // Limpiar la tabla antes de volver a renderizarla
             tableBodycel.empty(); // Limpiar la tabla antes de volver a renderizarla
 
-    //document.getElementById('nroexpediente').innerHTML="";
-
     if (event) event.preventDefault(); // Previene recarga
 
     $.ajax({
@@ -219,7 +223,6 @@ function mostrardetalle(idexp, event) {
         },
         success: function(response) {
             if (response.success) {                                
-                //document.getElementById('nroexpediente').innerHTML="Nro Expediente: "+dependencia+"-"+ano+"-"+nroexp+"-"+idtipo;
                 var registros = response.registros;
                 var nroreg=0;
                 var datoreg="";

@@ -373,15 +373,21 @@ class ExpedienteController extends Controller
     {
         $ano_expediente = $request->input('ano_expediente');    
         $nro_expediente = $request->input('nro_expediente');    
+        $exactMatch = $request->boolean('exactMatch'); 
 
         $query = DB::table('expediente')
             ->select('expediente.*');
         if (!empty($ano_expediente)) {
             $query->where('expediente.ano_expediente', $ano_expediente);
         }
-        if (!empty($nro_expediente)) {
-            $query->where('expediente.nro_expediente', 'like', "%{$nro_expediente}%");
+        if ($exactMatch) {
+            $query->where('expediente.nro_expediente', "{$nro_expediente}");
+        } else {
+            if (!empty($nro_expediente)) {
+                $query->where('expediente.nro_expediente', 'like', "%{$nro_expediente}%");
+            }
         }
+
         $segdetalle = $query
             ->orderBy('codbarras', 'asc')
             ->get();

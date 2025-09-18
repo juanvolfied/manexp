@@ -161,7 +161,7 @@ function numeroAOrdinal($numero) {
         DESEA CONTINUAR CON EL ENVIO DE LAS CARPETAS FISCALES SOLICITADAS?
       </div>
       <div class="modal-footer">
-        <a href="#" onclick="recepcionarinternamiento(event)" class="btn btn-primary">Enviar a Archivo</a>
+        <a href="#" onclick="EnviarCarpetas(event)" class="btn btn-primary">Enviar a Archivo</a>
         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
       </div>
     
@@ -307,7 +307,7 @@ function prepararYMostrarModal(xtipo,xano,xnro,event) {
     myModal.show();
 }
 
-function recepcionarinternamiento(event) {
+function EnviarCarpetas(event) {
     if (event) event.preventDefault(); // Previene recarga
     const tipo = document.getElementById('tpmov').value;
     const ano = document.getElementById('anomov').value;
@@ -324,18 +324,19 @@ function recepcionarinternamiento(event) {
                 nro_mov: nro
             },
             success: function(response) {
-                //window.location.href = '{{ route("internamiento.recepcion") }}';
                 if (response.success) {
                     // Guardar el mensaje para mostrarlo en la siguiente vista
                     sessionStorage.setItem('successMessage', response.message);
 
                     // Redirigir manualmente
                     window.location.href = response.redirect_url;
+                } else {
+                  alert(response.message);
                 }
 
             },
             error: function() {
-                alert('Error en proceso de recepcion.');
+                alert('Error en proceso de atencion y envio de carpetas.');
             }
         });
 }
