@@ -92,7 +92,7 @@ function numeroAOrdinal($numero) {
                 </thead>
                 <tbody style="font-size:12px;">
                     @foreach($datos as $index => $p)
-                        @if($p->otrasolicitud)
+                        @if($p->otrasolicitud == false)
                         <tr>
                             <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->id_dependencia }}-{{ $p->ano_expediente }}-{{ $p->nro_expediente }}-{{ $p->id_tipo }}</td>
                             <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->imputado }}</td>

@@ -899,9 +899,10 @@ class SolicitudCarpetasController extends Controller
         ->select('expediente.*','delito.*')
         ->join('ubicacion_exp', 'expediente.id_expediente', '=', 'ubicacion_exp.id_expediente')
         ->leftJoin('delito', 'expediente.delito', '=', 'delito.id_delito')
-        ->where('ubicacion', 'D')
+        ->where('ubicacion_exp.ubicacion', 'D')
         ->where('ubicacion_exp.paq_dependencia', Auth::user()->personal->id_dependencia)
         ->where('ubicacion_exp.despacho', Auth::user()->personal->despacho)
+        ->where('ubicacion_exp.activo', 'S')
         ->get();
 
         if ($datos->isNotEmpty()) {
@@ -914,7 +915,7 @@ class SolicitudCarpetasController extends Controller
                     $query->where('estado_mov', 'G')
                         ->orWhere('estado_mov', 'E');
                 })
-                ->first();
+                ->exists(); // ✅ Cambia 'first()' por 'exists()'
                 $doc->otrasolicitud = $existe2; // true o false
                 return $doc;
             });
