@@ -142,10 +142,31 @@ class MesaController extends Controller
             ->orderBy('fecharegistro', 'desc')
             ->get();
 
+                $anio = substr($fechareg, 0, 4); // "2025"
+                $mes  = substr($fechareg, 5, 2); // "09"
+        $querycargo = DB::table('librocargos')
+            ->select('*')
+            ->where('id_fiscal', $fiscal)
+            ->whereDate('fechacargo', '=', $fechareg)
+            ->first();
+        $existedigital=false;
+        $rutacargo="";
+        if ($querycargo) {
+            $rutalow = storage_path("app/mesapartescargos/{$anio}/{$mes}/" . strtolower($querycargo->codcargo) . ".pdf");
+            $ruta = storage_path("app/mesapartescargos/{$anio}/{$mes}/" . strtoupper($querycargo->codcargo) . ".pdf");
+            if (file_exists($rutalow)) {
+                rename($rutalow, $ruta);
+            }
+            $existedigital=file_exists($ruta);
+            $rutacargo="{$anio}/{$mes}/" . strtoupper($querycargo->codcargo);
+        }
+                
         if ($segdetalle->isNotEmpty()) {
             return response()->json([
                 'success' => true,
                 'registros' => $segdetalle,
+                'cargodigital' => $existedigital,
+                'rutacargo' => $rutacargo,
             ]);
         } else {
             return response()->json([
@@ -450,77 +471,83 @@ class MesaController extends Controller
     }    
     public function verificarArchivo($anio, $mes, $codescrito)
     {
+        ini_set('memory_limit', '1024M');
+
         $path = storage_path("app/mesapartes/{$anio}/{$mes}"); // ruta donde están tus PDFs
-        $pdfFiles = File::files($path);
 
-        $pdfmark = <<<PDFMARK
-        [ /Title (Documento Comprimido)
-        /Author (MINPUB)
-        /Creator (MANEXP)
-        /Producer (MANEXP)
-        /Subject (Comprimido a 150 DPI)
-        /Keywords (Laravel, PDF, Ghostscript, Comprimir)
-        /DOCINFO pdfmark
-        ]
-        PDFMARK;
-        $pdfmarkPath = storage_path('app/tmp_metadata.pdfmark');
-        file_put_contents($pdfmarkPath, $pdfmark);
+        $directory = storage_path("app/mesapartes/$anio/tmp");
+        if (!file_exists($directory)) {
+            mkdir($directory, 0777, true);
+        }                
 
-        $cant=0;
+
+        // 1. Obtener todos los archivos PDF del directorio
+        $allPdfFiles = File::files($path);
+
+        // 2. Obtener los códigos procesados desde la base de datos
+        $codigosProcesados = DB::table('libroescritos')
+            ->where('pdf150dpi', 'S')
+            ->pluck('codescrito')
+            ->toArray();
+
+        // 3. Crear un mapa para acceso rápido
+        $codigosProcesadosMap = array_flip($codigosProcesados);
+
+        // 4. Filtrar los archivos que *no* han sido procesados
+        $pdfFiles = array_filter($allPdfFiles, function ($file) use ($codigosProcesadosMap) {
+            $codescrito = pathinfo($file->getFilename(), PATHINFO_FILENAME);
+            return !isset($codigosProcesadosMap[$codescrito]);
+        });
+
+        // 5. Ahora $pdfFiles solo tiene archivos NO procesados
+//        $cant = count($pdfFiles);
+//        echo "Archivos pendientes por procesar: $cant\n";
+        usort($pdfFiles, fn($a, $b) => $a->getFilename() <=> $b->getFilename());
+
         foreach ($pdfFiles as $file) {
-            $cant++;
             $inputPath = $file->getRealPath();
             $filename = pathinfo($file->getFilename(), PATHINFO_FILENAME);
-            $outputPath = storage_path("app/mesapartes/{$anio}/{$mes}/" . $filename . "_compressed.pdf");
+            $outputPath = storage_path("app/mesapartes/{$anio}/tmp/" . $filename . ".pdf");
 
-            $parser = new Parser();
-            $pdf = $parser->parseFile($inputPath);
-            $details = $pdf->getDetails(); // Obtener metadatos del documento
+            // Comando Ghostscript para comprimir a 150 DPI
+            $gsCommand = "gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/screen " .
+                    "-dNOPAUSE -dQUIET -dBATCH -dDownsampleColorImages=true " .
+                    "-dColorImageResolution=150 -dGrayImageResolution=150 -dMonoImageResolution=150 " .
+                    "-sOutputFile=" . escapeshellarg($outputPath) . " " . escapeshellarg($inputPath);// . " " . escapeshellarg($pdfmarkPath);
 
-            $subject=$details['Subject'] ?? "";
-            if ($subject!="Comprimido a 150 DPI") {
-                $creadate=$details['CreationDate'];
-                $dt = new DateTime($creadate);
-                $pdfdate = 'D:' . $dt->format('YmdHis');
-                
+            // Ejecutar el comando
+            exec($gsCommand, $output, $result);
+            chmod($outputPath, 0777);
 
-                // Comando Ghostscript para comprimir a 150 DPI
-                $gsCommand = "gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/screen " .
-                     "-dNOPAUSE -dQUIET -dBATCH -dDownsampleColorImages=true " .
-                     "-dColorImageResolution=150 -dGrayImageResolution=150 -dMonoImageResolution=150 " .
-                     "-sOutputFile=" . escapeshellarg($outputPath) . " " . escapeshellarg($inputPath) . " " . escapeshellarg($pdfmarkPath);
+            //$timestamp = strtotime($creadate);
+            //touch($outputPath, $timestamp, $timestamp);//le asigno la misma fecha de modificacion que el original
 
-                // Ejecutar el comando
-                exec($gsCommand, $output, $result);
-                chmod($outputPath, 0777);
+            if ($result === 0 && File::exists($outputPath) && filesize($outputPath) > 0) {
+                if ($this->isValidPdf($outputPath)) {
 
-                $timestamp = strtotime($creadate);
-                //touch($outputPath, $timestamp, $timestamp);//le asigno la misma fecha de modificacion que el original
-/*
-                if ($result === 0 && File::exists($outputPath) && filesize($outputPath) > 0) {
-                    if (isValidPdf($outputPath)) {
-                        // Reemplazar original con comprimido válido
-                        unlink($inputPath);
-                        rename($outputPath, $inputPath);
-                        //echo "✅ Comprimido y reemplazado: $filename\n";
-                    } else {
-                        //echo "❌ PDF inválido (posiblemente corrupto): $filename\n";
-                        unlink($outputPath);
-                    }
+                    DB::table('libroescritos')
+                    ->where('codescrito', $filename)
+                    ->update([
+                        'pdf150dpi' => 'S',
+                    ]);
+
+                    // Reemplazar original con comprimido válido
+//                    unlink($inputPath);
+//                    rename($outputPath, $inputPath);
+                    //echo "✅ Comprimido y reemplazado: $filename\n";
                 } else {
-                    //echo "❌ Error al comprimir (exit code o archivo vacío): $filename\n";
-                    if (File::exists($outputPath)) {
-                        unlink($outputPath);
-                    }
-                }*/
+                    //echo "❌ PDF inválido (posiblemente corrupto): $filename\n";
+                    unlink($outputPath);
+                }
+            } else {
+                //echo "❌ Error al comprimir (exit code o archivo vacío): $filename\n";
+                if (File::exists($outputPath)) {
+                    unlink($outputPath);
+                }
+            }
 
-            }
-            if ($cant==10) {
-                break;
-            }
         }//endfor
-        unlink($pdfmarkPath);        
-
+echo "FIN";
     }
 
     public function verificaryArchivo($anio, $mes, $codescrito)

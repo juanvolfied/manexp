@@ -11,11 +11,11 @@
 
     <form id="form-filtros" class="row g-3" autocomplete="off">
         @csrf
-        <div class="col-md-6 col-lg-6">
+        <div class="col-md-4 col-lg-4">
             <div class="form-group" style="padding:5px;">
                 <label for="fiscal" class="form-label"><b>Fiscal</b></label>
 
-                <select name="fiscal" id="fiscal" class="">
+                <select name="fiscal" id="fiscal" class="" onchange="oculta()">
                         <option value="">-- Seleccione --</option>
                         @foreach($fiscales as $p)
                             <option value="{{ $p->id_personal }}" {{ old('fiscal', $libroescritos->id_fiscal ?? '') == $p->id_personal ? 'selected' : '' }}>
@@ -35,14 +35,18 @@
         <div class="col-md-2">
             <label for="fechareg" class="form-label"><b>Fecha</b></label>
             <div class="d-flex align-items-center gap-2">
-                <input type="date" id="fechareg" name="fechareg" class="form-control text-center" value="{{ old('fechareg', date('Y-m-d')) }}" style="width: 120px;" >
+                <input type="date" id="fechareg" name="fechareg" onchange="oculta()" class="form-control text-center" value="{{ old('fechareg', date('Y-m-d')) }}" style="width: 120px;" >
             </div>
         </div>
-        <div class="col-md-2 d-flex align-items-end">
+        <div class="col-md-2 d-flex align-items-center">
             <a href="#" onclick="mostrarescritos(event)" class="btn btn-primary w-100">Mostrar Escrito(s)</a>
+        </div>
+        <div class="col-md-2 d-flex align-items-center">
+            <a href="#" onclick="generapdf(event)" class="btn btn-primary w-100" id="botonimprime" style="display:none;">Imprimir Escritos</a>
         </div>        
-        <div class="col-md-2 d-flex align-items-end">
-            <a href="#" onclick="generapdf(event)" class="btn btn-primary w-100">Imprimir Escritos</a>
+        <div class="col-md-2 d-flex align-items-center">
+            <a href="#" onclick="verdigital()" class="btn btn-warning w-100" id="botoncargo" style="display:none;">Cargo</a>
+            <input type="hidden" id="rutapdf" value="">
         </div>        
     </form>
 
@@ -123,6 +127,12 @@
 </script>    
 
 <script>
+function oculta() {
+    const tableBody = $('#scanned-list tbody');
+    tableBody.empty(); // Limpiar la tabla antes de volver a renderizarla
+    document.getElementById('botonimprime').style.display = 'none';
+    document.getElementById('botoncargo').style.display = 'none';
+}
 function generapdf(event) {
     event.preventDefault();
 
@@ -152,10 +162,13 @@ function generapdf(event) {
 }
 
 function mostrarescritos(event) {
-            const tableBody = $('#scanned-list tbody');
-            const tableBodycel = $('#scanned-listcel tbody');
-            tableBody.empty(); // Limpiar la tabla antes de volver a renderizarla
-            tableBodycel.empty(); // Limpiar la tabla antes de volver a renderizarla
+    document.getElementById('botoncargo').style.display = 'none';
+    document.getElementById('rutapdf').value = "";
+
+    const tableBody = $('#scanned-list tbody');
+    const tableBodycel = $('#scanned-listcel tbody');
+    tableBody.empty(); // Limpiar la tabla antes de volver a renderizarla
+    tableBodycel.empty(); // Limpiar la tabla antes de volver a renderizarla
 
     if (event) event.preventDefault(); // Previene recarga
     const fiscal = document.getElementById('fiscal').value;
@@ -208,6 +221,11 @@ function mostrarescritos(event) {
                 
                 
                 });
+                if (response.cargodigital) {
+                    document.getElementById('botoncargo').style.display = 'block';
+                    document.getElementById('rutapdf').value = response.rutacargo;
+                }
+                document.getElementById('botonimprime').style.display = 'block';
 
             } else {
                 alert(response.message);
@@ -228,21 +246,13 @@ function mostrarescritos(event) {
 
 }
 
-function numeroAOrdinal(numero) {
-    const ordinales = {
-        1: '1er',
-        2: '2do',
-        3: '3er',
-        4: '4to',
-        5: '5to',
-        6: '6to',
-        7: '7mo',
-        8: '8vo',
-        9: '9no',
-        10: '10mo'
-    };
 
-    return ordinales[numero] || numero + ' ';
+function verdigital() {
+    let ruta = document.getElementById('rutapdf').value;
+    let pdfUrl = `../../storage/app/mesapartescargos/${ruta}.pdf`;
+    //const pdfUrl = `../../storage/app/mesapartescargos/${anio}/${mes}/${codigo.toUpperCase()}.pdf`;
+    $('#pdfFrame').attr('src', pdfUrl);
+    $('#pdfModal').modal('show');
 }
 </script>
 @endsection
