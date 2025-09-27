@@ -38,7 +38,7 @@
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">#</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">C&oacute;digo</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Fecha</th>
-                    @if(Auth::user()->personal->fiscal_asistente === "A")
+                    @if(Auth::user()->personal->fiscal_asistente === "A" || Auth::user()->personal->fiscal_asistente === "C")
                         <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Fiscal</th>
                     @endif
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Tipo</th>
@@ -88,7 +88,7 @@
     }
 </style>
 @section('scripts')
-   
+
 <script>
 
 function mostrarescritos(event) {
@@ -153,7 +153,7 @@ function mostrarescritos(event) {
                     const tipoTexto = tipos[registro.tipo] || registro.tipo;
                     let extraColumn = '';
                     const fiscalAsistente = "{{ Auth::user()->personal->fiscal_asistente }}";
-                    if (fiscalAsistente === "A") {
+                    if (fiscalAsistente === "A" || fiscalAsistente === "C") {
                         extraColumn = `<td style="font-size:12px; padding: 5px 10px !important;">${registro.apellido_paterno || ''} ${registro.apellido_materno || ''} ${registro.nombres || ''}</td>`;
                     }
 

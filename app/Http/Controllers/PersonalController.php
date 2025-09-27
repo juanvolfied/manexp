@@ -47,7 +47,19 @@ class PersonalController extends Controller
             'activo' => 'required|in:S,N',
         ]);
 
-        Personal::create($request->all());
+        //Personal::create($request->all());
+        DB::table('personal')->insert([
+            'id_personal' => strtoupper( $request->input('id_personal') ),
+            'apellido_paterno' => $request->input('apellido_paterno'),
+            'apellido_materno' => $request->input('apellido_materno'),
+            'nombres' => $request->input('nombres'),
+            'id_dependencia' => $request->input('id_dependencia'),
+            'despacho' => $request->input('despacho'),
+            'activo' => $request->input('activo'),
+            'fiscal_asistente' => $request->input('tipocargo'),
+            'cargo' => $request->input('cargo'),
+        ]);
+
         return redirect()->route('personal.index')->with('success', 'Registro creado correctamente.');
     }
 
@@ -75,7 +87,21 @@ class PersonalController extends Controller
             'activo' => 'required|in:S,N',
         ]);
 
-        $personal->update($request->all());
+        //$personal->update($request->all());
+        DB::table('personal')
+        ->where('id_personal', $request->input('id_personal'))
+        ->update([
+            'apellido_paterno' => $request->input('apellido_paterno'),
+            'apellido_materno' => $request->input('apellido_materno'),
+            'nombres' => $request->input('nombres'),
+            'id_dependencia' => $request->input('id_dependencia'),
+            'despacho' => $request->input('despacho'),
+            'activo' => $request->input('activo'),
+            'fiscal_asistente' => $request->input('tipocargo'),
+            'cargo' => $request->input('cargo'),
+        ]);
+
+
         return redirect()->route('personal.index')->with('success', 'Registro actualizado.');
     }
 

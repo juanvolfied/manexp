@@ -109,13 +109,90 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const input = document.getElementById('directoryPicker');
         //const files = Array.from(input.files).filter(file => file.name.endsWith('.pdf'));
-const files = Array.from(directoryPicker.files).filter(file => {
-  if (!file.name.endsWith('.pdf')) return false;
-  const slashCount = (file.webkitRelativePath.match(/\//g) || []).length;
-  return slashCount === 1;
-});     
-        const chunkSize = 10;
+        const files = Array.from(directoryPicker.files).filter(file => {
+        if (!file.name.endsWith('.pdf')) return false;
+        const slashCount = (file.webkitRelativePath.match(/\//g) || []).length;
+        return slashCount === 1;
+        });     
 
+
+        // Paso 1: obtener lista de nombres
+        const fileNames = files.map(file => file.name);
+        // Paso 2: consultar al backend cuáles ya existen
+        let existingFiles = [];
+        try {
+            const checkResponse = await fetch("{{ route('upload.checkExisting') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ files: fileNames })
+            });
+            existingFiles = await checkResponse.json(); // array de nombres que ya existen
+        } catch (err) {
+            console.error("Error al verificar archivos existentes:", err);
+            status.innerHTML = `<p style="color:red;">Error al verificar archivos existentes.</p>`;
+            return;
+        }
+        // Paso 3: filtrar archivos a subir
+        const filesToUpload = files.filter(file => !existingFiles.includes(file.name));
+        if (filesToUpload.length === 0) {
+            status.innerHTML = '<p>Todos los archivos ya han sido subidos previamente.</p>';
+            progressBar.value = 100;
+            return;
+        }
+        status.innerHTML = `<p>Subiendo ${filesToUpload.length} archivos nuevos...</p>`;
+        // Paso 4: subir archivos en chunks por tamaño total (10MB)
+        const maxChunkSizeMB = 20;
+        const maxChunkSizeBytes = maxChunkSizeMB * 1024 * 1024;
+        let totalUploadedFiles = 0;
+        let currentChunk = [];
+        let currentChunkSize = 0;
+        for (let i = 0; i < filesToUpload.length; i++) {
+            const file = filesToUpload[i];
+            if (currentChunkSize + file.size > maxChunkSizeBytes && currentChunk.length > 0) {
+                await uploadChunk(currentChunk);
+                totalUploadedFiles += currentChunk.length;
+                const progressPercent = Math.min(100, (totalUploadedFiles / filesToUpload.length) * 100);
+                progressBar.value = progressPercent;
+                status.innerHTML = `<p>Progreso: ${progressPercent.toFixed(2)}%</p>`;
+                currentChunk = [];
+                currentChunkSize = 0;
+            }
+            currentChunk.push(file);
+            currentChunkSize += file.size;
+        }
+        if (currentChunk.length > 0) {
+            await uploadChunk(currentChunk);
+            totalUploadedFiles += currentChunk.length;
+            const progressPercent = Math.min(100, (totalUploadedFiles / filesToUpload.length) * 100);
+            progressBar.value = progressPercent;
+            status.innerHTML = `<p>Progreso: ${progressPercent.toFixed(2)}%</p>`;
+        }
+        status.innerHTML += "<p><strong>Todos los archivos han sido procesados.</strong></p>";
+        progressBar.value = 100;
+
+        // Función para subir un chunk de archivos
+        async function uploadChunk(chunk) {
+            const formData = new FormData();
+            chunk.forEach(file => formData.append('files[]', file));
+            try {
+                let response = await fetch("{{ route('upload.chunk') }}", {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                });
+                let result = await response.json();
+            } catch (err) {
+                console.error(err);
+                status.innerHTML += `<p style="color:red;">Error al subir un grupo de archivos: ${err.message}</p>`;
+            }
+        }
+
+        /*const chunkSize = 10;
         if(files.length === 0) {
             status.innerHTML = '<p>No se han seleccionado archivos PDF.</p>';
             return;
@@ -155,7 +232,8 @@ const files = Array.from(directoryPicker.files).filter(file => {
         }
 
         status.innerHTML += "<p><strong>Todos los archivos han sido procesados.</strong></p>";
-        progressBar.value = 100;
+        progressBar.value = 100;*/
+
     });
 
 

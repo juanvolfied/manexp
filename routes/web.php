@@ -106,6 +106,7 @@ Route::get('/mesapartes/{anio}/{mes}/{codescrito}', [MesaController::class, 'ver
 Route::get('/mesapartes/upload', [MesaController::class, 'showupload'])->name('mesapartes.showupload');
 Route::post('/mesapartes/uploadchunk', [MesaController::class, 'uploadChunk'])->name('upload.chunk');
 Route::post('/mesapartes/uploadchunkcargos', [MesaController::class, 'uploadChunkCargos'])->name('upload.chunkcargos');
+Route::post('/mesapartes/check-existing', [MesaController::class, 'checkExistingFiles'])->name('upload.checkExisting');
 
 
 

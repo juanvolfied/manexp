@@ -418,6 +418,28 @@ class MesaController extends Controller
     {
         return view('mesapartes.upload');
     }
+    public function checkExistingFiles(Request $request)
+    {
+        $fileNames = $request->input('files', []);
+        if (empty($fileNames)) {
+            return response()->json([]);
+        }
+        $existingFiles = [];
+        foreach ($fileNames as $fileName) {
+            $codigo = pathinfo($fileName, PATHINFO_FILENAME);
+            $libroescritos = DB::table('libroescritos')->where('codescrito', $codigo)->first();
+            if ($libroescritos) {
+                $fecha = new \DateTime($libroescritos->fecharegistro);
+                $anio = $fecha->format('Y');
+                $mes  = $fecha->format('m');
+                $ruta = storage_path("app/mesapartes/{$anio}/{$mes}/{$fileName}");
+                if (file_exists($ruta)) {
+                    $existingFiles[] = $fileName;
+                }
+            }
+        }
+        return response()->json($existingFiles);
+    }    
     public function uploadChunk(Request $request)
     {
         if (!$request->hasFile('files')) {
@@ -532,8 +554,8 @@ class MesaController extends Controller
                     ]);
 
                     // Reemplazar original con comprimido válido
-//                    unlink($inputPath);
-//                    rename($outputPath, $inputPath);
+                    unlink($inputPath);
+                    rename($outputPath, $inputPath);
                     //echo "✅ Comprimido y reemplazado: $filename\n";
                 } else {
                     //echo "❌ PDF inválido (posiblemente corrupto): $filename\n";
@@ -548,77 +570,6 @@ class MesaController extends Controller
 
         }//endfor
 echo "FIN";
-    }
-
-    public function verificaryArchivo($anio, $mes, $codescrito)
-    {
-        $ruta = storage_path("app/mesapartes/{$anio}/{$mes}/" . strtoupper($codescrito) . ".pdf");
-
-        $parser = new Parser();
-        $pdf = $parser->parseFile($ruta);
-        $details = $pdf->getDetails(); // Obtener metadatos del documento
-
-        // Puedes también obtener el número de páginas
-        //$pages = $pdf->getPages();
-        //$numPages = count($pages);   
-        //dd($details['Creator']);
-        //dd($details);
-
-
-        $creadate=$details['CreationDate'];
-        $dt = new DateTime($creadate);
-        $pdfdate = 'D:' . $dt->format('YmdHis');
-
-$pdfmark = <<<PDFMARK
-[ /Title (Documento Comprimido)
-  /Author (MINPUB)
-  /Creator (MANEXP)
-  /Producer (MANEXP)
-  /Subject (Comprimido a 150 DPI)
-  /Keywords (Laravel, PDF, Ghostscript, Comprimir)
-  /CreationDate ($pdfdate)
-  /ModDate ($pdfdate)
-  /DOCINFO pdfmark
-]
-PDFMARK;
-$pdfmarkPath = storage_path('app/tmp_metadata.pdfmark');
-file_put_contents($pdfmarkPath, $pdfmark);
-
-        //$ruta = storage_path("app/mesapartes/{$anio}/{$mes}/{$codescrito}.pdf");
-        $ruta = storage_path("app/mesapartes/{$anio}/{$mes}/" . strtoupper($codescrito) . ".pdf");
-        //return response()->json(['existe' => file_exists($ruta)]);
-
-
-        // Crear ruta para PDF comprimido
-        $ruta2 = storage_path("app/mesapartes/{$anio}/{$mes}/tmp" . strtoupper($codescrito) . ".pdf");
-
-        // Comando Ghostscript para comprimir a 150 DPI
-        $gsCommand = "gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/screen " .
-                     "-dNOPAUSE -dQUIET -dBATCH -dDownsampleColorImages=true " .
-                     "-dColorImageResolution=150 -dGrayImageResolution=150 -dMonoImageResolution=150 " .
-                     "-sOutputFile=" . escapeshellarg($ruta2) . " " . escapeshellarg($ruta) . " " . escapeshellarg($pdfmarkPath);
-
-        // Ejecutar el comando
-        exec($gsCommand, $output, $returnVar);
-        chmod($ruta2, 0777);
-
-$timestamp = strtotime($creadate);
-//touch($ruta2, $timestamp, $timestamp);
-
-unlink($pdfmarkPath);        
-
-        // Usar el parser
-        $parser = new Parser();
-        $pdf = $parser->parseFile($ruta2);
-
-        // Obtener metadatos del documento
-        $details = $pdf->getDetails();
-
-        // Puedes también obtener el número de páginas
-        $pages = $pdf->getPages();
-        $numPages = count($pages);   
-        //dd($details['Creator']);
-        dd($details);
     }
         
 function isValidPdf(string $path): bool
@@ -693,14 +644,25 @@ function isValidPdf(string $path): bool
             ->leftJoin('personal', 'libroescritos.id_fiscal', '=', 'personal.id_personal')
             ->select('libroescritos.*', 'personal.apellido_paterno','personal.apellido_materno','personal.nombres')
             ->whereDate('fecharegistro', '>=', $fechaini)        
-            ->whereDate('fecharegistro', '<=', $fechafin)        
-            ->where('libroescritos.id_dependencia', Auth::user()->personal->id_dependencia)       
-            ->where('libroescritos.despacho', Auth::user()->personal->despacho);        
-        if (Auth::user()->personal->fiscal_asistente==="F") {
-            $query->where('libroescritos.id_fiscal', Auth::user()->personal->id_personal);
-        }
+            ->whereDate('fecharegistro', '<=', $fechafin)
+            ->where('libroescritos.id_dependencia', Auth::user()->personal->id_dependencia);
+            if (Auth::user()->personal->fiscal_asistente==="F") {
+                $query->where('libroescritos.despacho', Auth::user()->personal->despacho)
+                ->where('libroescritos.id_fiscal', Auth::user()->personal->id_personal);
+            } 
+            if (Auth::user()->personal->fiscal_asistente==="A") {
+                $query->where('libroescritos.despacho', Auth::user()->personal->despacho);
+            }
+
+
+//fecha>=fini y fecha<=ffin y depen=dep y desp=coddesp y fis=pers para fiscal
+//fecha>=fini y fecha<=ffin y depen=dep y (desp=coddesp o fis=0000) para asistente
+
         $segdetalle = $query
             //->orderBy('numero', 'desc')
+            ->orderBy('personal.apellido_paterno', 'asc')
+            ->orderBy('personal.apellido_materno', 'asc')
+            ->orderBy('personal.nombres', 'asc')
             ->orderBy('fecharegistro', 'asc')
             ->get();
         
