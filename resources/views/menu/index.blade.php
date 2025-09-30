@@ -367,6 +367,41 @@
 
 
 
+
+    @php
+        $menucarpetassgf = in_array($perfil, ['Admin','CarpetasSGF']);
+        $menuActivo = request()->is('carpetassgf', 'otro');
+    @endphp
+    @if ($menucarpetassgf)
+              <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
+                <a data-bs-toggle="collapse" href="#carpetassgf">
+                  <i class="fas fa-file"></i>
+                  <p>CARPETAS SGF</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse {{ $menuActivo ? 'show' : '' }}" id="carpetassgf">
+                  <ul class="nav nav-collapse">
+
+                    <li class="{{ request()->is('carpetassgf') ? 'active' : '' }}">
+                      <a href="{{ route('carpetassgf.carpetassgfindex') }}">
+                        <span class="sub-item">Registro de Carpetas SGF</span>
+                      </a>
+                    </li>
+                    <li class="{{ request()->is('carpetassgf/reporteavance') ? 'active' : '' }}">
+                      <a href="{{ route('carpetassgf.carpetassgreporte') }}">
+                        <span class="sub-item">Reporte de avance</span>
+                      </a>
+                    </li>
+
+                  </ul>
+                </div>
+              </li>
+    @endif <!--menuescritos-->    
+
+
+
+
+
     @php
         $menumantenimiento = in_array($perfil, ['Admin','MesaPartesAdmin']);
         $menuActivo = request()->is('personal', 'deppolicial', 'mantenimiento/reactiva', 'mantenimiento/verdependencias', 'backup');

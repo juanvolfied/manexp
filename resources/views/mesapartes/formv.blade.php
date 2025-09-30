@@ -64,7 +64,7 @@ function numeroAOrdinal($numero) {
     <div class="col-md-4 col-lg-4">
         <div class="form-group" style="padding:5px;">
             <label for="descripcion" class="form-label"><b>Descripci&oacute;n</b></label>
-            <input type="text" name="descripcion" class="form-control form-control-sm" maxlength="30" style="width:280px;" value="{{ old('descripcion', $libroescritos->descripcion ?? '') }}">
+            <input type="text" name="descripcion" class="form-control form-control-sm" maxlength="40" style="width:280px;" value="{{ old('descripcion', $libroescritos->descripcion ?? '') }}">
             @error('descripcion') <div class="text-danger">{{ $message }}</div> @enderror
         </div>
     </div>
@@ -186,11 +186,11 @@ function numeroAOrdinal($numero) {
 
 
 
-var element = document.getElementById('carpetafiscal');
-var maskOptions = {
-  mask: '000-0000-00000'
-};
-var mask = IMask(element, maskOptions);
+//var element = document.getElementById('carpetafiscal');
+//var maskOptions = {
+//  mask: '000-0000-00000'
+//};
+//var mask = IMask(element, maskOptions);
 
 
     function muestradato(id) {

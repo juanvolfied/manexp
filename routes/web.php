@@ -25,6 +25,7 @@ use App\Http\Controllers\MantenimientoController;
 use App\Http\Controllers\MesaController;
 use App\Http\Controllers\DepPoliController;
 use App\Http\Controllers\SolicitudCarpetasController;
+use App\Http\Controllers\CarpetasSGFController;
 
 Route::get('/login', [UsuarioLoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [UsuarioLoginController::class, 'login'])->name('usuario.login');
@@ -240,3 +241,16 @@ Route::get('/devolucion/atencion/{tipo_mov}/{ano_mov}/{nro_mov}/ver', [Solicitud
 Route::put('/devolucion/{tipo_mov}/{ano_mov}/{nro_mov}', [SolicitudCarpetasController::class, 'updateDevolucion'])->name('devolucion.update');
 Route::get('/devolucion/{tipo_mov}/{ano_mov}/{nro_mov}/edit', [SolicitudCarpetasController::class, 'editDevolucion'])->name('devolucion.edit');
 Route::post('/devolucion/recepciongraba', [SolicitudCarpetasController::class, 'grabaRecepcionCarpetasDevolucion'])->name('devolucion.grabarecepcion');
+
+
+
+Route::match(['get', 'post'], '/carpetassgf', [CarpetasSGFController::class, 'index'])->name('carpetassgf.carpetassgfindex');
+Route::get('/carpetassgf/registro', [CarpetasSGFController::class, 'nuevoCarpetaSGF'])->name('carpetassgf.registrocarpetassgf');
+Route::post('/carpetassgf/store', [CarpetasSGFController::class, 'store'])->name('carpetassgf.store');
+Route::post('/carpetassgf/busca', [CarpetasSGFController::class, 'buscaCarpeta'])->name('carpetassgf.buscacarpeta');
+Route::get('/carpetassgf/{id_generado}/edit', [CarpetasSGFController::class, 'edit'])->name('carpetassgf.edit');
+Route::put('/carpetassgf/{id_generado}', [CarpetasSGFController::class, 'update'])->name('carpetassgf.update');
+
+
+Route::get('/carpetassgf/reporteavance', [CarpetasSGFController::class, 'mostrarGraficoDatos'])->name('carpetassgf.carpetassgreporte');
+Route::get('/carpetassgf/grafico', [CarpetasSGFController::class, 'graficoPorIntervalo'])->name('carpetassgf.grafico');
