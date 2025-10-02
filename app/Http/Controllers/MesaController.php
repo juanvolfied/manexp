@@ -162,6 +162,19 @@ class MesaController extends Controller
         }
                 
         if ($segdetalle->isNotEmpty()) {
+            $segdetalle->transform(function ($doc) {
+                $anio = substr($doc->fecharegistro, 0, 4); // "2025"
+                $mes  = substr($doc->fecharegistro, 5, 2); // "09"
+                
+                $rutalow = storage_path("app/mesapartes/{$anio}/{$mes}/" . strtolower($doc->codescrito) . ".pdf");
+                $ruta = storage_path("app/mesapartes/{$anio}/{$mes}/" . strtoupper($doc->codescrito) . ".pdf");
+                if (file_exists($rutalow)) {
+                    rename($rutalow, $ruta);
+                }
+                $doc->existepdf = file_exists($ruta); // true o false
+                return $doc;
+            });
+
             return response()->json([
                 'success' => true,
                 'registros' => $segdetalle,
@@ -174,6 +187,7 @@ class MesaController extends Controller
                 'message' => 'NO SE ENCONTRARON CARPETAS FISCALES CON LOS DATOS PROPORCIONADOS.',
             ]);
         }
+
 
     }
     public function generarConsFiscalPDF($id_fiscal, $fechareg)
@@ -407,6 +421,69 @@ class MesaController extends Controller
 
     }
 
+    public function consultarFiltros()
+    {
+        return view('mesapartes.consultafiltros');
+    }
+    public function consultarFiltrosdetalle(Request $request)
+    {
+        $segdetalle = DB::table('libroescritos')
+        ->leftJoin('personal', 'libroescritos.id_fiscal', '=', 'personal.id_personal')
+        ->leftJoin('dependencia', 'libroescritos.id_dependencia', '=', 'dependencia.id_dependencia')
+        ->leftJoin('usuarios', 'libroescritos.id_usuario', '=', 'usuarios.id_usuario')
+        ->select(
+            'libroescritos.codescrito',
+            'libroescritos.tiporecepcion',
+            'dependencia.abreviado',
+            'libroescritos.despacho',
+            'personal.apellido_paterno',
+            'personal.apellido_materno',
+            'personal.nombres',
+            'libroescritos.tipo',
+            'libroescritos.descripcion as descripcionescrito',
+            'libroescritos.dependenciapolicial',
+            'libroescritos.remitente',
+            'libroescritos.carpetafiscal',
+            'libroescritos.folios',
+            'libroescritos.fecharegistro',
+            'usuarios.usuario'
+        );
+        if ($request->filled('codigo')) {
+            $segdetalle->where('codescrito', 'like', '%' . $request->codigo . '%');
+        }
+        if ($request->filled('descripcion')) {
+            $segdetalle->where('libroescritos.descripcion', 'like', '%' . $request->descripcion . '%');
+        }
+        if ($request->filled('remitente')) {
+            $segdetalle->where('remitente', 'like', '%' . $request->remitente . '%');
+        }
+        if ($request->filled('dependenciapolicial')) {
+            $segdetalle->where('dependenciapolicial', 'like', '%' . $request->dependenciapolicial . '%');
+        }
+        $segdetalle = $segdetalle
+        ->orderBy('codescrito', 'asc') 
+        ->get();
+        $codigo = $request->codigo;
+        $descripcion = $request->descripcion;
+        $remitente = $request->remitente;
+        $dependenciapolicial = $request->dependenciapolicial;
+            
+        $segdetalle->transform(function ($doc) {
+            $anio = substr($doc->fecharegistro, 0, 4); // "2025"
+            $mes  = substr($doc->fecharegistro, 5, 2); // "09"
+            
+            $rutalow = storage_path("app/mesapartes/{$anio}/{$mes}/" . strtolower($doc->codescrito) . ".pdf");
+            $ruta = storage_path("app/mesapartes/{$anio}/{$mes}/" . strtoupper($doc->codescrito) . ".pdf");
+            if (file_exists($rutalow)) {
+                rename($rutalow, $ruta);
+            }
+            $doc->existepdf = file_exists($ruta); // true o false
+            return $doc;
+        });
+
+        return view('mesapartes.consultafiltros',compact('segdetalle', 'codigo', 'descripcion', 'remitente', 'dependenciapolicial'));
+
+    }
 
 
 

@@ -91,6 +91,9 @@ Route::post('/mesapartes/storev', [MesaController::class, 'storetpv'])->name('me
 Route::get('/mesapartes/consultaintervalofechas', [MesaController::class, 'consultarIntervalo'])->name('mesapartes.consultaintervalo');
 Route::post('/mesapartes/consultaintervalodetalle', [MesaController::class, 'consultarIntervalodetalle'])->name('mesapartes.consultaintervalodetalle');
 
+Route::get('/mesapartes/consultafiltros', [MesaController::class, 'consultarFiltros'])->name('mesapartes.consultafiltros');
+Route::post('/mesapartes/consultafiltrosdetalle', [MesaController::class, 'consultarFiltrosdetalle'])->name('mesapartes.consultafiltrosdetalle');
+
 
 //Route::get('/mesapartes/{anolibro}/{numero}/edit', [MesaController::class, 'edit'])->name('mesapartes.edit');
 //Route::put('/mesapartes/{anolibro}/{numero}', [MesaController::class, 'update'])->name('mesapartes.update');

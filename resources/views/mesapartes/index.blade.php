@@ -87,7 +87,7 @@ function numeroAOrdinal($numero) {
                 @endphp
 
                     <tr>
-                        <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->codescrito }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 11px !important; border-left: 4px solid #ffc107 !important; font-weight: bold !important;">{{ $p->codescrito }}</td>
                         <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->abreviado }}</td>
                         <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ numeroAOrdinal($p->despacho) . " DESPACHO" }}</td>
                         <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->apellido_paterno ." ". $p->apellido_materno ." ". $p->nombres }}</td>

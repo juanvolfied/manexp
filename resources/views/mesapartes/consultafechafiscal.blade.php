@@ -54,14 +54,15 @@
         <table id="scanned-list" class="table table-striped table-sm">
             <thead class="thead-dark">
                 <tr>
-                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">#</th>
-                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">C&oacute;digo</th>
-                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Tipo</th>
-                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Descripci&oacute;n</th>
-                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Dependencia Origen</th>
-                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Remitente</th>
-                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Carpeta Fiscal</th>			      
-                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Folios</th>			      
+                    <th style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">#</th>
+                    <th style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">C&oacute;digo</th>
+                    <th style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">Tipo</th>
+                    <th style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">Descripci&oacute;n</th>
+                    <th style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">Dependencia Origen</th>
+                    <th style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">Remitente</th>
+                    <th style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">Carpeta Fiscal</th>			      
+                    <th style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">Folios</th>			      
+                    <th style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">Ver</th>			      
                 </tr>
             </thead>
             <tbody style="font-size:12px;" >
@@ -206,16 +207,31 @@ function mostrarescritos(event) {
                     };
                     const tipoTexto = tipos[registro.tipo] || registro.tipo;
 
+                const fecha = registro.fecharegistro; // "2025-07-08 22:12:54"
+                const anio = fecha.substring(0, 4);   // "2025"
+                const mes  = fecha.substring(5, 7);   // "07"                    
+                const codescrito = registro.codescrito;
+
+
+                    const iconoDetalle = registro.existepdf
+                        ? `<a href="#" onclick="mostrarDetalle('${anio}', '${mes}', '${registro.codescrito}'); return false;">
+                            <i class="fas fa-search"></i>
+                        </a>`
+                        : `<i class="fas fa-search text-muted" title="Documento digital PDF no disponible" style="opacity: 0.5; cursor: not-allowed;"></i>`;
+
                     tableBody.append(`
                         <tr>
-                            <td style="font-size:12px; padding: 5px 10px !important;">${index + 1}</td>
-                            <td style="font-size:12px; padding: 5px 10px !important;">${registro.codescrito || ''}</td>
-                            <td style="font-size:12px; padding: 5px 10px !important;">${tipoTexto || ''}</td>
-                            <td style="font-size:12px; padding: 5px 10px !important;">${registro.descripcion || ''}</td>
-                            <td style="font-size:12px; padding: 5px 10px !important;">${registro.dependenciapolicial || ''}</td>
-                            <td style="font-size:12px; padding: 5px 10px !important;">${registro.remitente || ''}</td>
-                            <td style="font-size:12px; padding: 5px 10px !important;">${registro.carpetafiscal || ''}</td>
-                            <td style="font-size:12px; padding: 5px 10px !important;">${registro.folios || ''}</td>
+                            <td style="font-size:11px; padding: 5px 5px !important;">${index + 1}</td>
+                            <td style="font-size:11px; padding: 5px 5px !important; border-left: 4px solid #ffc107 !important; font-weight: bold !important;">${registro.codescrito || ''}</td>
+                            <td style="font-size:11px; padding: 5px 5px !important;">${tipoTexto || ''}</td>
+                            <td style="font-size:11px; padding: 5px 5px !important;">${registro.descripcion || ''}</td>
+                            <td style="font-size:11px; padding: 5px 5px !important;">${registro.dependenciapolicial || ''}</td>
+                            <td style="font-size:11px; padding: 5px 5px !important;">${registro.remitente || ''}</td>
+                            <td style="font-size:11px; padding: 5px 5px !important;">${registro.carpetafiscal || ''}</td>
+                            <td style="font-size:11px; padding: 5px 5px !important;">${registro.folios || ''}</td>
+                            <td style="font-size:11px; padding: 5px 5px !important;">
+                            ${iconoDetalle}
+                            </td>
                         </tr>
                     `);
                 
@@ -251,6 +267,14 @@ function verdigital() {
     let ruta = document.getElementById('rutapdf').value;
     let pdfUrl = `../../storage/app/mesapartescargos/${ruta}.pdf`;
     //const pdfUrl = `../../storage/app/mesapartescargos/${anio}/${mes}/${codigo.toUpperCase()}.pdf`;
+    $('#pdfFrame').attr('src', pdfUrl);
+    $('#pdfModal').modal('show');
+}
+</script>
+
+<script>
+function mostrarDetalle(anio, mes, codigo) {
+    const pdfUrl = `../../storage/app/mesapartes/${anio}/${mes}/${codigo.toUpperCase()}.pdf`;
     $('#pdfFrame').attr('src', pdfUrl);
     $('#pdfModal').modal('show');
 }

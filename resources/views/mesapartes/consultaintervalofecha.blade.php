@@ -177,7 +177,7 @@ function mostrarescritos(event) {
                         <tr>
                             <td style="font-size:11px; padding: 5px 5px !important;">${index + 1}</td>
                             <td style="font-size:11px; padding: 5px 5px !important;">${registro.fecharegistro || ''}</td>
-                            <td style="font-size:11px; padding: 5px 5px !important;">${registro.codescrito || ''}</td>
+                            <td style="font-size:11px; padding: 5px 5px !important; border-left: 4px solid #ffc107 !important; font-weight: bold !important;">${registro.codescrito || ''}</td>
                             <td style="font-size:11px; padding: 5px 5px !important;">${registro.abreviado || ''}</td>
                             <td style="font-size:11px; padding: 5px 5px !important;">
                             ${registro.despacho ? numeroAOrdinal(registro.despacho) : ''} DESPACHO
