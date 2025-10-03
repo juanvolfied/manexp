@@ -568,7 +568,94 @@ class MesaController extends Controller
 
         return response()->json(['message' => 'Chunk recibido correctamente']);
     }    
-    public function verificarArchivo($anio, $mes, $codescrito)
+
+    public function compresionindex()
+    {
+        $fechasunicas = DB::table('libroescritos')
+        ->selectRaw('DISTINCT YEAR(fecharegistro) AS anio, MONTH(fecharegistro) AS mes')
+        ->where('pdf150dpi', 'S')
+        ->orderBy('anio', 'desc')
+        ->orderBy('mes', 'desc')
+        ->get();
+        return view('mesapartes.compresion',compact('fechasunicas'));
+    }    
+    public function verificarArchivos($anio, $mes)
+    {
+        $path = storage_path("app/mesapartes/{$anio}/{$mes}");
+        if (!File::exists($path)) {
+            return response()->json(['status' => 'error', 'message' => 'Directorio no encontrado'], 404);
+        }
+        $allPdfFiles = File::files($path);
+        $codigosProcesados = DB::table('libroescritos')
+            ->where('pdf150dpi', 'S')
+            ->pluck('codescrito')
+            ->toArray();
+        $codigosProcesadosMap = array_flip($codigosProcesados);
+        $pdfFiles = array_filter($allPdfFiles, function ($file) use ($codigosProcesadosMap) {
+            $codescrito = pathinfo($file->getFilename(), PATHINFO_FILENAME);
+            return !isset($codigosProcesadosMap[$codescrito]);
+        });
+        usort($pdfFiles, fn($a, $b) => $a->getFilename() <=> $b->getFilename());
+        $archivos = array_map(function ($file) {
+            return pathinfo($file->getFilename(), PATHINFO_FILENAME);
+        }, $pdfFiles);
+        return response()->json(['status' => 'ok', 'archivos' => $archivos]);
+    }
+    public function comprimirArchivo(Request $request)
+    {
+        $anio = $request->input('anio');
+        $mes = $request->input('mes');
+        $filename = $request->input('archivo');
+        if (!$anio || !$mes || !$filename) {
+            return response()->json(['status' => 'error', 'message' => 'Datos incompletos'], 400);
+        }
+        $path = storage_path("app/mesapartes/{$anio}/{$mes}");
+        $tmpDir = storage_path("app/mesapartes/{$anio}/tmp");
+        if (!File::exists("{$path}/{$filename}.pdf")) {
+            return response()->json(['status' => 'error', 'message' => 'Archivo no encontrado'], 404);
+        }
+        if (!File::exists($tmpDir)) {
+            mkdir($tmpDir, 0777, true);
+        }
+        $inputPath = "{$path}/{$filename}.pdf";
+        $outputPath = "{$tmpDir}/{$filename}.pdf";
+        // Comando Ghostscript
+/*
+        $gsPath = 'C:\\Program Files\\gs\\gs10.06.0\\bin\\gswin64c.exe';
+        $gsCommand = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/screen " .
+            "-dNOPAUSE -dQUIET -dBATCH -dDownsampleColorImages=true " .
+            "-dColorImageResolution=150 -dGrayImageResolution=150 -dMonoImageResolution=150 " .
+            "-sOutputFile=" . escapeshellarg($outputPath) . " " . escapeshellarg($inputPath);
+*/
+        // Comando Ghostscript para comprimir a 150 DPI
+        $gsCommand = "gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/screen " .
+            "-dNOPAUSE -dQUIET -dBATCH -dDownsampleColorImages=true " .
+            "-dColorImageResolution=150 -dGrayImageResolution=150 -dMonoImageResolution=150 " .
+            "-sOutputFile=" . escapeshellarg($outputPath) . " " . escapeshellarg($inputPath);// . " " . escapeshellarg($pdfmarkPath);
+            
+        exec($gsCommand, $output, $result);
+        chmod($outputPath, 0777);
+        if ($result === 0 && File::exists($outputPath) && filesize($outputPath) > 0) {
+            if ($this->isValidPdf($outputPath)) {
+                DB::table('libroescritos')
+                    ->where('codescrito', $filename)
+                    ->update(['pdf150dpi' => 'S']);
+                unlink($inputPath);
+                rename($outputPath, $inputPath);
+                return response()->json(['status' => 'ok', 'archivo' => $filename]);
+            } else {
+                unlink($outputPath);
+                return response()->json(['status' => 'error', 'message' => 'PDF inválido'], 422);
+            }
+        } else {
+            if (File::exists($outputPath)) {
+                unlink($outputPath);
+            }
+            return response()->json(['status' => 'error', 'message' => 'Error al comprimir'], 500);
+        }
+    }
+
+    public function verificarArchivox($anio, $mes)
     {
         ini_set('memory_limit', '1024M');
 

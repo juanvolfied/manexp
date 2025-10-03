@@ -105,7 +105,10 @@ Route::get('/mesapartes/{codigogenerar}/pdf', [MesaController::class, 'generarCo
 
 Route::get('/mesapartes/consultaescritos', [MesaController::class, 'consultarEscritos'])->name('mesapartes.consultaescritos');
 Route::post('/mesapartes/consultaescritosdet', [MesaController::class, 'consultarEscritosdetalle'])->name('mesapartes.consultaescritosdetalle');
-Route::get('/mesapartes/{anio}/{mes}/{codescrito}', [MesaController::class, 'verificarArchivo']);
+
+Route::get('/mesapartes/comprimeescritospdf', [MesaController::class, 'compresionindex'])->name('mesapartes.comprimeindex');
+Route::get('/mesapartes/{anio}/{mes}', [MesaController::class, 'verificarArchivos']);
+Route::post('/mesapartes/comprimir', [MesaController::class, 'comprimirArchivo'])->name('mesapartes.comprime');
 
 Route::get('/mesapartes/upload', [MesaController::class, 'showupload'])->name('mesapartes.showupload');
 Route::post('/mesapartes/uploadchunk', [MesaController::class, 'uploadChunk'])->name('upload.chunk');

@@ -273,7 +273,7 @@
 
     @php
         $menumesapartes = in_array($perfil, ['Admin','mesapartes','MesaPartesAdmin']);
-        $menuActivo = request()->is('mesapartes', 'mesapartes/upload');
+        $menuActivo = request()->is('mesapartes', 'mesapartes/upload', 'mesapartes/comprimeescritospdf');
         $submenuActivo = request()->is('mesapartes/consultaintervalofechas', 'mesapartes/consultafiscal', 'mesapartes/consultafiltros');
     @endphp
     @if ($menumesapartes)
@@ -338,6 +338,11 @@
                       </a>
                     </li>
 
+                    <li class="{{ request()->is('mesapartes/comprimeescritospdf') ? 'active' : '' }}">
+                      <a href="{{ route('mesapartes.comprimeindex') }}">
+                        <span class="sub-item">Comprime Escritos PDF</span>
+                      </a>
+                    </li>
 
                   </ul>
                 </div>
