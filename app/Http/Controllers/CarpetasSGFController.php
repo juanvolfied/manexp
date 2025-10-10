@@ -50,6 +50,8 @@ class CarpetasSGFController extends Controller
     public function nuevoCarpetaSGF()
     {
         $dependencias = DB::table('dependencia')
+            ->where('activo', 'S')
+            ->where('mostrarsgf', 'S')
             ->orderBy('descripcion', 'asc') 
             ->get();
 
@@ -57,7 +59,14 @@ class CarpetasSGFController extends Controller
     }
     public function buscaCarpeta(Request $request)
     {    
-        $codbarras = $request->input('codbarras');
+        if ($request->filled('codbarras')) {
+            $codbarras = $request->input('codbarras');
+        } else {
+            $codbarras = str_pad($request->input('idde'), 11, '0', STR_PAD_LEFT) 
+            . $request->input('anio') 
+            . str_pad($request->input('expe'), 6, '0', STR_PAD_LEFT) 
+            . str_pad($request->input('tipo'), 4, '0', STR_PAD_LEFT);
+        }
         $registros = DB::table('carpetas_sgf')
             ->where('carpetafiscal', $codbarras)
             ->get();
@@ -67,234 +76,38 @@ class CarpetasSGFController extends Controller
                 'message' => 'LA CARPETA FISCAL '. $codbarras .' YA SE ENCUENTRA REGISTRADA.',
             ]);
         } else {
+            $dependencia="";
+            $despacho="";
+            $registro = DB::table('expediente')
+                ->where('codbarras', $codbarras)
+                ->first();
+            if ($registro) {
+                $id_expediente=$registro->id_expediente;
+                $registro = DB::table('ubicacion_exp')
+                    ->where('id_expediente', $id_expediente)
+                    ->where('ubicacion', 'A')
+                    ->where('tipo_ubicacion', 'I')
+                    ->orderBy('ano_movimiento', 'desc') 
+                    ->orderBy('nro_movimiento', 'desc') 
+                    ->first();
+                if ($registro) {
+                    $dependencia=$registro->paq_dependencia;
+                    $despacho=$registro->despacho;
+                }
+            } 
+
             return response()->json([
                 'success' => true,
                 'message' => 'OK',
+                'dependencia' => $dependencia,
+                'despacho' => $despacho,
             ]);
         }
     }
-
-
-
-
-
-
-
-
-
-    public function consultarFiscal()
-    {
-        $fiscales = DB::table('personal')
-        ->leftJoin('dependencia', 'personal.id_dependencia', '=', 'dependencia.id_dependencia')
-        ->select(
-            'personal.id_personal',
-            'personal.apellido_paterno',
-            'personal.apellido_materno',
-            'personal.nombres',
-            'personal.id_dependencia',
-            'personal.despacho',
-            'dependencia.descripcion',
-            'dependencia.abreviado'
-        )
-        ->where('fiscal_asistente', 'F')
-        ->orderBy('apellido_paterno', 'asc') 
-        ->orderBy('apellido_materno', 'asc') 
-        ->orderBy('nombres', 'asc') 
-        ->get();
-
-        return view('mesapartes.consultafechafiscal', compact('fiscales'));
-    }
-    public function consultarFiscaldetalle(Request $request)
-    {
-        $fiscal = $request->input('fiscal');    
-        $fechareg = $request->input('fechareg');    
-
-        $query = DB::table('libroescritos')
-            ->select('*')
-            ->where('libroescritos.id_fiscal', $fiscal)
-            ->whereDate('fecharegistro', '=', $fechareg);        
-        $segdetalle = $query
-            ->orderBy('fecharegistro', 'desc')
-            ->get();
-
-                $anio = substr($fechareg, 0, 4); // "2025"
-                $mes  = substr($fechareg, 5, 2); // "09"
-        $querycargo = DB::table('librocargos')
-            ->select('*')
-            ->where('id_fiscal', $fiscal)
-            ->whereDate('fechacargo', '=', $fechareg)
-            ->first();
-        $existedigital=false;
-        $rutacargo="";
-        if ($querycargo) {
-            $rutalow = storage_path("app/mesapartescargos/{$anio}/{$mes}/" . strtolower($querycargo->codcargo) . ".pdf");
-            $ruta = storage_path("app/mesapartescargos/{$anio}/{$mes}/" . strtoupper($querycargo->codcargo) . ".pdf");
-            if (file_exists($rutalow)) {
-                rename($rutalow, $ruta);
-            }
-            $existedigital=file_exists($ruta);
-            $rutacargo="{$anio}/{$mes}/" . strtoupper($querycargo->codcargo);
-        }
-                
-        if ($segdetalle->isNotEmpty()) {
-            return response()->json([
-                'success' => true,
-                'registros' => $segdetalle,
-                'cargodigital' => $existedigital,
-                'rutacargo' => $rutacargo,
-            ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'NO SE ENCONTRARON CARPETAS FISCALES CON LOS DATOS PROPORCIONADOS.',
-            ]);
-        }
-
-    }
-
-
-    public function consultarIntervalo()
-    {
-        return view('mesapartes.consultaintervalofecha');
-    }
-    public function consultarIntervalodetalle(Request $request)
-    {
-        $fechaini = $request->input('fechaini');    
-        $fechafin = $request->input('fechafin');    
-
-        $segdetalle = DB::table('libroescritos')
-        ->leftJoin('personal', 'libroescritos.id_fiscal', '=', 'personal.id_personal')
-        ->leftJoin('dependencia', 'libroescritos.id_dependencia', '=', 'dependencia.id_dependencia')
-        ->leftJoin('usuarios', 'libroescritos.id_usuario', '=', 'usuarios.id_usuario')
-        ->select(
-            'libroescritos.codescrito',
-            'libroescritos.tiporecepcion',
-            'dependencia.abreviado',
-            'libroescritos.despacho',
-            'personal.apellido_paterno',
-            'personal.apellido_materno',
-            'personal.nombres',
-            'libroescritos.tipo',
-            'libroescritos.descripcion as descripcionescrito',
-            'libroescritos.dependenciapolicial',
-            'libroescritos.remitente',
-            'libroescritos.carpetafiscal',
-            'libroescritos.folios',
-            'libroescritos.fecharegistro',
-            'usuarios.usuario'
-        )
-        ->whereDate('fecharegistro', '>=', $fechaini)
-        ->whereDate('fecharegistro', '<=', $fechafin)
-        ->orderBy('codescrito', 'asc') 
-        ->get();
-
-        if ($segdetalle->isNotEmpty()) {
-            
-            $segdetalle->transform(function ($doc) {
-                $anio = substr($doc->fecharegistro, 0, 4); // "2025"
-                $mes  = substr($doc->fecharegistro, 5, 2); // "09"
-                
-                $rutalow = storage_path("app/mesapartes/{$anio}/{$mes}/" . strtolower($doc->codescrito) . ".pdf");
-                $ruta = storage_path("app/mesapartes/{$anio}/{$mes}/" . strtoupper($doc->codescrito) . ".pdf");
-                if (file_exists($rutalow)) {
-                    rename($rutalow, $ruta);
-                }
-                $doc->existepdf = file_exists($ruta); // true o false
-                return $doc;
-            });
-
-            return response()->json([
-                'success' => true,
-                'registros' => $segdetalle,
-            ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'NO SE ENCONTRARON CARPETAS FISCALES DEL'. $fechaini .' AL '. $fechafin .' .',
-            ]);
-        }
-
-    }
-
-
-
-
-
-
-
-
-
-    public function consultarEscritos()
-    {
-        //Auth::user()->personal->fiscal_asistente
-        //return view('mesapartes.consultafechafiscal', compact('fiscales'));
-        return view('mesapartes.consultaescritosdespacho');
-    }
-    public function consultarEscritosdetalle(Request $request)
-    {
-        $fechaini = $request->input('fechaini');    
-        $fechafin = $request->input('fechafin');    
-
-        $query = DB::table('libroescritos')
-            ->leftJoin('personal', 'libroescritos.id_fiscal', '=', 'personal.id_personal')
-            ->select('libroescritos.*', 'personal.apellido_paterno','personal.apellido_materno','personal.nombres')
-            ->whereDate('fecharegistro', '>=', $fechaini)        
-            ->whereDate('fecharegistro', '<=', $fechafin)
-            ->where('libroescritos.id_dependencia', Auth::user()->personal->id_dependencia);
-            if (Auth::user()->personal->fiscal_asistente==="F") {
-                $query->where('libroescritos.despacho', Auth::user()->personal->despacho)
-                ->where('libroescritos.id_fiscal', Auth::user()->personal->id_personal);
-            } 
-            if (Auth::user()->personal->fiscal_asistente==="A") {
-                $query->where('libroescritos.despacho', Auth::user()->personal->despacho);
-            }
-
-
-//fecha>=fini y fecha<=ffin y depen=dep y desp=coddesp y fis=pers para fiscal
-//fecha>=fini y fecha<=ffin y depen=dep y (desp=coddesp o fis=0000) para asistente
-
-        $segdetalle = $query
-            //->orderBy('numero', 'desc')
-            ->orderBy('personal.apellido_paterno', 'asc')
-            ->orderBy('personal.apellido_materno', 'asc')
-            ->orderBy('personal.nombres', 'asc')
-            ->orderBy('fecharegistro', 'asc')
-            ->get();
-        
-        if ($segdetalle->isNotEmpty()) {
-
-            $segdetalle->transform(function ($doc) {
-                $anio = substr($doc->fecharegistro, 0, 4); // "2025"
-                $mes  = substr($doc->fecharegistro, 5, 2); // "09"
-
-                $rutalow = storage_path("app/mesapartes/{$anio}/{$mes}/" . strtolower($doc->codescrito) . ".pdf");
-                $ruta = storage_path("app/mesapartes/{$anio}/{$mes}/" . strtoupper($doc->codescrito) . ".pdf");
-                if (file_exists($rutalow)) {
-                    rename($rutalow, $ruta);
-                }
-                $doc->existepdf = file_exists($ruta); // true o false
-                return $doc;
-            });
-
-            return response()->json([
-                'success' => true,
-                'registros' => $segdetalle,
-            ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'NO SE ENCONTRARON ESCRITOS EN EL INTERVALO DE FECHAS.',
-            ]);
-        }
-
-    }
-
-
-
 
     public function store(Request $request)
     {
-    $codigo = strtoupper($request->input('codbarras'));
+    $codigo = $request->input('codbarrasgrabar');
     $coddep = $request->input('dependencia');
     $coddes = $request->input('despacho');
 
@@ -319,10 +132,10 @@ class CarpetasSGFController extends Controller
     
         try {
 
-            DB::transaction(function () use ($request) {
+            DB::transaction(function () use ($request, $codigo) {
                 // Insertar el nuevo documento
                 DB::table('carpetas_sgf')->insert([
-                    'carpetafiscal' => strtoupper( $request->input('codbarras') ),
+                    'carpetafiscal' => strtoupper( $codigo ),
                     'id_dependencia' => $request->input('dependencia'),
                     'despacho' => $request->input('despacho'),
                     'fechahora_registro' => now(),
@@ -396,6 +209,82 @@ class CarpetasSGFController extends Controller
         return view('carpetassgf.graficoindex');
     }
     public function graficoPorIntervalo(Request $request)
+    {
+        $request->validate([
+            'fechainicio' => 'required|date',
+            'fechafin' => 'required|date|after_or_equal:fechainicio',
+        ]);
+
+        // Convertimos a objetos Carbon
+        $fechainicio = Carbon::parse($request->fechainicio)->startOfDay();
+        $fechafin = Carbon::parse($request->fechafin)->endOfDay();
+        
+        // Generar un array con todas las fechas del rango
+        $periodo = [];
+        $personales = [];
+        $conteos = [];        
+        for ($date = $fechainicio->copy(); $date->lte($fechafin); $date->addDay()) {
+            $periodo[] = $date->format('Y-m-d');
+        }
+
+        $datos = DB::table('carpetas_sgf')
+            ->join('personal', 'carpetas_sgf.id_personal', '=', 'personal.id_personal')
+            ->selectRaw('DATE(fechahora_registro) as fecha, carpetas_sgf.id_personal, apellido_paterno, apellido_materno, nombres, COUNT(*) as total')
+            ->whereBetween('fechahora_registro', [$fechainicio, $fechafin])
+            ->groupBy('fecha', 'carpetas_sgf.id_personal', 'apellido_paterno','apellido_materno','nombres')
+            ->orderBy('fecha')
+            ->get();
+
+        // Reorganizamos los datos
+        foreach ($datos as $row) {
+            $fecha = $row->fecha;
+            $personal = $row->id_personal;
+            $nompersonal = $row->apellido_paterno ." ". $row->apellido_materno ." ". $row->nombres;
+            // Guardamos los ids de personal
+            if (!in_array($nompersonal, $personales)) {
+                $personales[] = $nompersonal;
+            }
+            // Inicializamos si no existe
+            if (!isset($conteos[$nompersonal])) {
+                $conteos[$nompersonal] = array_fill_keys($periodo, 0);
+            }
+            $conteos[$nompersonal][$fecha] = $row->total;
+        }            
+        // Finalmente construimos el array para Chart.js
+        $colores = [
+            '#3498db', // azul
+            '#e74c3c', // rojo
+            '#2ecc71', // verde
+            '#f1c40f', // amarillo
+            '#9b59b6', // púrpura
+            '#1abc9c', // turquesa
+            '#e67e22', // naranja
+            '#34495e', // gris oscuro
+            '#95a5a6', // gris claro
+            '#d35400', // naranja oscuro
+        ];        
+        $datasets = [];
+        $colorIndex = 0;
+        foreach ($personales as $personal) {
+            $color = $colores[$colorIndex % count($colores)];
+            $datasets[] = [
+                'label' => "$personal",
+                'data' => array_values($conteos[$personal]),
+                'backgroundColor' => $color, // 👈 Aquí se aplica el color
+                'borderColor' => $color,
+                'borderWidth' => 1
+            ];
+            $colorIndex++;
+        }
+
+        // Retornar para el gr�fico (por ejemplo en formato JSON)
+        return response()->json([
+            'labels' => $periodo,
+            'datasets' => $datasets,
+        ]);
+    }
+
+    public function graficoPorIntervalox(Request $request)
     {
         $request->validate([
             'fechainicio' => 'required|date',

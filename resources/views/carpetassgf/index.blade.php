@@ -70,7 +70,7 @@ function numeroAOrdinal($numero) {
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Despacho</th>
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Fecha</th>
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Usuario</th>
-                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Editar</th>
+                    <!--<th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Editar</th>-->
                 </tr>
             </thead>
             <tbody style="font-size:11px;">
@@ -85,20 +85,20 @@ function numeroAOrdinal($numero) {
                         <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ numeroAOrdinal($p->despacho) . " DESPACHO" }}</td>
                         <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->fechahora_registro }}</td>
                         <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->apellido_paterno }} {{ $p->apellido_materno }} {{ $p->nombres }}</td>
-                        <td style="padding: 5px 5px!important; font-size: 11px !important; text-align:center;">
+                        <!--<td style="padding: 5px 5px!important; font-size: 11px !important; text-align:center;">-->
                             
                             @if($esHoy || ($perfil=="Admin") )
-                                <a href="{{ route('carpetassgf.edit', ['id_generado' => $p->id_generado]) }}"
+                                <!--<a href="{{ route('carpetassgf.edit', ['id_generado' => $p->id_generado]) }}"
                                 data-bs-toggle="tooltip" title="Editar">
                                     <i class="fas fa-edit fa-lg"></i>
-                                </a>
+                                </a>-->
                             @else
-                                <a href="#" style="opacity: 0.5; cursor: not-allowed;"
+                                <!--<a href="#" style="opacity: 0.5; cursor: not-allowed;"
                                 data-bs-toggle="tooltip" title="Solo puede editarse el mismo día de registro">
                                     <i class="fas fa-edit fa-lg text-muted"></i>
-                                </a>
+                                </a>-->
                             @endif
-                        </td>
+                        <!--</td>-->
                     </tr>
                 @endforeach
             </tbody>

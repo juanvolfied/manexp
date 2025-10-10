@@ -65,8 +65,11 @@
                 if (contentType && contentType.includes('application/json')) {
                     return response.json();
                 }
-                alert('TU SESION HA EXPIRADO. SERAS REDIRIGIDO AL LOGIN.');
-                window.location.href = '{{ route("usuario.login") }}';
+                        console.log("Respuesta cruda:", response);
+
+                alert (response);
+                //alert('TU SESION HA EXPIRADO. SERAS REDIRIGIDO AL LOGIN.');
+                //window.location.href = '{{ route("usuario.login") }}';
                 return;
             })
             //.then(res => res.json())
@@ -77,6 +80,9 @@
                     grafico.destroy();
                 }
 
+
+
+                /*
                 grafico = new Chart(ctx, {
                     type: 'bar',
                     data: {
@@ -89,30 +95,142 @@
                             borderWidth: 1
                         }]
                     },
-    options: {
-        responsive: true,
-        scales: {
-            yAxes: [{
-                ticks: {
-                    min: 0,         // 👈 fuerza inicio desde 0
-                    stepSize: 1,    // 👈 paso de 1
-                    precision: 0,   // 👈 sin decimales
-                    callback: function(value) {
-                        return Number.isInteger(value) ? value : '';
+                    options: {
+                        responsive: true,
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    min: 0,         // 👈 fuerza inicio desde 0
+                                    stepSize: 1,    // 👈 paso de 1
+                                    precision: 0,   // 👈 sin decimales
+                                    callback: function(value) {
+                                        return Number.isInteger(value) ? value : '';
+                                    }
+                                }
+                            }]
+                        }
                     }
-                }
-            }]
-        }
-    }
                 });
-
                 generarTabla(data.labels, data.data);
+                */
+
+                //const ctx = document.getElementById('grafico').getContext('2d');
+                const config = {
+                    type: 'bar',
+                    data: {
+                        labels: data.labels,
+                        datasets: data.datasets
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: titulo
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false
+                            }
+                        },
+                        scales: {
+                            xAxes: {
+                                stacked: false
+                            },
+                            yAxes: [{
+                                beginAtZero: true,
+                                ticks: {
+                                    min: 0,         // 👈 fuerza inicio desde 0
+                                    stepSize: 1,    // 👈 paso de 1
+                                    precision: 0,   // 👈 sin decimales
+                                    callback: function(value) {
+                                        return Number.isInteger(value) ? value : '';
+                                    }
+                                }
+                            }]
+                        }
+                    }
+                };
+                grafico = new Chart(ctx, config);
+
+                generarTabla(data.labels, data.datasets);
 
             });
     });
 
+function generarTabla(labels, datasets) {
+    const contenedor = document.getElementById('tablaDatos');
 
-    function generarTabla(labels, data) {
+    // Limpiar contenido anterior
+    contenedor.innerHTML = '';
+
+    // Crear tabla
+    const table = document.createElement('table');
+    table.classList.add('table', 'table-bordered'); // Usa clases si estás con Bootstrap
+
+    // Crear encabezado
+    const thead = document.createElement('thead');
+    const encabezado = document.createElement('tr');
+
+    const thFecha = document.createElement('th');
+    thFecha.textContent = 'Fecha';
+    encabezado.appendChild(thFecha);
+
+    datasets.forEach(ds => {
+        const th = document.createElement('th');
+        th.innerHTML = ds.label;
+        encabezado.appendChild(th);
+    });
+
+    thead.appendChild(encabezado);
+    table.appendChild(thead);
+
+    // Crear cuerpo de la tabla
+    const tbody = document.createElement('tbody');
+
+    let colu=0;
+    let total=[];
+    labels.forEach((fecha, index) => {
+        const fila = document.createElement('tr');
+
+        const tdFecha = document.createElement('td');
+        tdFecha.textContent = fecha;
+        fila.appendChild(tdFecha);
+    colu=0;
+        datasets.forEach(ds => {
+            colu=colu+1;
+        if (total[colu] === undefined) {
+            total[colu] = 0;
+        }            
+            const td = document.createElement('td');
+            //td.textContent = ds.data[index] ?? 0;
+            const valor = ds.data[index] ?? 0;
+            td.innerHTML = valor > 0 ? `<strong>${valor}</strong>` : valor;
+            fila.appendChild(td);
+            total[colu]=total[colu]+valor;
+        });
+        
+        tbody.appendChild(fila);
+    });
+
+        const fila = document.createElement('tr');
+        const tdFecha = document.createElement('td');
+        tdFecha.innerHTML = "<strong>ACUMULADO</strong>";
+        fila.appendChild(tdFecha);
+        for (let i = 1; i <= colu; i++) {
+            const td = document.createElement('td');
+            const valor = total[i] ?? 0;
+            td.innerHTML = valor > 0 ? `<strong>${valor}</strong>` : valor;
+            fila.appendChild(td);
+        };
+        tbody.appendChild(fila);
+
+
+    table.appendChild(tbody);
+    contenedor.appendChild(table);
+}
+
+    function generarTablax(labels, data) {
         let tablaHTML = `<table border="1" cellpadding="5" cellspacing="0">
             <thead>
                 <tr>

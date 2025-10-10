@@ -380,7 +380,7 @@
 
     @php
         $menucarpetassgf = in_array($perfil, ['Admin','CarpetasSGF']);
-        $menuActivo = request()->is('carpetassgf', 'otro');
+        $menuActivo = request()->is('carpetassgf', 'carpetassgf/reporteavance');
     @endphp
     @if ($menucarpetassgf)
               <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
@@ -414,7 +414,7 @@
 
     @php
         $menumantenimiento = in_array($perfil, ['Admin','MesaPartesAdmin']);
-        $menuActivo = request()->is('personal', 'deppolicial', 'mantenimiento/reactiva', 'mantenimiento/verdependencias', 'backup');
+        $menuActivo = request()->is('personal', 'deppolicial', 'mantenimiento/reactiva', 'mantenimiento/verdependencias', 'mantenimiento/verdependenciassgf', 'backup');
         $menuActivo2 = request()->is('usuarios', 'perfilusuario');
     @endphp    
     @if($menumantenimiento)
@@ -445,6 +445,11 @@
                     <li class="{{ request()->is('mantenimiento/verdependencias') ? 'active' : '' }}">
                       <a href="{{ route('verdependencias') }}">
                         <span class="sub-item">Selecciona Dependencias para Inventarios</span>
+                      </a>
+                    </li>
+                    <li class="{{ request()->is('mantenimiento/verdependenciassgf') ? 'active' : '' }}">
+                      <a href="{{ route('verdependenciassgf') }}">
+                        <span class="sub-item">Selecciona Dependencias para Registro de Carpetas SGF</span>
                       </a>
                     </li>
         @endif

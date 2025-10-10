@@ -19,7 +19,7 @@
                   </div>
                   <div class="card-body">
 
-    <form action="{{ route('carpetassgf.update', ['id_generado' => $carpetassgf->id_generado]) }}" method="POST">
+    <form id="miFormulario" action="{{ route('carpetassgf.update', ['id_generado' => $carpetassgf->id_generado]) }}" method="POST">
         @csrf
         @method('PUT')
 

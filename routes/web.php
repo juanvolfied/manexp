@@ -54,6 +54,8 @@ Route::post('/mantenimiento/reactivabuscar', [MantenimientoController::class, 'b
 Route::post('/mantenimiento/grabareactiva', [MantenimientoController::class, 'grabaReactivacion'])->name('reactivainventariograbar');
 Route::get('/mantenimiento/verdependencias', [MantenimientoController::class, 'mostrarDependencias'])->name('verdependencias');
 Route::post('/mantenimiento/{id}/cambiaestadover', [MantenimientoController::class, 'cambiaEstadoDependencia'])->name('dependenciacambiaestado');
+Route::get('/mantenimiento/verdependenciassgf', [MantenimientoController::class, 'mostrarDependenciasSGF'])->name('verdependenciassgf');
+Route::post('/mantenimiento/{id}/cambiaestadoversgf', [MantenimientoController::class, 'cambiaEstadoDependenciaSGF'])->name('dependenciacambiaestadosgf');
 
 
 

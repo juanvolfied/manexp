@@ -125,4 +125,22 @@ class MantenimientoController extends Controller
         return response()->json(['success' => true, 'estado' => $nuevoEstado]);
     }
 
+    public function mostrarDependenciasSGF()
+    {
+        $dependencias = DB::table('dependencia')
+            ->orderBy('descripcion', 'asc')
+            ->get();
+        return view('mantenimiento.seleccionadependenciassgf', compact('dependencias'));
+    }
+    public function cambiaEstadoDependenciaSGF($id, Request $request)
+    {
+        //$producto = Producto::findOrFail($id);
+        $nuevoEstado = $request->input('estado') === 'S' ? 'S' : 'N';
+        //$producto->mostrarinventario = $nuevoEstado;
+        //$producto->save();
+        DB::table('dependencia')
+        ->where('id_dependencia', $id)
+        ->update(['mostrarsgf' => $nuevoEstado]);
+        return response()->json(['success' => true, 'estado' => $nuevoEstado]);
+    }    
 }
