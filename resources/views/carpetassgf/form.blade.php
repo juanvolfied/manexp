@@ -147,7 +147,57 @@ function numeroAOrdinal($numero) {
         <button onclick="grabar()" class="btn btn-success mt-3" id="btngrabar" style="display:none;">Guardar</button>
         <a href="{{ route('carpetassgf.carpetassgfindex') }}" class="btn btn-secondary mt-3">Retornar al Listado</a>
 
-        </div>
+        </div><br>
+
+
+        
+
+                    <div class="row" id="codigoverificar">
+                      <div class="col-md-12 col-lg-12">
+                        <div class="form-group border p-3 rounded shadow-sm bg-light">        
+        <h5 class="text-primary">Mis Carpetas SGF registradas hoy {{ date('Y-m-d') }}</h5>
+        <table id="tablacarpetassgf" class="table table-striped table-bordered" width=100%>
+            <thead class="thead-dark">
+                <tr>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Codigo Carpeta Fiscal</th>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Carpeta</th>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Dependencia</th>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Despacho</th>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Fecha</th>
+                    <!--<th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Usuario</th>-->
+                </tr>
+            </thead>
+            <tbody style="font-size:11px;">
+                @foreach($carpetasregissgf as $p)
+                @php
+                    $esHoy = date('Y-m-d') == date('Y-m-d', strtotime($p->fechahora_registro));
+
+                    $raw = $p->carpetafiscal;
+
+                    // Cortar las partes según posiciones
+                    $parte1 = ltrim(substr($raw, 0, 11), '0');
+                    $parte2 = ltrim(substr($raw, 11, 4), '0');
+                    $parte3 = ltrim(substr($raw, 15, 6), '0');
+                    $parte4 = ltrim(substr($raw, 21, 4), '0') ?: '0';
+
+                    $carpetaFormateada = $parte1 . '-' . $parte2 . '-' . $parte3 . '-' . $parte4;
+                @endphp
+                    <tr>
+                        <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->carpetafiscal }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $carpetaFormateada }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->abreviado }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ numeroAOrdinal($p->despacho) . " DESPACHO" }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->fechahora_registro }}</td>
+                        <!--<td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->apellido_paterno }} {{ $p->apellido_materno }} {{ $p->nombres }}</td>-->
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+
+                        </div>
+                      </div>
+                    </div>
+
 
 <style>
     .selectize-dropdown, .selectize-input, .selectize-input input {
@@ -161,6 +211,43 @@ function numeroAOrdinal($numero) {
 
 @section('scripts')
 
+<script>
+  $(document).ready(function() {
+    $('#tablacarpetassgf').DataTable({
+  "columnDefs": [
+    { "orderable": false, "targets": [4] }  // Evitar orden en columnas de acción si no es necesario
+  ],
+      "pageLength": 10,  // Número de filas por página
+      "lengthMenu": [10, 25, 50, 100],  // Opciones de paginación
+      "searching": true,  // Habilitar búsqueda
+      "ordering": false,   // Habilitar ordenación
+      "info": true,       // Mostrar información de la tabla
+      "autoWidth": false,  // Ajustar automáticamente el ancho de las columnas
+      "lengthChange": false,
+      "language": {
+            "search": "Buscar",                         // Cambia "Search" por "Buscar"
+            "lengthMenu": "Mostrar _MENU_ paquetes",    // Cambia "Show entries" por "Mostrar entradas"
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ paquetes", // Cambia el texto de la información
+            "zeroRecords": "No se encontraron registros", // Mensaje cuando no hay resultados
+            "infoEmpty": "Mostrando 0 a 0 de 0 paquetes", // Cuando la tabla está vacía
+            "infoFiltered": "(filtrado de _MAX_ paquetes totales)", // Cuando hay filtros activos
+      
+            // Personaliza "Previous" y "Next" en la paginación
+            "paginate": {
+              "previous": "Anterior",   // Cambia "Previous" por "Anterior"
+              "next": "Siguiente"       // Cambia "Next" por "Siguiente"
+            },
+      
+            // Personaliza el texto de "Showing entries"
+            "emptyTable": "No hay datos disponibles en la tabla", // Mensaje si no hay datos
+      }      
+    });
+
+
+    
+
+  });
+</script>
 <script>
 
 var element = document.getElementById('codbarras');

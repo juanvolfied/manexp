@@ -55,7 +55,27 @@ class CarpetasSGFController extends Controller
             ->orderBy('descripcion', 'asc') 
             ->get();
 
-        return view('carpetassgf.registrocarpetassgf', compact('dependencias'));
+        $fecha = date('Y-m-d');
+
+        $carpetasregissgf = DB::table('carpetas_sgf')
+        ->leftJoin('dependencia', 'carpetas_sgf.id_dependencia', '=', 'dependencia.id_dependencia')
+        ->leftJoin('personal', 'carpetas_sgf.id_personal', '=', 'personal.id_personal')
+        ->select(
+            'carpetas_sgf.id_generado',
+            'carpetas_sgf.carpetafiscal',
+            'dependencia.abreviado',
+            'carpetas_sgf.despacho',
+            'carpetas_sgf.fechahora_registro',
+            'personal.apellido_paterno',
+            'personal.apellido_materno',
+            'personal.nombres'
+        )
+        ->where('carpetas_sgf.id_personal', Auth::user()->id_personal)
+        ->wheredate('fechahora_registro', $fecha)
+        ->orderBy('fechahora_registro', 'desc') 
+        ->get();
+
+        return view('carpetassgf.registrocarpetassgf', compact('dependencias','carpetasregissgf'));
     }
     public function buscaCarpeta(Request $request)
     {    
