@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Symfony\Component\Process\Process;
 use ZipArchive;
@@ -18,6 +19,7 @@ class BackupController extends Controller
     }    
     public function mostrarBackupForm()
     {
+        /*
         $backupFiles = collect(Storage::files('backups'))
             ->filter(function ($file) {
                 return Str::endsWith($file, '.zip');
@@ -34,6 +36,27 @@ class BackupController extends Controller
                     'url' => route('backup.descargar', ['filename' => basename($file)]),
                 ];
             });
+        */
+        $backupFiles = collect(File::files(public_path('backups')))
+            ->filter(function ($file) {
+                return Str::endsWith($file->getFilename(), '.zip'); // ✅ obtener el nombre del archivo
+            })
+            ->sortByDesc(function ($file) {
+                return $file->getMTime(); // ✅ equivalente a lastModified()
+            })
+            ->take(10)
+            ->map(function ($file) {
+                return [
+                    //'name' => $file->getFilename(),
+                    'name' => $file->getBasename('.zip'),
+                    'size' => $file->getSize(), // ✅ tamaño en bytes
+                    'date' => date('Y-m-d H:i:s', $file->getMTime()),
+                    //'url' => route('backup.descargar', ['filename' => $file->getFilename()]),
+                    'url' => route('backup.descargar', ['filename' => $file->getBasename('.zip')]),
+
+                ];
+            });
+
 
         return view('mantenimiento.backup', compact('backupFiles'));
     }
@@ -52,9 +75,10 @@ class BackupController extends Controller
 
         $timestamp = date('Y-m-d_H-i-s');
         $sqlFilename = "backup-{$timestamp}.sql";
-        $zipFilename = "backup-{$timestamp}.zip";
+        $zipFilename = "backup-{$timestamp}.zip";//gz para usar el otro metodo
 
-        $backupPath = storage_path("app/backups");
+        //$backupPath = storage_path("app/backups");
+        $backupPath = public_path('backups');
         $sqlFilePath = "{$backupPath}/{$sqlFilename}";
         $zipFilePath = "{$backupPath}/{$zipFilename}";
 
@@ -94,7 +118,6 @@ class BackupController extends Controller
 
 
 
-
         // Crear ZIP
         $zip = new ZipArchive;
         if ($zip->open($zipFilePath, ZipArchive::CREATE) === TRUE) {
@@ -105,6 +128,23 @@ class BackupController extends Controller
             //return response()->json(['message' => 'Error al crear el archivo ZIP'], 500);
             return redirect()->back()->with('error', 'Error al crear el archivo ZIP: ');
         }
+/*
+// Abrir archivo de entrada (lectura)
+$in = fopen($sqlFilePath, 'rb');
+// Abrir archivo de salida (escritura gzip)
+$out = gzopen($zipFilePath, 'wb9'); // Nivel de compresión: 9 (máximo)
+if (!$in || !$out) {
+    die("No se pudo abrir uno de los archivos.");
+}
+// Leer y escribir en bloques para evitar uso excesivo de memoria
+while (!feof($in)) {
+    $buffer = fread($in, 1024 * 512); // Leer 512 KB por bloque
+    gzwrite($out, $buffer);
+}
+// Cerrar ambos archivos
+fclose($in);
+gzclose($out);
+*/
 
         // Eliminar el archivo .sql temporal
         unlink($sqlFilePath);
