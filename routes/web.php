@@ -99,6 +99,10 @@ Route::post('/mesapartes/consultaintervalodetalle', [MesaController::class, 'con
 Route::get('/mesapartes/consultafiltros', [MesaController::class, 'consultarFiltros'])->name('mesapartes.consultafiltros');
 Route::post('/mesapartes/consultafiltrosdetalle', [MesaController::class, 'consultarFiltrosdetalle'])->name('mesapartes.consultafiltrosdetalle');
 
+Route::get('/mesapartes/estadisticas', [MesaController::class, 'estadisticas'])->name('mesapartes.estadisticas');
+Route::get('/mesapartes/estadisticasdetalle', [MesaController::class, 'estadisticasdetalle'])->name('mesapartes.estadisticasdetalle');
+
+
 
 //Route::get('/mesapartes/{anolibro}/{numero}/edit', [MesaController::class, 'edit'])->name('mesapartes.edit');
 //Route::put('/mesapartes/{anolibro}/{numero}', [MesaController::class, 'update'])->name('mesapartes.update');

@@ -274,7 +274,7 @@
     @php
         $menumesapartes = in_array($perfil, ['Admin','mesapartes','MesaPartesAdmin']);
         $menuActivo = request()->is('mesapartes', 'mesapartes/upload', 'mesapartes/comprimeescritospdf');
-        $submenuActivo = request()->is('mesapartes/consultaintervalofechas', 'mesapartes/consultafiscal', 'mesapartes/consultafiltros');
+        $submenuActivo = request()->is('mesapartes/consultaintervalofechas', 'mesapartes/consultafiscal', 'mesapartes/consultafiltros', 'mesapartes/estadisticas');
     @endphp
     @if ($menumesapartes)
               <li class="nav-item {{ ($menuActivo || $submenuActivo) ? 'active submenu' : '' }}">
@@ -314,6 +314,11 @@
                           <li class="{{ request()->is('mesapartes/consultafiltros') ? 'active' : '' }}">
                             <a href="{{ route('mesapartes.consultafiltros') }}">
                               <span class="sub-item">Por C&oacute;digo / Descripci&oacute;n / Remitente</span>
+                            </a>
+                          </li>
+                          <li class="{{ request()->is('mesapartes/estadisticas') ? 'active' : '' }}">
+                            <a href="{{ route('mesapartes.estadisticas') }}">
+                              <span class="sub-item">Estad&iacute;sticas</span>
                             </a>
                           </li>
 

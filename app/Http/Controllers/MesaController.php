@@ -13,6 +13,7 @@ use App\Services\BarcodeGenerator;
 use Smalot\PdfParser\Parser;
 use DateTime; 
 use Illuminate\Support\Facades\File;
+use Carbon\Carbon;
 
 class MesaController extends Controller
 {
@@ -483,6 +484,226 @@ class MesaController extends Controller
 
         return view('mesapartes.consultafiltros',compact('segdetalle', 'codigo', 'descripcion', 'remitente', 'dependenciapolicial'));
 
+    }
+
+    public function estadisticas()
+    {
+        $dependencias = DB::table('libroescritos')
+            ->join('dependencia', 'libroescritos.id_dependencia', '=', 'dependencia.id_dependencia')
+            ->select('dependencia.id_dependencia', 'dependencia.descripcion', 'dependencia.abreviado')
+            ->distinct()
+            ->orderBy('dependencia.descripcion')
+            ->get();
+        $fiscales = DB::table('libroescritos')
+            ->join('personal', 'libroescritos.id_fiscal', '=', 'personal.id_personal')
+            ->select('libroescritos.id_fiscal', 'personal.apellido_paterno', 'personal.apellido_materno', 'personal.nombres')
+            ->distinct()
+            ->orderBy('apellido_paterno')
+            ->orderBy('apellido_materno')
+            ->orderBy('nombres')
+            ->get();
+        $operadores = DB::table('libroescritos')
+            ->join('personal', 'libroescritos.id_personal', '=', 'personal.id_personal')
+            ->select('libroescritos.id_personal', 'personal.apellido_paterno', 'personal.apellido_materno', 'personal.nombres')
+            ->orderBy('apellido_paterno')
+            ->orderBy('apellido_materno')
+            ->orderBy('nombres')
+            ->distinct()
+            ->get();            
+        return view('mesapartes.estadisticas',compact('dependencias','fiscales','operadores'));
+    }
+    public function estadisticasdetalle(Request $request)
+    {
+        $request->validate([
+            'fechainicio' => 'required|date',
+            'fechafin' => 'required|date|after_or_equal:fechainicio',
+        ]);
+
+        // Convertimos a objetos Carbon
+        $fechainicio = Carbon::parse($request->fechainicio)->startOfDay();
+        $fechafin = Carbon::parse($request->fechafin)->endOfDay();
+        $tipo = $request->tipo;
+        $datoadd = $request->datoadd;
+        
+        // Generar un array con todas las fechas del rango
+        $periodo = [];
+        $personales = [];
+        $conteos = [];        
+        for ($date = $fechainicio->copy(); $date->lte($fechafin); $date->addDay()) {
+            $periodo[] = $date->format('Y-m-d');
+        }
+        $colores = [
+            '#3498db', // azul
+            '#e74c3c', // rojo
+            '#2ecc71', // verde
+            '#f1c40f', // amarillo
+            '#9b59b6', // púrpura
+            'rgba(180, 47, 47, 1)', // 
+            '#e67e22', // naranja
+            '#34495e', // gris oscuro
+            '#95a5a6', // gris claro
+            '#d35400', // naranja oscuro
+        ];        
+
+        if ($tipo=="1") {//por dependencias
+            $datos = DB::table('libroescritos')
+                ->join('dependencia', 'libroescritos.id_dependencia', '=', 'dependencia.id_dependencia')
+                ->selectRaw('DATE(fecharegistro) as fecha, libroescritos.id_dependencia, abreviado, COUNT(*) as total')
+                ->whereBetween('fecharegistro', [$fechainicio, $fechafin])
+                ->where('libroescritos.id_dependencia',$datoadd)
+                ->groupBy('fecha', 'libroescritos.id_dependencia', 'abreviado')
+                ->orderBy('fecha')
+                ->get();
+
+            // Reorganizamos los datos
+            foreach ($datos as $row) {
+                $fecha = $row->fecha;
+                $nompersonal = $row->abreviado;
+                // Guardamos los ids de personal
+                if (!in_array($nompersonal, $personales)) {
+                    $personales[] = $nompersonal;
+                }
+                // Inicializamos si no existe
+                if (!isset($conteos[$nompersonal])) {
+                    $conteos[$nompersonal] = array_fill_keys($periodo, 0);
+                }
+                $conteos[$nompersonal][$fecha] = $row->total;
+            }   
+        }
+        if ($tipo=="2") {//por fiscal
+            $datos = DB::table('libroescritos')
+                ->join('personal', 'libroescritos.id_fiscal', '=', 'personal.id_personal')
+                ->selectRaw('DATE(fecharegistro) as fecha, libroescritos.id_fiscal, apellido_paterno, apellido_materno, nombres, COUNT(*) as total')
+                ->whereBetween('fecharegistro', [$fechainicio, $fechafin])
+                ->where('id_fiscal',$datoadd)
+                ->groupBy('fecha', 'libroescritos.id_fiscal', 'apellido_paterno','apellido_materno','nombres')
+                ->orderBy('fecha')
+                ->get();
+
+            // Reorganizamos los datos
+            foreach ($datos as $row) {
+                $fecha = $row->fecha;
+                $nompersonal = $row->apellido_paterno ." ". $row->apellido_materno ." ". $row->nombres;
+                // Guardamos los ids de personal
+                if (!in_array($nompersonal, $personales)) {
+                    $personales[] = $nompersonal;
+                }
+                // Inicializamos si no existe
+                if (!isset($conteos[$nompersonal])) {
+                    $conteos[$nompersonal] = array_fill_keys($periodo, 0);
+                }
+                $conteos[$nompersonal][$fecha] = $row->total;
+            }   
+        }
+        if ($tipo=="3") {//por tipo de documento
+            $datos = DB::table('libroescritos')
+                ->selectRaw('DATE(fecharegistro) as fecha, libroescritos.tipo, COUNT(*) as total')
+                ->whereBetween('fecharegistro', [$fechainicio, $fechafin])
+                ->groupBy('fecha', 'libroescritos.tipo')
+                ->orderBy('fecha')
+                ->get();
+
+            $datotipo = [
+            'E' => 'Escrito',
+            'O' => 'Oficio',
+            'S' => 'Solicitud',
+            'C' => 'Carta',
+            'I' => 'Invitación',
+            'F' => 'Informe',
+            'Z' => 'OTROS',
+            '' => 'X',
+            ]; 
+
+
+            // Reorganizamos los datos
+            foreach ($datos as $row) {
+                $fecha = $row->fecha;
+                $nompersonal = $datotipo[$row->tipo];
+                // Guardamos los ids de personal
+                if (!in_array($nompersonal, $personales)) {
+                    $personales[] = $nompersonal;
+                }
+                // Inicializamos si no existe
+                if (!isset($conteos[$nompersonal])) {
+                    $conteos[$nompersonal] = array_fill_keys($periodo, 0);
+                }
+                $conteos[$nompersonal][$fecha] = $row->total;
+            }   
+        }
+        if ($tipo=="4") {//por Operador
+            $datos = DB::table('libroescritos')
+                ->join('personal', 'libroescritos.id_personal', '=', 'personal.id_personal')
+                ->selectRaw('DATE(fecharegistro) as fecha, libroescritos.id_personal, apellido_paterno, apellido_materno, nombres, COUNT(*) as total')
+                ->whereBetween('fecharegistro', [$fechainicio, $fechafin])
+                ->where('libroescritos.id_personal',$datoadd)
+                ->groupBy('fecha', 'libroescritos.id_personal', 'apellido_paterno','apellido_materno','nombres')
+                ->orderBy('fecha')
+                ->get();
+
+            // Reorganizamos los datos
+            foreach ($datos as $row) {
+                $fecha = $row->fecha;
+                $nompersonal = $row->apellido_paterno ." ". $row->apellido_materno ." ". $row->nombres;
+                // Guardamos los ids de personal
+                if (!in_array($nompersonal, $personales)) {
+                    $personales[] = $nompersonal;
+                }
+                // Inicializamos si no existe
+                if (!isset($conteos[$nompersonal])) {
+                    $conteos[$nompersonal] = array_fill_keys($periodo, 0);
+                }
+                $conteos[$nompersonal][$fecha] = $row->total;
+            }   
+        }
+
+/*
+        $datos = DB::table('carpetas_sgf')
+            ->join('personal', 'carpetas_sgf.id_personal', '=', 'personal.id_personal')
+            ->selectRaw('DATE(fechahora_registro) as fecha, carpetas_sgf.id_personal, apellido_paterno, apellido_materno, nombres, COUNT(*) as total')
+            ->whereBetween('fechahora_registro', [$fechainicio, $fechafin])
+            ->groupBy('fecha', 'carpetas_sgf.id_personal', 'apellido_paterno','apellido_materno','nombres')
+            ->orderBy('fecha')
+            ->get();
+
+        // Reorganizamos los datos
+        foreach ($datos as $row) {
+            $fecha = $row->fecha;
+            $personal = $row->id_personal;
+            $nompersonal = $row->apellido_paterno ." ". $row->apellido_materno ." ". $row->nombres;
+            // Guardamos los ids de personal
+            if (!in_array($nompersonal, $personales)) {
+                $personales[] = $nompersonal;
+            }
+            // Inicializamos si no existe
+            if (!isset($conteos[$nompersonal])) {
+                $conteos[$nompersonal] = array_fill_keys($periodo, 0);
+            }
+            $conteos[$nompersonal][$fecha] = $row->total;
+        }   
+*/        
+        
+
+
+        // Finalmente construimos el array para Chart.js
+        $datasets = [];
+        $colorIndex = 0;
+        foreach ($personales as $personal) {
+            $color = $colores[$colorIndex % count($colores)];
+            $datasets[] = [
+                'label' => "$personal",
+                'data' => array_values($conteos[$personal]),
+                'backgroundColor' => $color, // 👈 Aquí se aplica el color
+                'borderColor' => $color,
+                'borderWidth' => 1
+            ];
+            $colorIndex++;
+        }
+
+        // Retornar para el gr�fico (por ejemplo en formato JSON)
+        return response()->json([
+            'labels' => $periodo,
+            'datasets' => $datasets,
+        ]);
     }
 
 
