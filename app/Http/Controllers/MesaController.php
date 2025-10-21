@@ -205,13 +205,35 @@ class MesaController extends Controller
         ->where('id_personal', $id_fiscal)
         ->first();
 
-        $query = DB::table('libroescritos')
+        $segdetalle = DB::table('libroescritos')
             ->select('*')
             ->where('libroescritos.id_fiscal', $id_fiscal)
-            ->whereDate('fecharegistro', '=', $fechareg);        
-        $segdetalle = $query
+            ->whereDate('fecharegistro', '=', $fechareg)
             ->orderBy('fecharegistro', 'desc')
             ->get();
+
+
+        if ($segdetalle->isEmpty()) {
+            $html = '<h1 style="text-align:center; color:red;">NO HAY DATOS REGISTRADOS PARA EL FISCAL Y FECHA SELECCIONADA</h1>';
+            $mpdf = new Mpdf([
+                'mode' => 'c',
+                'format' => 'A4-P',
+                'default_font_size' => 10,
+                'default_font' => 'Arial',
+                'margin_left' => 10,
+                'margin_right' => 10,
+                'margin_top' => 5,
+                'margin_bottom' => 3,
+                'margin_header' => 1,
+                'margin_footer' => 1
+            ]);        
+            $mpdf->WriteHTML($html);
+
+            $pdfContent = $mpdf->Output('', 'S'); // 'S' = devuelve el contenido como string
+            return response($pdfContent, 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="escritos_'.$id_fiscal.'.pdf"');
+        }
 
         $primerRegistro = $segdetalle->first(); // obtiene el primer registro de la colección
         $id_dependencia = $primerRegistro ? $primerRegistro->id_dependencia : null;

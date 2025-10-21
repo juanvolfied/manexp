@@ -144,6 +144,15 @@ function generapdf(event) {
         alert("SELECCIONE FISCAL Y FECHA.");
         return;
     }
+
+    const tabla = document.getElementById('scanned-list');
+    const filas = tabla.querySelectorAll('tbody tr');
+    if (filas.length > 0) {
+    } else {
+            alert("NO HAY ESCRITOS REGISTRADOS CON EL FISCAL O EN LA FECHA SELECCIONADA");
+            return;
+    }
+
     const basePdfUrl = @json(route('escritosfiscal.pdf', ['fiscal' => '__FISCAL__', 'fecha' => '__FECHA__']));
     const url = basePdfUrl
         .replace('__FISCAL__', encodeURIComponent(fiscal))
