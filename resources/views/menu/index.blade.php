@@ -325,7 +325,14 @@
                         </ul>
                       </div>
                     </li>
-<!--
+
+                    <li class="{{ request()->is('mesapartes/creacarpetasf') ? 'active' : '' }}" >
+                      <a href="{{ route('mesapartes.registrocarpetasf') }}">
+                        <span class="sub-item">Creaci&oacute;n Carpetas Fiscales</span>
+                      </a>
+                    </li>
+
+                    <!--
                     <li>
                       <a href="{{ route('mesapartes.consultaintervalo') }}">
                         <span class="sub-item">Consulta de escritos por intervalo de fechas</span>

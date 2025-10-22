@@ -1285,4 +1285,116 @@ function isValidPdf(string $path): bool
         ]);        
     }
 
+
+
+
+
+    public function nuevoCarpetasf()
+    {
+        $dependencias = DB::table('dependencia')
+        ->orderBy('descripcion', 'asc') 
+        ->get();
+        return view('mesapartes.registrocarpetasf', compact('dependencias'));
+    }
+    public function buscaCarpetasf(Request $request)
+    {
+        $carpetasf = DB::table('mesacarpetasf')
+        ->where('fecha', $request->input('fech'))
+        ->where('id_dependencia', $request->input('depe'))
+        ->where('despacho', $request->input('desp'))
+        ->where('motivo', $request->input('moti'))
+        ->orderBy('carpetafiscal', 'asc')
+        ->get();
+
+        return response()->json([
+            'success' => true,
+            'registros' => $carpetasf,
+        ]);
+    }
+    public function buscaCarpeta(Request $request)
+    {
+        $carpetasf = DB::table('mesacarpetasf')
+        ->where('carpetafiscal', $request->input('codbarras'))
+        ->first();
+        if (!$carpetasf) {
+            return response()->json([
+                'success' => true,
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => "LA CARPETA YA FUE REGISTRADA",
+            ]);
+        }
+    }
+    public function grabaCarpeta(Request $request)
+    {
+        DB::table('mesacarpetasf')->insert([
+            'fecha' => $request->input('fech'),
+            'id_dependencia' => $request->input('depe'),
+            'despacho' => $request->input('desp'),
+            'motivo' => $request->input('moti'),
+            'carpetafiscal' => $request->input('codi'),
+            'id_personal' => Auth::user()->id_personal,
+            //'id_usuario' => Auth::user()->id_usuario,
+        ]);        
+
+        $carpetasf = DB::table('mesacarpetasf')
+        ->where('fecha', $request->input('fech'))
+        ->where('id_dependencia', $request->input('depe'))
+        ->where('despacho', $request->input('desp'))
+        ->where('motivo', $request->input('moti'))
+        ->orderBy('carpetafiscal', 'asc')
+        ->get();
+
+
+
+        $fecha = $request->input('fech'); // Ejemplo: "2023-10-22"
+        $anio = date('Y', strtotime($fecha)); // Extrae el año: "2023"        
+        $carpetasfcod = DB::table('mesacarpetasf_codbarras')
+        ->where('fecha', $fecha)
+        ->where('id_dependencia', $request->input('depe'))
+        ->where('despacho', $request->input('desp'))
+        ->where('motivo', $request->input('moti'))
+        ->orderBy('numero', 'desc')
+        ->first();
+        if (!$carpetasfcod) {
+            $carpetasfcod = DB::table('mesacarpetasf_codbarras')
+            ->whereYear('fecha', $anio)
+            ->where('id_dependencia', $request->input('depe'))
+            ->where('despacho', $request->input('desp'))
+            ->where('motivo', $request->input('moti'))
+            ->orderBy('numero', 'desc')
+            ->first();
+            if (!$carpetasfcod) {
+                $nuevoNumero = 1;
+            } else {
+                $nuevoNumero = $carpetasfcod->numero + 1;
+            }
+            $desp = str_pad($request->input('desp'), 2, '0', STR_PAD_LEFT);
+            $nume = str_pad($nuevoNumero, 6, '0', STR_PAD_LEFT);
+
+            $codigo="MP" . substr($anio,2,2) . "1" . $desp . $nume;
+            DB::table('mesacarpetasf_codbarras')->insert([
+                'fecha' => $request->input('fech'),
+                'id_dependencia' => $request->input('depe'),
+                'despacho' => $request->input('desp'),
+                'motivo' => $request->input('moti'),
+                'numero' => $nuevoNumero,
+                'codigo' => $codigo,
+                //'id_personal' => Auth::user()->id_personal,
+                //'id_usuario' => Auth::user()->id_usuario,
+            ]);  
+        }
+        
+
+
+
+        return response()->json([
+            'success' => true,
+            'registros' => $carpetasf,
+            'message' => "LA CARPETA FUE REGISTRADA SATISFACTORIAMENTE",
+        ]);        
+    }
+    
 }

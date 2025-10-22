@@ -102,6 +102,10 @@ Route::post('/mesapartes/consultafiltrosdetalle', [MesaController::class, 'consu
 Route::get('/mesapartes/estadisticas', [MesaController::class, 'estadisticas'])->name('mesapartes.estadisticas');
 Route::get('/mesapartes/estadisticasdetalle', [MesaController::class, 'estadisticasdetalle'])->name('mesapartes.estadisticasdetalle');
 
+Route::get('/mesapartes/creacarpetasf', [MesaController::class, 'nuevoCarpetasf'])->name('mesapartes.registrocarpetasf');
+Route::post('/mesapartes/buscacarpetasf', [MesaController::class, 'buscaCarpetasf'])->name('mesapartes.buscacarpetasf');
+Route::post('/mesapartes/buscacarpeta', [MesaController::class, 'buscaCarpeta'])->name('mesapartes.buscacarpeta');
+Route::post('/mesapartes/grabacarpeta', [MesaController::class, 'grabaCarpeta'])->name('mesapartes.grabacarpeta');
 
 
 //Route::get('/mesapartes/{anolibro}/{numero}/edit', [MesaController::class, 'edit'])->name('mesapartes.edit');
