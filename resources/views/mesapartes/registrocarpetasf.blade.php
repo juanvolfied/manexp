@@ -86,8 +86,14 @@ function numeroAOrdinal($numero) {
                                 <label for="motivo" class="form-label"><b>MOTIVO: </b></label>
                                 <select name="motivo" id="motivo" class="form-select" >
                                     <option value="">-- Seleccione --</option>
-                                    <option value="C">Turno Corporativa</option>
-                                    <option value="D">Turno Despacho</option>
+                                    <option value="1">TURNO CORPORATIVA</option>
+                                    <option value="2">TURNO DESPACHO</option>
+                                    <option value="3">TURNO CERRO</option>
+                                    <option value="4">DERIVACIÓN</option>
+                                    <option value="5">DERIVACIÓN APOYO</option>
+                                    <option value="6">REASIGNACIÓN</option>
+                                    <option value="7">REASIGNACIÓN APOYO</option>
+                                    <option value="8">ACUMULACIÓN</option>
                                 </select>
                             </div>
                             <div class="col-md-2 d-flex align-items-end">
@@ -179,8 +185,16 @@ function numeroAOrdinal($numero) {
 
                     <div class="row" id="codigoverificar">
                       <div class="col-md-12 col-lg-12">
-                        <div class="form-group border p-3 rounded shadow-sm bg-light">        
-        <h5 class="text-primary">Carpetas registradas</h5>
+                        <div class="form-group border p-3 rounded shadow-sm bg-light">    
+                            <div class="row">
+                                <div class="col-md-6 col-lg-6">
+                                    <h5 class="text-primary">Carpetas registradas</h5>
+                                </div>
+                                <div class="col-md-6 col-lg-6 text-end">
+                                    <input type="hidden" id="codigocf" name="codigocf">
+                                    <button type="button" onclick="imprimirpdf()" class="btn  " style="background-color: #6c757d; color: white;" id="btnimprimir"><i class="fas fa-print me-1"></i> Imprimir</button>
+                                </div>
+                            </div>    
         <table id="tablacarpetassgf" class="table table-striped table-bordered" width=100%>
             <thead class="thead-dark">
                 <tr>
@@ -233,6 +247,24 @@ function numeroAOrdinal($numero) {
             
     </form>
 
+
+<!-- Modal -->
+<div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Visualizar PDF</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <iframe id="pdfFrame" src="" width="100%" height="600px" style="border: none;"></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
 @endsection
 
 <script>
@@ -267,7 +299,7 @@ window.onload = function() {
 
       "pageLength": 10,  // Número de filas por página
       "lengthMenu": [10, 25, 50, 100],  // Opciones de paginación
-      "searching": true,  // Habilitar búsqueda
+      "searching": false,  // Habilitar búsqueda
       "ordering": false,   // Habilitar ordenación
       "info": true,       // Mostrar información de la tabla
       "autoWidth": false,  // Ajustar automáticamente el ancho de las columnas
@@ -451,10 +483,19 @@ document.getElementById('codbarras').addEventListener('input', function () {
                     document.getElementById('datacabe').style.display = 'none';
                     document.getElementById('datadeta').style.display = 'block';
                 } 
+                document.getElementById('codigocf').value=response.codigo;
+
             },
-            error: function(xhr) {
-                //$('#mensaje-guardar').html('<div style="color: red;">Error inesperado</div>');
-                //console.error(xhr.responseText);
+            error: function(xhr, status, error) {
+                        if (xhr.status === 419) {
+                            // No autorizado - probablemente sesi�n expirada
+                            alert('TU SESION HA EXPIRADO. SERAS REDIRIGIDO AL LOGIN.');
+                            window.location.href = '{{ route("usuario.login") }}';
+                        } else {
+                            // Otro tipo de error
+                            console.error('Error en la petici�n:', xhr.status);
+                            alert('Hubo un error al grabar.');
+                        }
             }
         });
 
@@ -511,6 +552,8 @@ document.getElementById('codbarras').addEventListener('input', function () {
                     document.getElementById('btngrabar').style.display = 'none';
                     document.getElementById("codbarras").value = "";
                     document.getElementById('codbarras').focus();   
+
+                    document.getElementById('codigocf').value=response.codigo;
                     
                 } else {
                     document.getElementById('messageErr').innerHTML ="<b>"+ mensaje + "</b>";
@@ -525,14 +568,35 @@ document.getElementById('codbarras').addEventListener('input', function () {
                     }, 3000); 
                 }
             },
-            error: function(xhr) {
-                //$('#mensaje-guardar').html('<div style="color: red;">Error inesperado</div>');
-                //console.error(xhr.responseText);
+            error: function(xhr, status, error) {
+                        if (xhr.status === 419) {
+                            // No autorizado - probablemente sesi�n expirada
+                            alert('TU SESION HA EXPIRADO. SERAS REDIRIGIDO AL LOGIN.');
+                            window.location.href = '{{ route("usuario.login") }}';
+                        } else {
+                            // Otro tipo de error
+                            console.error('Error en la petici�n:', xhr.status);
+                            alert('Hubo un error al grabar.');
+                        }
             }
+
         });
 
     }
+    function imprimirpdf() {
+        const codigocf = document.getElementById('codigocf').value;
+        if (codigocf=="") {
+            alert("DATOS NO DISPONIBLES");
+            return;
+        }
+        const basePdfUrl = @json(route('mesapartes.imprimecarpetasf', ['codigocf' => '__CODIGO__']));
+        const url = basePdfUrl
+            .replace('__CODIGO__', encodeURIComponent(codigocf))
 
+        if (event) event.preventDefault(); // Previene recarga    
+        $('#pdfFrame').attr('src', url);
+        $('#pdfModal').modal('show');
+    }
 
 </script>
 

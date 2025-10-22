@@ -353,7 +353,7 @@ class MesaController extends Controller
         // Usa el servicio BarcodeGenerator
         $barcodeService = new BarcodeGenerator();
         //$barcodePng = $barcodeService->generate('',"*".$barcodeData."*", 20, 'horizontal', 'code128', true,2);
-        $barcodePng = $barcodeService->generate('',"*".$barcodeData."*", 20, 'vertical', 'code128', true,1);
+        $barcodePng = $barcodeService->generate('',$barcodeData, 20, 'vertical', 'code128', true,1);
 
         // Codifica en base64
         $barcode = base64_encode($barcodePng);
@@ -1292,6 +1292,8 @@ function isValidPdf(string $path): bool
     public function nuevoCarpetasf()
     {
         $dependencias = DB::table('dependencia')
+        ->whereNotNull('datodistrito')
+        ->whereRaw("TRIM(datodistrito) <> ''")
         ->orderBy('descripcion', 'asc') 
         ->get();
         return view('mesapartes.registrocarpetasf', compact('dependencias'));
@@ -1306,9 +1308,24 @@ function isValidPdf(string $path): bool
         ->orderBy('carpetafiscal', 'asc')
         ->get();
 
+        $fecha = $request->input('fech'); // Ejemplo: "2023-10-22"
+        $anio = date('Y', strtotime($fecha)); // Extrae el año: "2023"          
+        $carpetasfcod = DB::table('mesacarpetasf_codbarras')
+        ->whereYear('fecha', $anio)
+        ->where('id_dependencia', $request->input('depe'))
+        ->where('despacho', $request->input('desp'))
+        ->where('motivo', $request->input('moti'))
+        ->first();
+        if (!$carpetasfcod) {
+            $codigo = "";
+        } else {
+            $codigo = $carpetasfcod->codigo;
+        }
+
         return response()->json([
             'success' => true,
             'registros' => $carpetasf,
+            'codigo' => $codigo,
         ]);
     }
     public function buscaCarpeta(Request $request)
@@ -1356,14 +1373,17 @@ function isValidPdf(string $path): bool
         ->where('id_dependencia', $request->input('depe'))
         ->where('despacho', $request->input('desp'))
         ->where('motivo', $request->input('moti'))
-        ->orderBy('numero', 'desc')
         ->first();
         if (!$carpetasfcod) {
+            $ladepe = DB::table('dependencia')
+            ->where('id_dependencia', $request->input('depe'))
+            ->first();
+            $datodist=$ladepe->datodistrito;
+                        
             $carpetasfcod = DB::table('mesacarpetasf_codbarras')
             ->whereYear('fecha', $anio)
             ->where('id_dependencia', $request->input('depe'))
             ->where('despacho', $request->input('desp'))
-            ->where('motivo', $request->input('moti'))
             ->orderBy('numero', 'desc')
             ->first();
             if (!$carpetasfcod) {
@@ -1371,10 +1391,14 @@ function isValidPdf(string $path): bool
             } else {
                 $nuevoNumero = $carpetasfcod->numero + 1;
             }
-            $desp = str_pad($request->input('desp'), 2, '0', STR_PAD_LEFT);
+            if ($request->input('desp')==0 || $request->input('desp')=="0") {
+                $desp = "UU";
+            } else {
+                $desp = str_pad($request->input('desp'), 2, '0', STR_PAD_LEFT);
+            }
             $nume = str_pad($nuevoNumero, 6, '0', STR_PAD_LEFT);
 
-            $codigo="MP" . substr($anio,2,2) . "1" . $desp . $nume;
+            $codigo="DF" . substr($anio,2,2) . $datodist . $desp . $nume;
             DB::table('mesacarpetasf_codbarras')->insert([
                 'fecha' => $request->input('fech'),
                 'id_dependencia' => $request->input('depe'),
@@ -1385,16 +1409,166 @@ function isValidPdf(string $path): bool
                 //'id_personal' => Auth::user()->id_personal,
                 //'id_usuario' => Auth::user()->id_usuario,
             ]);  
+        } else {
+            $codigo = $carpetasfcod->codigo;
         }
+
         
-
-
 
         return response()->json([
             'success' => true,
             'registros' => $carpetasf,
+            'codigo' => $codigo,
             'message' => "LA CARPETA FUE REGISTRADA SATISFACTORIAMENTE",
         ]);        
     }
-    
+    public function imprimirCarpetasf($codigogenerar)
+    {
+        $carpetasfcod = DB::table('mesacarpetasf_codbarras')
+        ->where('codigo', $codigogenerar)
+        ->first();
+        $fech=$carpetasfcod->fecha;
+        $depe=$carpetasfcod->id_dependencia;
+        $desp=$carpetasfcod->despacho;
+        $moti=$carpetasfcod->motivo;
+
+        $carpetasf = DB::table('mesacarpetasf')
+        ->where('fecha', $fech)
+        ->where('id_dependencia', $depe)
+        ->where('despacho', $desp)
+        ->where('motivo', $moti)
+        ->orderBy('carpetafiscal', 'asc')
+        ->get();
+        $descmoti="";
+        if ($moti==1) {$descmoti="TURNO CORPORATIVA";}
+        if ($moti==2) {$descmoti="TURNO DESPACHO";}
+        if ($moti==3) {$descmoti="TURNO CERRO";}
+        if ($moti==4) {$descmoti="DERIVACIÓN";}
+        if ($moti==5) {$descmoti="DERIVACIÓN APOYO";}
+        if ($moti==6) {$descmoti="REASIGNACIÓN";}
+        if ($moti==7) {$descmoti="REASIGNACIÓN APOYO";}
+        if ($moti==8) {$descmoti="ACUMULACIÓN";}
+
+        $ladepe = DB::table('dependencia')
+        ->where('id_dependencia', $depe)
+        ->first();
+        $descdepe=$ladepe->descripcion;
+
+        
+        $tablahtml = '
+        <table><tr><td style="padding: 0px 5px; font-size: 11px ;"><b>FECHA: </b>'. $fech .'</td><td style="padding: 0px 5px; font-size: 11px ;"><b>DEPENDENCIA: </b>'. $descdepe .'</td></tr>
+        <tr><td style="padding: 0px 5px; font-size: 11px ;"><b>DESPACHO: </b>'. $desp .'</td><td style="padding: 0px 5px; font-size: 11px ;"><b>MOTIVO: </b>'. $descmoti .'</td></tr></table>
+        <table width=100% border=1 class="zebra">
+            <thead class="thead-dark">
+                <tr>
+                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;">Nro Carpeta Fiscal</th>
+                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;">C&oacute;digo</th>
+                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;">A&ntilde;o</th>
+                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;">N&uacute;mero</th>
+                </tr>
+            </thead>
+            <tbody style="font-size:11px;">';
+        foreach ($carpetasf as $carpeta) {
+            $tablahtml .= '
+            <tr>
+            <td style="padding: 5px 5px; font-size:11px ; text-transform:none;">'. $carpeta->carpetafiscal .'</td>
+            <td style="padding: 5px 5px; font-size:11px ; text-transform:none;">'. substr($carpeta->carpetafiscal,8,3) .'</td>
+            <td style="padding: 5px 5px; font-size:11px ; text-transform:none;">'. substr($carpeta->carpetafiscal,11,4) .'</td>
+            <td style="padding: 5px 5px; font-size:11px ; text-transform:none;">'. intval(substr($carpeta->carpetafiscal,15,6)) .'</td>
+            </tr>
+            ';
+        }
+
+        $tablahtml .= '
+            </tbody>
+        </table>
+        
+  <style>        
+table.zebra {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+table.zebra th,
+table.zebra td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+
+table.zebra tbody tr:nth-child(odd) {
+  background-color: #f9f9f9;
+}
+
+table.zebra thead {
+  background-color: #343a40;
+  color: white;
+}
+  </style>        
+        ';
+
+
+
+        //$barcodeData = str_pad($nro_mov, 5, '0', STR_PAD_LEFT) ."-".$ano_mov."-". ( $tipo_mov == 'GI' ? 'I' : $tipo_mov );
+        $barcodeData = $codigogenerar;
+
+        // Usa el servicio BarcodeGenerator
+        $barcodeService = new BarcodeGenerator();
+        //$barcodePng = $barcodeService->generate('',"*".$barcodeData."*", 20, 'horizontal', 'code128', true,2);
+        $barcodePng = $barcodeService->generate('',$barcodeData, 20, 'horizontal', 'code128', true,1);
+
+        // Codifica en base64
+        $barcode = base64_encode($barcodePng);
+        //$html = view('expediente_movs.pdfguiainternamiento', compact('regcab','regdet','barcode'))->render(); // Vista Blade
+
+        //$html = view('mesapartes.pdfcodigobarras', compact('barcode'))->render(); // Vista Blade
+        $html = "        
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>PDF Codigo de Brras</title>
+            <style>
+                body { font-family: sans-serif; }
+                h1 { color: navy; }
+            </style>
+        <style>
+            @page {
+                margin-left: 20mm;
+            }
+        </style>    
+        </head>
+        <body>
+        <div style='position: absolute; top:  20px; right: 20px;'>
+            <img src='data:image/png;base64,{{ $barcode }}' alt='Código de barras' style='width: 200px; height: 50px;'>
+        </div>
+        <br><br>
+        <h3 style='text-align: center;'>REGISTRO DE CARPETAS FISCALES</h3>";
+        $html .= $tablahtml ;
+        $html .= "</body>
+        </html>";
+
+
+        $mpdf = new Mpdf([
+            'mode' => 'c',
+            'format' => 'A4-P',
+            'default_font_size' => 10,
+            'default_font' => 'Arial',
+            'margin_left' => 5,
+            'margin_right' => 10,
+            'margin_top' => 3,
+            'margin_bottom' => 3,
+            'margin_header' => 1,
+            'margin_footer' => 1
+        ]);        
+        $mpdf->WriteHTML($html);
+
+        $pdfContent = $mpdf->Output('', 'S'); // 'S' = devuelve el contenido como string
+        return response($pdfContent, 200)
+        ->header('Content-Type', 'application/pdf')
+        ->header('Content-Disposition', 'inline; filename="pdfcodbar'. (Auth::user()->id_personal) .'.pdf"');
+
+    }
+
+
 }
