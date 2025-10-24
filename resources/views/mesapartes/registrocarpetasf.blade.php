@@ -64,36 +64,16 @@ function numeroAOrdinal($numero) {
                         </div>
                         <div class="row mb-2">
                             <div class="col-md-3">
-                                <label for="despacho" class="form-label"><b>Despacho: </b></label>
-                                <select name="despacho" id="despacho" class="form-select" >
+                                <label for="ingresopor" class="form-label"><b>Ingreso por: </b></label>
+                                <select name="ingresopor" id="ingresopor" class="form-select" onchange="cambiaenviadoa(this.value)">
                                     <option value="">-- Seleccione --</option>
-                                    <option value="0">DESPACHO</option>
-                                    <option value="1">1er. DESPACHO</option>
-                                    <option value="2">2do. DESPACHO</option>
-                                    <option value="3">3er. DESPACHO</option>
-                                    <option value="4">4to. DESPACHO</option>
-                                    <option value="5">5to. DESPACHO</option>
-                                    <option value="6">6to. DESPACHO</option>
-                                    <option value="7">7mo. DESPACHO</option>
-                                    <option value="8">8vo. DESPACHO</option>
-                                    <option value="9">9no. DESPACHO</option>
-                                    <option value="10">10mo. DESPACHO</option>
-                                    <option value="11">11er. DESPACHO</option>
-                                    <option value="12">12do. DESPACHO</option>
+                                    <option value="1">TURNO CORPORATIVA</option>
+                                    <option value="2">TURNO CERRO</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <label for="motivo" class="form-label"><b>MOTIVO: </b></label>
-                                <select name="motivo" id="motivo" class="form-select" >
-                                    <option value="">-- Seleccione --</option>
-                                    <option value="1">TURNO CORPORATIVA</option>
-                                    <option value="2">TURNO DESPACHO</option>
-                                    <option value="3">TURNO CERRO</option>
-                                    <option value="4">DERIVACIÓN</option>
-                                    <option value="5">DERIVACIÓN APOYO</option>
-                                    <option value="6">REASIGNACIÓN</option>
-                                    <option value="7">REASIGNACIÓN APOYO</option>
-                                    <option value="8">ACUMULACIÓN</option>
+                                <label for="enviadoa" class="form-label"><b>Enviado a: </b></label>
+                                <select name="enviadoa" id="enviadoa" class="form-select" onchange="displaymotivo(this.value)">
                                 </select>
                             </div>
                             <div class="col-md-2 d-flex align-items-end">
@@ -132,12 +112,15 @@ function numeroAOrdinal($numero) {
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-3 col-lg-3">
-                                    <b>Despacho:</b> <span id="datadespacho">12</span> 
+                                <div class="col-md-4 col-lg-4">
+                                    <b>Ingreso por:</b> <span id="dataingresopor">Turno Corporativa</span> 
                                 </div>
-                                <div class="col-md-9 col-lg-9">
-                                    <b>Motivo:</b> <span id="datamotivo">Turno Corporativa</span> 
+                                <div class="col-md-4 col-lg-4">
+                                    <b>Enviado a:</b> <span id="dataenviadoa">Despacho X</span> 
                                 </div>
+                                <!--<div class="col-md-4 col-lg-4" id="divmotivo">
+                                    <b>Motivo:</b> <span id="datamotivo">Derivación/etc</span> 
+                                </div>-->
                             </div>
                         </div>
                         </div>
@@ -168,6 +151,17 @@ function numeroAOrdinal($numero) {
                         @error('codbarras') <div class="text-danger"><b>{{ $message }}</b></div> @enderror
 
                       </div>
+                            <div class="col-md-3">
+                                <label id="lblmotivo" for="motivo" class="form-label" style="display:none;"><b>MOTIVO: </b></label>
+                                <select name="motivo" id="motivo" class="form-select" style="display:none;">
+                                    <option value="">-- Seleccione --</option>
+                                    <option value="1">DERIVACIÓN</option>
+                                    <option value="2">ACUMULACIÓN</option>
+                                    <option value="3">VIRTUAL</option>
+                                    <option value="4">NUEVA</option>
+                                    <option value="5">REASIGNACIÓN</option>
+                                </select>
+                            </div>
                       <div class="col-md-5 col-lg-5">
                         <div class="btns-container" style="display: flex; gap: 10px; align-items: center;">
 
@@ -198,7 +192,9 @@ function numeroAOrdinal($numero) {
         <table id="tablacarpetassgf" class="table table-striped table-bordered" width=100%>
             <thead class="thead-dark">
                 <tr>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">#</th>
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Nro Carpeta Fiscal</th>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Motivo</th>
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">C&oacute;digo</th>
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">A&ntilde;o</th>
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">N&uacute;mero</th>
@@ -288,6 +284,51 @@ window.onload = function() {
         }, 3000); 
     }
 };
+
+
+function cambiaenviadoa(valor) {
+    document.getElementById("lblmotivo").style.display = 'none';
+    document.getElementById("motivo").style.display = 'none';
+    const select = document.getElementById("enviadoa");
+    select.innerHTML = ``;
+    if (valor=="1") {
+        select.innerHTML = `
+            <option value="">-- Seleccione --</option>
+            <option value="01">1er. Despacho</option>
+            <option value="02">2do. Despacho</option>
+            <option value="03">3er. Despacho</option>
+            <option value="04">4to. Despacho</option>
+            <option value="05">5to. Despacho</option>
+            <option value="06">6to. Despacho</option>
+            <option value="07">7mo. Despacho</option>
+            <option value="08">8vo. Despacho</option>
+            <option value="09">9no. Despacho</option>
+            <option value="10">10mo. Despacho</option>
+            <option value="11">11er. Despacho</option>
+            <option value="12">12do. Despacho</option>
+            <option value="C1">Coordinación 1ra</option>
+            <option value="C2">Coordinación 2da</option>
+            <option value="C3">Coordinación 3ra</option>
+        `;
+    }
+    if (valor=="2") {
+        select.innerHTML = `
+            <option value="">-- Seleccione --</option>
+            <option value="C1">Coordinación 1ra</option>
+            <option value="C2">Coordinación 2da</option>
+            <option value="C3">Coordinación 3ra</option>
+        `;
+    }
+
+}
+function displaymotivo(valor) {
+    document.getElementById("lblmotivo").style.display = 'none';
+    document.getElementById("motivo").style.display = 'none';
+    if (valor=="C1" || valor=="C2" || valor=="C3") {
+        document.getElementById("lblmotivo").style.display = 'block';
+        document.getElementById("motivo").style.display = 'block';
+    }
+}
 </script>
 
 
@@ -329,6 +370,7 @@ window.onload = function() {
 //  });
 </script>
 <script>
+let motivos = ["","DERIVACIÓN", "ACUMULACIÓN", "VIRTUAL", "NUEVA", "REASIGNACIÓN"];
 
 var element = document.getElementById('codbarras');
 var maskOptions = {
@@ -421,8 +463,9 @@ document.getElementById('codbarras').addEventListener('input', function () {
 
         let fech = document.getElementById("fecha").value;
         let depe = document.getElementById("dependencia").value;
-        let desp = document.getElementById("despacho").value;
-        let moti = document.getElementById("motivo").value;
+
+        let ingp = document.getElementById("ingresopor").value;
+        let enva = document.getElementById("enviadoa").value;
         
         if (fech==""){
             alert("Ingrese la Fecha");
@@ -432,27 +475,26 @@ document.getElementById('codbarras').addEventListener('input', function () {
             alert("Seleccione la dependencia");
             return false;
         }
-        if (desp==""){
-            alert("Seleccione el despacho");
+        if (ingp==""){
+            alert("Seleccione el tipo de ingreso");
             return false;
         }
-        if (moti==""){
-            alert("Seleccione el motivo");
+        if (enva==""){
+            alert("Seleccione una opción enviado a");
             return false;
         }
 
         let xdepe = document.getElementById("dependencia");
         let descdepe = xdepe.options[xdepe.selectedIndex].text;
-        let xdesp = document.getElementById("despacho");
-        let descdesp = xdesp.options[xdesp.selectedIndex].text;        
-        let xmoti = document.getElementById("motivo");
-        let descmoti = xmoti.options[xmoti.selectedIndex].text;        
+        let xingp = document.getElementById("ingresopor");
+        let descingp = xingp.options[xingp.selectedIndex].text;        
+        let xenva = document.getElementById("enviadoa");
+        let descenva = xenva.options[xenva.selectedIndex].text;             
 
         document.getElementById('datafecha').innerHTML=fech;
         document.getElementById('datadependencia').innerHTML=descdepe;
-        document.getElementById('datadespacho').innerHTML=descdesp;
-        document.getElementById('datamotivo').innerHTML=descmoti;
-
+        document.getElementById('dataingresopor').innerHTML=descingp;
+        document.getElementById('dataenviadoa').innerHTML=descenva;
 
         $.ajax({
             url: '{{ route("mesapartes.buscacarpetasf") }}', 
@@ -461,8 +503,8 @@ document.getElementById('codbarras').addEventListener('input', function () {
                 _token: '{{ csrf_token() }}',
                 fech: fech,
                 depe: depe,
-                desp: desp,
-                moti: moti
+                ingp: ingp,
+                enva: enva,
             },
             success: function(response) {
                 let mensaje = response.message || 'Respuesta sin mensaje';
@@ -470,18 +512,24 @@ document.getElementById('codbarras').addEventListener('input', function () {
                     var registros = response.registros;
 
                     tabla.clear(); // Limpiar antes de agregar
+                    let contador = 1; // Inicializamos el contador
                     registros.forEach(function(registro) {
                         let carpfiscal=registro.carpetafiscal;
                         let idde = carpfiscal.substring(8, 11); 
                         let anio = carpfiscal.substring(11, 15); 
                         let expe = parseInt(carpfiscal.substring(15, 21)); 
+                        let motivo=registro.motivo;
 
-                        tabla.row.add([carpfiscal, idde, anio, expe]);
+                        tabla.row.add([contador, carpfiscal, motivos[motivo], idde, anio, expe]);
+                        contador++;
                     });
                     tabla.draw();
 
                     document.getElementById('datacabe').style.display = 'none';
                     document.getElementById('datadeta').style.display = 'block';
+                    document.getElementById("codbarras").value="";
+                    document.getElementById("motivo").value="";
+                    document.getElementById('btngrabar').style.display = 'none';
                 } 
                 document.getElementById('codigocf').value=response.codigo;
 
@@ -507,9 +555,18 @@ document.getElementById('codbarras').addEventListener('input', function () {
     function grabar() {
         let fech = document.getElementById("fecha").value;
         let depe = document.getElementById("dependencia").value;
-        let desp = document.getElementById("despacho").value;
+        let ingp = document.getElementById("ingresopor").value;
+        let enva = document.getElementById("enviadoa").value;
+
         let moti = document.getElementById("motivo").value;
         let codi = document.getElementById("codbarras").value;
+
+        if (enva=="C1" || enva=="C2" || enva=="C3"){
+            if (moti==""){
+                alert("Seleccione el motivo");
+                return false;
+            }
+        }
 
         $.ajax({
             url: '{{ route("mesapartes.grabacarpeta") }}', 
@@ -518,7 +575,8 @@ document.getElementById('codbarras').addEventListener('input', function () {
                 _token: '{{ csrf_token() }}',
                 fech: fech,
                 depe: depe,
-                desp: desp,
+                ingp: ingp,
+                enva: enva,
                 moti: moti,
                 codi: codi
             },
@@ -539,13 +597,16 @@ document.getElementById('codbarras').addEventListener('input', function () {
                     var registros = response.registros;
 
                     tabla.clear(); // Limpiar antes de agregar
+                    let contador = 1; // Inicializamos el contador
                     registros.forEach(function(registro) {
                         let carpfiscal=registro.carpetafiscal;
                         let idde = carpfiscal.substring(8, 11); 
                         let anio = carpfiscal.substring(11, 15); 
                         let expe = parseInt(carpfiscal.substring(15, 21)); 
+                        let motivo=registro.motivo;
 
-                        tabla.row.add([carpfiscal, idde, anio, expe]);
+                        tabla.row.add([contador, carpfiscal, motivos[motivo], idde, anio, expe]);
+                        contador++;
                     });
                     tabla.draw();
 

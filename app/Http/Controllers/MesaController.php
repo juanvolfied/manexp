@@ -1303,8 +1303,9 @@ function isValidPdf(string $path): bool
         $carpetasf = DB::table('mesacarpetasf')
         ->where('fecha', $request->input('fech'))
         ->where('id_dependencia', $request->input('depe'))
-        ->where('despacho', $request->input('desp'))
-        ->where('motivo', $request->input('moti'))
+        ->where('ingresopor', $request->input('ingp'))
+        ->where('enviadoa', $request->input('enva'))
+        //->where('motivo', $request->input('moti'))
         ->orderBy('carpetafiscal', 'asc')
         ->get();
 
@@ -1313,8 +1314,9 @@ function isValidPdf(string $path): bool
         $carpetasfcod = DB::table('mesacarpetasf_codbarras')
         ->whereYear('fecha', $anio)
         ->where('id_dependencia', $request->input('depe'))
-        ->where('despacho', $request->input('desp'))
-        ->where('motivo', $request->input('moti'))
+        ->where('ingresopor', $request->input('ingp'))
+        ->where('enviadoa', $request->input('enva'))
+        //->where('motivo', $request->input('moti'))
         ->first();
         if (!$carpetasfcod) {
             $codigo = "";
@@ -1346,11 +1348,16 @@ function isValidPdf(string $path): bool
     }
     public function grabaCarpeta(Request $request)
     {
+        $moti="0";
+        if ($request->input('enva')=="C1" || $request->input('enva')=="C2" || $request->input('enva')=="C3") {
+            $moti=$request->input('moti');
+        }
         DB::table('mesacarpetasf')->insert([
             'fecha' => $request->input('fech'),
             'id_dependencia' => $request->input('depe'),
-            'despacho' => $request->input('desp'),
-            'motivo' => $request->input('moti'),
+            'ingresopor' => $request->input('ingp'),
+            'enviadoa' => $request->input('enva'),
+            'motivo' => $moti,
             'carpetafiscal' => $request->input('codi'),
             'id_personal' => Auth::user()->id_personal,
             //'id_usuario' => Auth::user()->id_usuario,
@@ -1359,8 +1366,9 @@ function isValidPdf(string $path): bool
         $carpetasf = DB::table('mesacarpetasf')
         ->where('fecha', $request->input('fech'))
         ->where('id_dependencia', $request->input('depe'))
-        ->where('despacho', $request->input('desp'))
-        ->where('motivo', $request->input('moti'))
+        ->where('ingresopor', $request->input('ingp'))
+        ->where('enviadoa', $request->input('enva'))
+        //->where('motivo', $moti)
         ->orderBy('carpetafiscal', 'asc')
         ->get();
 
@@ -1371,8 +1379,9 @@ function isValidPdf(string $path): bool
         $carpetasfcod = DB::table('mesacarpetasf_codbarras')
         ->where('fecha', $fecha)
         ->where('id_dependencia', $request->input('depe'))
-        ->where('despacho', $request->input('desp'))
-        ->where('motivo', $request->input('moti'))
+        ->where('ingresopor', $request->input('ingp'))
+        ->where('enviadoa', $request->input('enva'))
+        //->where('motivo', $moti)
         ->first();
         if (!$carpetasfcod) {
             $ladepe = DB::table('dependencia')
@@ -1383,7 +1392,7 @@ function isValidPdf(string $path): bool
             $carpetasfcod = DB::table('mesacarpetasf_codbarras')
             ->whereYear('fecha', $anio)
             ->where('id_dependencia', $request->input('depe'))
-            ->where('despacho', $request->input('desp'))
+            //->where('despacho', $request->input('desp'))
             ->orderBy('numero', 'desc')
             ->first();
             if (!$carpetasfcod) {
@@ -1391,19 +1400,19 @@ function isValidPdf(string $path): bool
             } else {
                 $nuevoNumero = $carpetasfcod->numero + 1;
             }
-            if ($request->input('desp')==0 || $request->input('desp')=="0") {
-                $desp = "UU";
-            } else {
-                $desp = str_pad($request->input('desp'), 2, '0', STR_PAD_LEFT);
-            }
+
+            //$desp = str_pad($request->input('desp'), 2, '0', STR_PAD_LEFT);
+            $enva = $request->input('enva');
+
             $nume = str_pad($nuevoNumero, 6, '0', STR_PAD_LEFT);
 
-            $codigo="DF" . substr($anio,2,2) . $datodist . $desp . $nume;
+            $codigo="DF" . substr($anio,2,2) . $datodist . $enva . $nume;
             DB::table('mesacarpetasf_codbarras')->insert([
                 'fecha' => $request->input('fech'),
                 'id_dependencia' => $request->input('depe'),
-                'despacho' => $request->input('desp'),
-                'motivo' => $request->input('moti'),
+                'ingresopor' => $request->input('ingp'),
+                'enviadoa' => $request->input('enva'),
+                'motivo' => $moti,
                 'numero' => $nuevoNumero,
                 'codigo' => $codigo,
                 //'id_personal' => Auth::user()->id_personal,
@@ -1429,25 +1438,43 @@ function isValidPdf(string $path): bool
         ->first();
         $fech=$carpetasfcod->fecha;
         $depe=$carpetasfcod->id_dependencia;
-        $desp=$carpetasfcod->despacho;
-        $moti=$carpetasfcod->motivo;
+        $ingp=$carpetasfcod->ingresopor;
+        $enva=$carpetasfcod->enviadoa;
+        //$moti=$carpetasfcod->motivo;
 
         $carpetasf = DB::table('mesacarpetasf')
         ->where('fecha', $fech)
         ->where('id_dependencia', $depe)
-        ->where('despacho', $desp)
-        ->where('motivo', $moti)
+        ->where('ingresopor', $ingp)
+        ->where('enviadoa', $enva)
+        //->where('motivo', $moti)
         ->orderBy('carpetafiscal', 'asc')
         ->get();
-        $descmoti="";
-        if ($moti==1) {$descmoti="TURNO CORPORATIVA";}
-        if ($moti==2) {$descmoti="TURNO DESPACHO";}
-        if ($moti==3) {$descmoti="TURNO CERRO";}
-        if ($moti==4) {$descmoti="DERIVACIÓN";}
-        if ($moti==5) {$descmoti="DERIVACIÓN APOYO";}
-        if ($moti==6) {$descmoti="REASIGNACIÓN";}
-        if ($moti==7) {$descmoti="REASIGNACIÓN APOYO";}
-        if ($moti==8) {$descmoti="ACUMULACIÓN";}
+        $descingp="";
+        if ($ingp==1) {$descingp="TURNO CORPORATIVA";}
+        if ($ingp==2) {$descingp="TURNO CERRO";}
+        $descenva="";
+        if ($enva=="01") {$descenva="1er. Despacho";}
+        if ($enva=="02") {$descenva="2do. Despacho";}
+        if ($enva=="03") {$descenva="3er. Despacho";}
+        if ($enva=="04") {$descenva="4to. Despacho";}
+        if ($enva=="05") {$descenva="5to. Despacho";}
+        if ($enva=="06") {$descenva="6to. Despacho";}
+        if ($enva=="07") {$descenva="7mo. Despacho";}
+        if ($enva=="08") {$descenva="8vo. Despacho";}
+        if ($enva=="09") {$descenva="9no. Despacho";}
+        if ($enva=="10") {$descenva="10mo. Despacho";}
+        if ($enva=="11") {$descenva="11er. Despacho";}
+        if ($enva=="12") {$descenva="12do. Despacho";}
+        if ($enva=="C1") {$descenva="Coordinación 1ra";}
+        if ($enva=="C2") {$descenva="Coordinación 2da";}
+        if ($enva=="C3") {$descenva="Coordinación 3ra";}
+        /*$descmoti="";
+        if ($moti==1) {$descmoti="<b>MOTIVO: </b>DERIVACIÓN";}
+        if ($moti==2) {$descmoti="<b>MOTIVO: </b>ACUMULACIÓN";}
+        if ($moti==3) {$descmoti="<b>MOTIVO: </b>VIRTUAL";}
+        if ($moti==4) {$descmoti="<b>MOTIVO: </b>NUEVA";}
+        if ($moti==5) {$descmoti="<b>MOTIVO: </b>REASIGNACIÓN";}*/
 
         $ladepe = DB::table('dependencia')
         ->where('id_dependencia', $depe)
@@ -1456,27 +1483,50 @@ function isValidPdf(string $path): bool
 
         
         $tablahtml = '
-        <table><tr><td style="padding: 0px 5px; font-size: 11px ;"><b>FECHA: </b>'. $fech .'</td><td style="padding: 0px 5px; font-size: 11px ;"><b>DEPENDENCIA: </b>'. $descdepe .'</td></tr>
-        <tr><td style="padding: 0px 5px; font-size: 11px ;"><b>DESPACHO: </b>'. $desp .'</td><td style="padding: 0px 5px; font-size: 11px ;"><b>MOTIVO: </b>'. $descmoti .'</td></tr></table>
+        <table>
+        <tr>
+            <td style="padding: 0px 5px; font-size: 11px ;"><b>FECHA: </b>'. $fech .'</td>
+            <td style="padding: 0px 5px; font-size: 11px ;"><b>DEPENDENCIA: </b>'. $descdepe .'</td>
+        </tr>
+        <tr>
+            <td style="padding: 0px 5px; font-size: 11px ;"><b>INGRESO POR: </b>'. $descingp .'</td>
+            <td style="padding: 0px 5px; font-size: 11px ;"><b>ENVIADO A: </b>'. $descenva .'</td>
+        </tr>
+        </table>
         <table width=100% border=1 class="zebra">
             <thead class="thead-dark">
                 <tr>
+                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;">#</th>
                     <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;">Nro Carpeta Fiscal</th>
+                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;">Motivo</th>
                     <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;">C&oacute;digo</th>
                     <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;">A&ntilde;o</th>
                     <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;">N&uacute;mero</th>
                 </tr>
             </thead>
             <tbody style="font-size:11px;">';
+            $motivos = [
+                0 => "",
+                1 => "DERIVACIÓN",
+                2 => "ACUMULACIÓN",
+                3 => "VIRTUAL",
+                4 => "NUEVA",
+                5 => "REASIGNACIÓN"
+            ];
+
+        $contador = 1; // Inicializar el contador
         foreach ($carpetasf as $carpeta) {
             $tablahtml .= '
             <tr>
+            <td style="padding: 5px 5px; font-size:11px ; text-transform:none;">' . $contador . '</td>
             <td style="padding: 5px 5px; font-size:11px ; text-transform:none;">'. $carpeta->carpetafiscal .'</td>
+            <td style="padding: 5px 5px; font-size:11px ; text-transform:none;">'. $motivos[$carpeta->motivo] .'</td>
             <td style="padding: 5px 5px; font-size:11px ; text-transform:none;">'. substr($carpeta->carpetafiscal,8,3) .'</td>
             <td style="padding: 5px 5px; font-size:11px ; text-transform:none;">'. substr($carpeta->carpetafiscal,11,4) .'</td>
             <td style="padding: 5px 5px; font-size:11px ; text-transform:none;">'. intval(substr($carpeta->carpetafiscal,15,6)) .'</td>
             </tr>
             ';
+            $contador++; // Incrementar el contador
         }
 
         $tablahtml .= '
@@ -1487,13 +1537,11 @@ function isValidPdf(string $path): bool
 table.zebra {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
 }
 
 table.zebra th,
 table.zebra td {
   border: 1px solid #ccc;
-  padding: 8px;
   text-align: left;
 }
 
@@ -1527,7 +1575,7 @@ table.zebra thead {
         <!DOCTYPE html>
         <html>
         <head>
-            <title>PDF Codigo de Brras</title>
+            <title>PDF Registro de Carpetas Fiscales</title>
             <style>
                 body { font-family: sans-serif; }
                 h1 { color: navy; }
