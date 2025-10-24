@@ -1316,7 +1316,6 @@ function isValidPdf(string $path): bool
         ->where('id_dependencia', $request->input('depe'))
         ->where('ingresopor', $request->input('ingp'))
         ->where('enviadoa', $request->input('enva'))
-        //->where('motivo', $request->input('moti'))
         ->first();
         if (!$carpetasfcod) {
             $codigo = "";
@@ -1368,7 +1367,6 @@ function isValidPdf(string $path): bool
         ->where('id_dependencia', $request->input('depe'))
         ->where('ingresopor', $request->input('ingp'))
         ->where('enviadoa', $request->input('enva'))
-        //->where('motivo', $moti)
         ->orderBy('carpetafiscal', 'asc')
         ->get();
 
@@ -1381,7 +1379,6 @@ function isValidPdf(string $path): bool
         ->where('id_dependencia', $request->input('depe'))
         ->where('ingresopor', $request->input('ingp'))
         ->where('enviadoa', $request->input('enva'))
-        //->where('motivo', $moti)
         ->first();
         if (!$carpetasfcod) {
             $ladepe = DB::table('dependencia')
@@ -1392,7 +1389,6 @@ function isValidPdf(string $path): bool
             $carpetasfcod = DB::table('mesacarpetasf_codbarras')
             ->whereYear('fecha', $anio)
             ->where('id_dependencia', $request->input('depe'))
-            //->where('despacho', $request->input('desp'))
             ->orderBy('numero', 'desc')
             ->first();
             if (!$carpetasfcod) {
@@ -1412,7 +1408,6 @@ function isValidPdf(string $path): bool
                 'id_dependencia' => $request->input('depe'),
                 'ingresopor' => $request->input('ingp'),
                 'enviadoa' => $request->input('enva'),
-                'motivo' => $moti,
                 'numero' => $nuevoNumero,
                 'codigo' => $codigo,
                 //'id_personal' => Auth::user()->id_personal,
@@ -1440,14 +1435,12 @@ function isValidPdf(string $path): bool
         $depe=$carpetasfcod->id_dependencia;
         $ingp=$carpetasfcod->ingresopor;
         $enva=$carpetasfcod->enviadoa;
-        //$moti=$carpetasfcod->motivo;
 
         $carpetasf = DB::table('mesacarpetasf')
         ->where('fecha', $fech)
         ->where('id_dependencia', $depe)
         ->where('ingresopor', $ingp)
         ->where('enviadoa', $enva)
-        //->where('motivo', $moti)
         ->orderBy('carpetafiscal', 'asc')
         ->get();
         $descingp="";
@@ -1469,12 +1462,6 @@ function isValidPdf(string $path): bool
         if ($enva=="C1") {$descenva="Coordinación 1ra";}
         if ($enva=="C2") {$descenva="Coordinación 2da";}
         if ($enva=="C3") {$descenva="Coordinación 3ra";}
-        /*$descmoti="";
-        if ($moti==1) {$descmoti="<b>MOTIVO: </b>DERIVACIÓN";}
-        if ($moti==2) {$descmoti="<b>MOTIVO: </b>ACUMULACIÓN";}
-        if ($moti==3) {$descmoti="<b>MOTIVO: </b>VIRTUAL";}
-        if ($moti==4) {$descmoti="<b>MOTIVO: </b>NUEVA";}
-        if ($moti==5) {$descmoti="<b>MOTIVO: </b>REASIGNACIÓN";}*/
 
         $ladepe = DB::table('dependencia')
         ->where('id_dependencia', $depe)
