@@ -186,7 +186,7 @@ function numeroAOrdinal($numero) {
                                 </div>
                                 <div class="col-md-6 col-lg-6 text-end">
                                     <input type="hidden" id="codigocf" name="codigocf">
-                                    <button type="button" onclick="imprimirpdf()" class="btn  " style="background-color: #6c757d; color: white;" id="btnimprimir"><i class="fas fa-print me-1"></i> Imprimir</button>
+                                    <button id="botonimprimir" type="button" onclick="imprimirpdf()" class="btn  " style="background-color: #6c757d; color: white;" id="btnimprimir"><i class="fas fa-print me-1"></i> Imprimir Turno Corporativa</button>
                                 </div>
                             </div>    
         <table id="tablacarpetassgf" class="table table-striped table-bordered" width=100%>
@@ -289,9 +289,15 @@ window.onload = function() {
 function cambiaenviadoa(valor) {
     document.getElementById("lblmotivo").style.display = 'none';
     document.getElementById("motivo").style.display = 'none';
+    document.getElementById('botonimprimir').classList.remove('d-inline-block');    
+    document.getElementById('botonimprimir').classList.add('d-none');
+
     const select = document.getElementById("enviadoa");
     select.innerHTML = ``;
     if (valor=="1") {
+        document.getElementById('botonimprimir').classList.remove('d-none');
+        document.getElementById('botonimprimir').classList.add('d-inline-block');    
+
         select.innerHTML = `
             <option value="">-- Seleccione --</option>
             <option value="01">1er. Despacho</option>
@@ -310,16 +316,54 @@ function cambiaenviadoa(valor) {
             <option value="C2">Coordinación 2da</option>
             <option value="C3">Coordinación 3ra</option>
         `;
+        return;
     }
-    if (valor=="2") {
+
+    if (valor==2) {
         select.innerHTML = `
             <option value="">-- Seleccione --</option>
             <option value="C1">Coordinación 1ra</option>
             <option value="C2">Coordinación 2da</option>
             <option value="C3">Coordinación 3ra</option>
         `;
-    }
+        let codenva = "";
+        let canenva = 0;
+        let depe = document.getElementById("dependencia").value;
+        let ingp = document.getElementById("ingresopor").value;
 
+        $.ajax({
+            url: '{{ route("mesapartes.buscatcerro") }}', 
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                depe: depe,
+                ingp: ingp,
+            },
+            success: function(response) {
+                codenva = response.codienviadoa;
+                canenva = response.cantenviadoa;
+
+                if (codenva=="C1") { select.innerHTML = `<option value="C1" selected>Coordinación 1ra</option>`; }
+                if (codenva=="C2") { select.innerHTML = `<option value="C2" selected>Coordinación 2da</option>`; }
+                if (codenva=="C3") { select.innerHTML = `<option value="C3" selected>Coordinación 3ra</option>`; }
+                displaymotivo(codenva);            
+
+                //document.getElementById('codigocf').value=response.codigo;
+            },
+            error: function(xhr, status, error) {
+                if (xhr.status === 419) {
+                    // No autorizado - probablemente sesi�n expirada
+                    alert('TU SESION HA EXPIRADO. SERAS REDIRIGIDO AL LOGIN.');
+                    window.location.href = '{{ route("usuario.login") }}';
+                } else {
+                    // Otro tipo de error
+                    console.error('Error en la petici�n:', xhr.status);
+                    alert('Hubo un error al grabar.');
+                }
+            }
+        });
+
+    }
 }
 function displaymotivo(valor) {
     document.getElementById("lblmotivo").style.display = 'none';
@@ -531,7 +575,7 @@ document.getElementById('codbarras').addEventListener('input', function () {
                     document.getElementById("motivo").value="";
                     document.getElementById('btngrabar').style.display = 'none';
                 } 
-                document.getElementById('codigocf').value=response.codigo;
+                //document.getElementById('codigocf').value=response.codigo;
 
             },
             error: function(xhr, status, error) {
@@ -610,6 +654,23 @@ document.getElementById('codbarras').addEventListener('input', function () {
                     });
                     tabla.draw();
 
+                    let enviretorno = response.enviretorno;
+                    const opciones = {
+                        C1: "Coordinación 1ra",
+                        C2: "Coordinación 2da",
+                        C3: "Coordinación 3ra"
+                    };
+                    if (enva !== enviretorno && opciones[enviretorno]) {
+                        const select = document.getElementById("enviadoa");
+                        select.innerHTML = `<option value="${enviretorno}" selected>${opciones[enviretorno]}</option>`;
+
+                        let xenva = document.getElementById("enviadoa");
+                        let descenva = xenva.options[xenva.selectedIndex].text;             
+                        document.getElementById('dataenviadoa').innerHTML=descenva;
+                    }
+
+
+
                     document.getElementById('btngrabar').style.display = 'none';
                     document.getElementById("codbarras").value = "";
                     document.getElementById('codbarras').focus();   
@@ -645,14 +706,23 @@ document.getElementById('codbarras').addEventListener('input', function () {
 
     }
     function imprimirpdf() {
-        const codigocf = document.getElementById('codigocf').value;
-        if (codigocf=="") {
-            alert("DATOS NO DISPONIBLES");
-            return;
-        }
-        const basePdfUrl = @json(route('mesapartes.imprimecarpetasf', ['codigocf' => '__CODIGO__']));
-        const url = basePdfUrl
-            .replace('__CODIGO__', encodeURIComponent(codigocf))
+        let fech = document.getElementById("fecha").value;
+        let depe = document.getElementById("dependencia").value;
+        let ingp = document.getElementById("ingresopor").value;
+        let enva = document.getElementById("enviadoa").value;
+        let tpre ='TCOF';
+        //const codigocf = document.getElementById('codigocf').value;
+        //if (codigocf=="") {
+        //    alert("DATOS NO DISPONIBLES");
+        //    return;
+        //}
+        //const basePdfUrl = @json(route('mesapartes.imprimecarpetasf', ['codigocf' => '__CODIGO__']));
+        //const url = basePdfUrl
+        //    .replace('__CODIGO__', encodeURIComponent(codigocf))
+
+        const basePdfUrl = @json(route('mesapartes.imprimecarpetasf'));
+        const url = `${basePdfUrl}?tpreporte=${encodeURIComponent(tpre)}&fech=${encodeURIComponent(fech)}&depe=${encodeURIComponent(depe)}&ingp=${encodeURIComponent(ingp)}&enva=${encodeURIComponent(enva)}`;
+
 
         if (event) event.preventDefault(); // Previene recarga    
         $('#pdfFrame').attr('src', url);

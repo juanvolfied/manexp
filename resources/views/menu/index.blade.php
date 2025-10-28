@@ -273,7 +273,7 @@
 
     @php
         $menumesapartes = in_array($perfil, ['Admin','mesapartes','MesaPartesAdmin']);
-        $menuActivo = request()->is('mesapartes', 'mesapartes/upload', 'mesapartes/comprimeescritospdf');
+        $menuActivo = request()->is('mesapartes', 'mesapartes/upload', 'mesapartes/comprimeescritospdf','mesapartes/reportecarpetasf01');
         $submenuActivo = request()->is('mesapartes/consultaintervalofechas', 'mesapartes/consultafiscal', 'mesapartes/consultafiltros', 'mesapartes/estadisticas');
     @endphp
     @if ($menumesapartes)
@@ -329,6 +329,11 @@
                     <li class="{{ request()->is('mesapartes/creacarpetasf') ? 'active' : '' }}" >
                       <a href="{{ route('mesapartes.registrocarpetasf') }}">
                         <span class="sub-item">Creaci&oacute;n Carpetas Fiscales</span>
+                      </a>
+                    </li>
+                    <li class="{{ request()->is('mesapartes/reportecarpetasf01') ? 'active' : '' }}" >
+                      <a href="{{ route('mesapartes.reportecarpetasf01') }}">
+                        <span class="sub-item">Reporte Turno Cerro</span>
                       </a>
                     </li>
 

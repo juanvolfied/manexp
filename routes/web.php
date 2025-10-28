@@ -104,9 +104,12 @@ Route::get('/mesapartes/estadisticasdetalle', [MesaController::class, 'estadisti
 
 Route::get('/mesapartes/creacarpetasf', [MesaController::class, 'nuevoCarpetasf'])->name('mesapartes.registrocarpetasf');
 Route::post('/mesapartes/buscacarpetasf', [MesaController::class, 'buscaCarpetasf'])->name('mesapartes.buscacarpetasf');
+Route::post('/mesapartes/buscatcerro', [MesaController::class, 'buscaTCerroenviado'])->name('mesapartes.buscatcerro');
 Route::post('/mesapartes/buscacarpeta', [MesaController::class, 'buscaCarpeta'])->name('mesapartes.buscacarpeta');
 Route::post('/mesapartes/grabacarpeta', [MesaController::class, 'grabaCarpeta'])->name('mesapartes.grabacarpeta');
-Route::get('/mesapartes/{codigocf}/pdf', [MesaController::class, 'imprimirCarpetasf'])->name('mesapartes.imprimecarpetasf');
+//Route::get('/mesapartes/{codigocf}/pdf', [MesaController::class, 'imprimirCarpetasf'])->name('mesapartes.imprimecarpetasf');
+Route::get('/mesapartes/imprimecarpetaspdf', [MesaController::class, 'imprimirCarpetasf'])->name('mesapartes.imprimecarpetasf');
+Route::get('/mesapartes/reportecarpetasf01', [MesaController::class, 'reporteCarpetasf01'])->name('mesapartes.reportecarpetasf01');
 
 
 //Route::get('/mesapartes/{anolibro}/{numero}/edit', [MesaController::class, 'edit'])->name('mesapartes.edit');
