@@ -17,7 +17,7 @@
                 <div class="card">
                   
                 <div class="card-header">
-                <div class="card-title">Imprime Reportes de Carpetas Fiscales Turno Cerro Colorado</div>
+                <div class="card-title">Reportes de Carpetas Fiscales Apoyo Cerro Colorado</div>
                 </div>
                   <div class="card-body">
                     <div class="row" id="codigoverificar">
@@ -26,7 +26,8 @@
                             <thead class="thead-dark">
                                 <tr>
                                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">#</th>
-                                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Fecha Inicio</th>
+                                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Fecha<br>Inicio</th>
+                                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Fecha<br>Ult.Registro</th>
                                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Dependencia</th>
                                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Ingreso por</th>
                                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Enviado a</th>
@@ -55,6 +56,7 @@
                                 <tr>
                                     <td style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">{{ $index + 1 }}</td>
                                     <td style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">{{ $item->fecha }}</td>
+                                    <td style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">{{ $item->fecha_ultimoregistro }}</td>
                                     <td style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">{{ $item->descripcion }}</td>
                                     <td style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">TURNO CERRO</td>
                                     <td style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">{{ $tipos[$item->enviadoa] }}</td>

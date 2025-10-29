@@ -45,36 +45,46 @@ function numeroAOrdinal($numero) {
                       <div class="col-md-12 col-lg-12">
                         <div class="form-group border p-3 rounded shadow-sm bg-light">                
                         <h5 class="text-primary"><i class="fas fa-tasks"></i> Seleccione Opciones y Presione Bot&oacute;n Continuar</h5>
+                        <div class="row mb-2">
+                            <div class="col-md-3">
+                                <label for="ingresopor" class="form-label"><b>Ingreso por: </b></label>
+                                <select name="ingresopor" id="ingresopor" class="form-select" onchange="cambiadependencia(this.value)">
+                                    <option value="">-- Seleccione --</option>
+                                    <option value="1">TURNO CORPORATIVA</option>
+                                    <option value="2">TURNO CERRO</option>
+                                </select>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label"><b>Dependencia:</b></label>
+                                <select name="dependencia" id="dependencia" class="" onchange="cambiaenviadoa(this.value)">
+                                    <!--<option value="">-- Seleccione --</option>-->
+                                @php
+                                    $dependenciascorp = '<option value="">-- Seleccione --</option>';
+                                    $dependenciascerr = '';
+                                    foreach ($dependencias as $p) {
+                                        $dependenciascorp .= '<option value="'. $p->id_dependencia .'">'. e($p->descripcion) .'</option>';
+                                        if (in_array($p->id_dependencia, [34, 38, 42])) {
+                                            $dependenciascerr .= '<option value="'. $p->id_dependencia .'">'. e($p->descripcion) .'</option>';
+                                        }
+                                    }
+                                @endphp                                
+                                <!--@foreach($dependencias as $p)
+                                <option value="{{ $p->id_dependencia }}" >{{ $p->descripcion }} </option>
+                                @endforeach-->
+                                </select>                    
+                            </div>
+                            <div class="col-md-3">
+                                <label for="enviadoa" class="form-label"><b>Enviado a: </b></label>
+                                <select name="enviadoa" id="enviadoa" class="form-select" onchange="displaymotivo(this.value)">
+                                </select>
+                            </div>
+                        </div>                
 
                         <div class="row mb-2">
                             <div class="col-md-3">
                                 <label for="fecha" class="form-label"><b>Fecha: </b></label>
                                 <input type="date" name="fecha" id="fecha" class="form-control" required
                                     value="{{ $fecha ??  date('Y-m-d')  }}">
-                            </div>
-                            <div class="col-md-5">
-                                <label class="form-label"><b>Seleccione Dependencia:</b></label>
-                                <select name="dependencia" id="dependencia" class="" >
-                                <option value="">-- Seleccione --</option>
-                                @foreach($dependencias as $p)
-                                <option value="{{ $p->id_dependencia }}" >{{ $p->descripcion }} </option>
-                                @endforeach
-                                </select>                    
-                            </div>
-                        </div>
-                        <div class="row mb-2">
-                            <div class="col-md-3">
-                                <label for="ingresopor" class="form-label"><b>Ingreso por: </b></label>
-                                <select name="ingresopor" id="ingresopor" class="form-select" onchange="cambiaenviadoa(this.value)">
-                                    <option value="">-- Seleccione --</option>
-                                    <option value="1">TURNO CORPORATIVA</option>
-                                    <option value="2">TURNO CERRO</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="enviadoa" class="form-label"><b>Enviado a: </b></label>
-                                <select name="enviadoa" id="enviadoa" class="form-select" onchange="displaymotivo(this.value)">
-                                </select>
                             </div>
                             <div class="col-md-2 d-flex align-items-end">
                                 <a href="#" onclick="buscapordetalle(event)" class="btn btn-primary w-100"><i class="fas fa-arrow-right me-1"></i> Continuar</a>
@@ -104,19 +114,19 @@ function numeroAOrdinal($numero) {
                         <div class="form-group border p-3 rounded shadow-sm bg-light">
                         <h5 class="text-primary"><i class="fas fa-tasks"></i> Opciones de registro</h5>
                             <div class="row">
-                                <div class="col-md-3 col-lg-3">
-                                    <b>Fecha:</b> <span id="datafecha">2025/12/12</span> 
+                                <div class="col-md-4 col-lg-4">
+                                    <b>Ingreso por:</b> <span id="dataingresopor">Turno Corporativa</span> 
                                 </div>
-                                <div class="col-md-9 col-lg-9">
+                                <div class="col-md-8 col-lg-8">
                                     <b>Dependencia:</b> <span id="datadependencia">Nombre dependencia</span> 
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-4 col-lg-4">
-                                    <b>Ingreso por:</b> <span id="dataingresopor">Turno Corporativa</span> 
+                                    <b>Enviado a:</b> <span id="dataenviadoa">Despacho X</span> 
                                 </div>
                                 <div class="col-md-4 col-lg-4">
-                                    <b>Enviado a:</b> <span id="dataenviadoa">Despacho X</span> 
+                                    <b>Fecha:</b> <span id="datafecha">2025/12/12</span> 
                                 </div>
                                 <!--<div class="col-md-4 col-lg-4" id="divmotivo">
                                     <b>Motivo:</b> <span id="datamotivo">Derivación/etc</span> 
@@ -151,7 +161,7 @@ function numeroAOrdinal($numero) {
                         @error('codbarras') <div class="text-danger"><b>{{ $message }}</b></div> @enderror
 
                       </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3 col-lg-3">
                                 <label id="lblmotivo" for="motivo" class="form-label" style="display:none;"><b>MOTIVO: </b></label>
                                 <select name="motivo" id="motivo" class="form-select" style="display:none;">
                                     <option value="">-- Seleccione --</option>
@@ -162,13 +172,16 @@ function numeroAOrdinal($numero) {
                                     <option value="5">REASIGNACIÓN</option>
                                 </select>
                             </div>
-                      <div class="col-md-5 col-lg-5">
+                      <div class="col-md-2 col-lg-2">
                         <div class="btns-container" style="display: flex; gap: 10px; align-items: center;">
 
                         <!--<button type="submit" class="btn btn-success mt-3">Guardar</button>-->
                         <button type="button" onclick="grabar()" class="btn btn-success mt-3" id="btngrabar" style="display:none;"><i class="fas fa-save me-1"></i> Guardar Carpeta</button>
 
                         </div>
+                      </div>
+                      <div class="col-md-3 col-lg-3 text-center">
+                        <h4 class="text-danger" id="canreg"></h4>
                       </div>
                     </div><br>
 
@@ -194,6 +207,7 @@ function numeroAOrdinal($numero) {
                 <tr>
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">#</th>
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Nro Carpeta Fiscal</th>
+                    <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Fecha Registro</th>
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">Motivo</th>
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">C&oacute;digo</th>
                     <th style="padding: 5px 10px!important; font-size: 11px !important; text-transform:none;">A&ntilde;o</th>
@@ -262,7 +276,7 @@ function numeroAOrdinal($numero) {
 </div>
 
 @endsection
-
+@section('scripts')
 <script>
 window.onload = function() {
     var messageErr = document.getElementById('messageErr');
@@ -284,9 +298,11 @@ window.onload = function() {
         }, 3000); 
     }
 };
+$('#dependencia').selectize({
+    allowEmptyOption: true
+});
 
-
-function cambiaenviadoa(valor) {
+function cambiadependencia(valor) {
     document.getElementById("lblmotivo").style.display = 'none';
     document.getElementById("motivo").style.display = 'none';
     document.getElementById('botonimprimir').classList.remove('d-inline-block');    
@@ -294,32 +310,35 @@ function cambiaenviadoa(valor) {
 
     const select = document.getElementById("enviadoa");
     select.innerHTML = ``;
+        const selectize = $('#dependencia')[0].selectize;
+        selectize.clear();
+        selectize.clearOptions();
+        const opciones = {!! json_encode($dependencias) !!}; // array desde PHP
+
     if (valor=="1") {
+        selectize.addOption({ value: '0', text: '-- Seleccione --' });
+        opciones.forEach(opt => {
+            selectize.addOption({ value: opt.id_dependencia, text: opt.descripcion });
+        });
+        selectize.refreshOptions(false);
+        setTimeout(() => selectize.setValue('0'), 0);
+
         document.getElementById('botonimprimir').classList.remove('d-none');
         document.getElementById('botonimprimir').classList.add('d-inline-block');    
-
-        select.innerHTML = `
-            <option value="">-- Seleccione --</option>
-            <option value="01">1er. Despacho</option>
-            <option value="02">2do. Despacho</option>
-            <option value="03">3er. Despacho</option>
-            <option value="04">4to. Despacho</option>
-            <option value="05">5to. Despacho</option>
-            <option value="06">6to. Despacho</option>
-            <option value="07">7mo. Despacho</option>
-            <option value="08">8vo. Despacho</option>
-            <option value="09">9no. Despacho</option>
-            <option value="10">10mo. Despacho</option>
-            <option value="11">11er. Despacho</option>
-            <option value="12">12do. Despacho</option>
-            <option value="C1">Coordinación 1ra</option>
-            <option value="C2">Coordinación 2da</option>
-            <option value="C3">Coordinación 3ra</option>
-        `;
         return;
     }
 
-    if (valor==2) {
+    if (valor=="2") {
+        const idsPermitidos = [34, 38, 42];
+        opciones.forEach(opt => {
+            if (idsPermitidos.includes(opt.id_dependencia)) {
+                selectize.addOption({ value: opt.id_dependencia, text: opt.descripcion });
+            }
+        });
+        selectize.refreshOptions(false);
+        //setTimeout(() => selectize.setValue('0'), 0);
+
+
         select.innerHTML = `
             <option value="">-- Seleccione --</option>
             <option value="C1">Coordinación 1ra</option>
@@ -328,7 +347,6 @@ function cambiaenviadoa(valor) {
         `;
         let codenva = "";
         let canenva = 0;
-        let depe = document.getElementById("dependencia").value;
         let ingp = document.getElementById("ingresopor").value;
 
         $.ajax({
@@ -336,17 +354,30 @@ function cambiaenviadoa(valor) {
             method: 'POST',
             data: {
                 _token: '{{ csrf_token() }}',
-                depe: depe,
+                //depe: depe,
                 ingp: ingp,
             },
             success: function(response) {
                 codenva = response.codienviadoa;
                 canenva = response.cantenviadoa;
+                fechain = response.fechainicio;
 
-                if (codenva=="C1") { select.innerHTML = `<option value="C1" selected>Coordinación 1ra</option>`; }
-                if (codenva=="C2") { select.innerHTML = `<option value="C2" selected>Coordinación 2da</option>`; }
-                if (codenva=="C3") { select.innerHTML = `<option value="C3" selected>Coordinación 3ra</option>`; }
+                if (codenva=="C1") { 
+                    select.innerHTML = `<option value="C1" selected>Coordinación 1ra</option>`;
+                    setTimeout(() => selectize.setValue('34'), 0); 
+                }
+                if (codenva=="C2") { 
+                    select.innerHTML = `<option value="C2" selected>Coordinación 2da</option>`;
+                    setTimeout(() => selectize.setValue('38'), 0); 
+                }
+                if (codenva=="C3") { 
+                    select.innerHTML = `<option value="C3" selected>Coordinación 3ra</option>`;
+                    setTimeout(() => selectize.setValue('42'), 0); 
+                }
+                document.getElementById("fecha").value = fechain;
+                document.getElementById("enviadoa").value = codenva;
                 displaymotivo(codenva);            
+
 
                 //document.getElementById('codigocf').value=response.codigo;
             },
@@ -365,6 +396,54 @@ function cambiaenviadoa(valor) {
 
     }
 }
+function cambiaenviadoa(valor) {
+    let ingp = document.getElementById("ingresopor").value;
+    const select = document.getElementById("enviadoa");
+    select.innerHTML = ``;
+    if (ingp=="1") {
+        let depe = document.getElementById("dependencia").value;
+        select.innerHTML = `
+            <option value="">-- Seleccione --</option>
+            <option value="01">1er. Despacho</option>
+            <option value="02">2do. Despacho</option>
+            <option value="03">3er. Despacho</option>
+            <option value="04">4to. Despacho</option>
+            <option value="05">5to. Despacho</option>
+            <option value="06">6to. Despacho</option>
+            <option value="07">7mo. Despacho</option>
+            <option value="08">8vo. Despacho</option>
+            <option value="09">9no. Despacho</option>
+            <option value="10">10mo. Despacho</option>
+            <option value="11">11er. Despacho</option>
+            <option value="12">12do. Despacho</option>
+        `;
+        if (depe==34) {
+            const option = document.createElement("option");
+            option.value = "C1";
+            option.text = "Coordinación 1ra";
+            select.appendChild(option);
+        }        
+        if (depe==38) {
+            const option = document.createElement("option");
+            option.value = "C2";
+            option.text = "Coordinación 2da";
+            select.appendChild(option);
+        }        
+        if (depe==42) {
+            const option = document.createElement("option");
+            option.value = "C3";
+            option.text = "Coordinación 3ra";
+            select.appendChild(option);
+        }        
+    }
+    if (ingp=="2") {
+        if (valor==34) { select.innerHTML = `<option value="C1" selected>Coordinación 1ra</option>`; }
+        if (valor==38) { select.innerHTML = `<option value="C2" selected>Coordinación 2da</option>`; }
+        if (valor==42) { select.innerHTML = `<option value="C3" selected>Coordinación 3ra</option>`; }
+    }
+}
+
+
 function displaymotivo(valor) {
     document.getElementById("lblmotivo").style.display = 'none';
     document.getElementById("motivo").style.display = 'none';
@@ -377,7 +456,7 @@ function displaymotivo(valor) {
 
 
 
-@section('scripts')
+
 <script>
 //  $(document).ready(function() {
     let tabla = $('#tablacarpetassgf').DataTable({
@@ -433,7 +512,7 @@ document.getElementById('codbarras').addEventListener('input', function () {
     document.getElementById('btngrabar').style.display = 'none';
 });
 
-    $('#dependencia').selectize();
+
     let ultimaLectura = '';
     let tiempoUltimaLectura = 0;    
     function verificarEnter(event) {
@@ -563,11 +642,14 @@ document.getElementById('codbarras').addEventListener('input', function () {
                         let anio = carpfiscal.substring(11, 15); 
                         let expe = parseInt(carpfiscal.substring(15, 21)); 
                         let motivo=registro.motivo;
+                        let fechareg=registro.fechahora_registro;
 
-                        tabla.row.add([contador, carpfiscal, motivos[motivo], idde, anio, expe]);
+                        tabla.row.add([contador, carpfiscal, fechareg, motivos[motivo], idde, anio, expe]);
                         contador++;
                     });
                     tabla.draw();
+                    document.getElementById('canreg').innerHTML = response.registros.length + '<br>Carpetas';
+
 
                     document.getElementById('datacabe').style.display = 'none';
                     document.getElementById('datadeta').style.display = 'block';
@@ -648,11 +730,13 @@ document.getElementById('codbarras').addEventListener('input', function () {
                         let anio = carpfiscal.substring(11, 15); 
                         let expe = parseInt(carpfiscal.substring(15, 21)); 
                         let motivo=registro.motivo;
+                        let fechareg=registro.fechahora_registro;
 
-                        tabla.row.add([contador, carpfiscal, motivos[motivo], idde, anio, expe]);
+                        tabla.row.add([contador, carpfiscal, fechareg, motivos[motivo], idde, anio, expe]);
                         contador++;
                     });
                     tabla.draw();
+                    document.getElementById('canreg').innerHTML = response.registros.length + '<br>Carpetas';
 
                     let enviretorno = response.enviretorno;
                     const opciones = {

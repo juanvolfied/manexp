@@ -1302,8 +1302,10 @@ function isValidPdf(string $path): bool
     {
         $cantenva=0;
         $sgteenva="";
+        $fechinic = now()->format('Y-m-d');  // Formato 'YYYY-MM-DD'
+
         $carpetasfcod = DB::table('mesacarpetasf_codbarras')
-        ->where('id_dependencia', $request->input('depe'))
+        //->where('id_dependencia', $request->input('depe'))
         ->where('ingresopor', $request->input('ingp'))
         ->where('tpreporte', 'AC') //Apoyo Cerro Colorado
         ->orderByRaw('YEAR(fecha) DESC')
@@ -1322,12 +1324,14 @@ function isValidPdf(string $path): bool
             } else {
                 $sgteenva=$enva;
                 $cantenva=$cant;
+                $fechinic=$carpetasfcod->fecha;
             }
         }
         return response()->json([
             'success' => true,
             'codienviadoa' => $sgteenva,
             'cantenviadoa' => $cantenva,
+            'fechainicio' => $fechinic,
         ]);
     }
     public function buscaCarpetasf(Request $request)
@@ -1338,24 +1342,8 @@ function isValidPdf(string $path): bool
         ->where('ingresopor', $request->input('ingp'))
         ->where('enviadoa', $request->input('enva'))
         //->where('motivo', $request->input('moti'))
-        ->orderBy('carpetafiscal', 'asc')
+        ->orderBy('id_carpeta', 'asc')
         ->get();
-
-        /*
-        $fecha = $request->input('fech'); // Ejemplo: "2023-10-22"
-        $anio = date('Y', strtotime($fecha)); // Extrae el año: "2023"          
-        $carpetasfcod = DB::table('mesacarpetasf_codbarras')
-        ->whereYear('fecha', $anio)
-        ->where('id_dependencia', $request->input('depe'))
-        ->where('ingresopor', $request->input('ingp'))
-        ->where('enviadoa', $request->input('enva'))
-        ->first();
-        if (!$carpetasfcod) {
-            $codigo = "";
-        } else {
-            $codigo = $carpetasfcod->codigo;
-        }
-        */
 
         return response()->json([
             'success' => true,
@@ -1383,14 +1371,17 @@ function isValidPdf(string $path): bool
         $fecha = $request->input('fech'); // Ejemplo: "2023-10-22"
         $anio = date('Y', strtotime($fecha)); // Extrae el año: "2023"        
         $enva = $request->input('enva');
+        $fechaHoraActualFormateada = now()->format('Y-m-d H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $fechaActualFormateada = now()->format('Y-m-d');  // Formato 'YYYY-MM-DD'
+
         $id_codbarras=0;
         //si es turno cerro, reviso la cuota de C1, C2 y C3 para saber a cual corresponde
         if ($request->input('ingp')=="2") {
             $cantenva=0;
             $sgteenva="";
             $carpetasfcod = DB::table('mesacarpetasf_codbarras')
-            ->where('id_dependencia', $request->input('depe'))
             ->where('ingresopor', $request->input('ingp'))
+            ->where('id_dependencia', $request->input('depe'))
             ->where('tpreporte', 'AC') //Apoyo Cerro Colorado
             ->orderByRaw('YEAR(fecha) DESC')
             ->orderBy('numero', 'desc')
@@ -1402,6 +1393,13 @@ function isValidPdf(string $path): bool
                 $enva = $carpetasfcod->enviadoa;
                 $cant = $carpetasfcod->cantidad;
                 $comp = $carpetasfcod->completo;
+                if ($comp=="S") {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "SE COMPLETO LA CANTIDAD DE REGISTROS DEL PAQUETE INICIADO EN FECHA ". $fecha,
+                    ]);             
+                }    
+                
                 if ($comp=="S") {
                     if ($enva=="C1") {$sgteenva="C2";}
                     if ($enva=="C2") {$sgteenva="C3";}
@@ -1443,6 +1441,7 @@ function isValidPdf(string $path): bool
                 $id_codbarras = DB::table('mesacarpetasf_codbarras')->insertGetId([
                 //DB::table('mesacarpetasf_codbarras')->insert([
                     'fecha' => $request->input('fech'),
+                    'fecha_ultimoregistro' => $fechaActualFormateada,
                     'id_dependencia' => $request->input('depe'),
                     'ingresopor' => $request->input('ingp'),
                     'enviadoa' => $sgteenva, //$request->input('enva'),
@@ -1460,6 +1459,7 @@ function isValidPdf(string $path): bool
                 ->update([
                     'cantidad' => $cantenva,
                     'completo' => $completo,
+                    'fecha_ultimoregistro' => $fechaActualFormateada,
                 ]);
             }
 
@@ -1476,6 +1476,7 @@ function isValidPdf(string $path): bool
             'ingresopor' => $request->input('ingp'),
             'enviadoa' => $enva,
             'motivo' => $moti,
+            'fechahora_registro' => $fechaHoraActualFormateada,
             'carpetafiscal' => $request->input('codi'),
             'id_personal' => Auth::user()->id_personal,
             'id_codbarras' => $id_codbarras,
@@ -1493,7 +1494,7 @@ function isValidPdf(string $path): bool
         ->where('id_dependencia', $request->input('depe'))
         ->where('ingresopor', $request->input('ingp'))
         ->where('enviadoa', $envaret)
-        ->orderBy('carpetafiscal', 'asc')
+        ->orderBy('id_carpeta', 'asc')
         ->get();
 
         return response()->json([
@@ -1545,7 +1546,7 @@ function isValidPdf(string $path): bool
         ->where('id_dependencia', $depe)
         ->where('ingresopor', $ingp)
         ->where('enviadoa', $enva)
-        ->orderBy('carpetafiscal', 'asc')
+        ->orderBy('id_carpeta', 'asc')
         ->get();
         $descingp="";
         if ($ingp==1) {$descingp="TURNO CORPORATIVA";}
@@ -1571,23 +1572,24 @@ function isValidPdf(string $path): bool
         $tablahtml = '
         <table>
         <tr>
-            <td style="padding: 0px 5px; font-size: 11px ;"><b>FECHA: </b>'. $fech .'</td>
+            <td style="padding: 0px 5px; font-size: 11px ;"><b>INGRESO POR: </b>'. $descingp .'</td>
             <td style="padding: 0px 5px; font-size: 11px ;"><b>DEPENDENCIA: </b>'. $descdepe .'</td>
         </tr>
         <tr>
-            <td style="padding: 0px 5px; font-size: 11px ;"><b>INGRESO POR: </b>'. $descingp .'</td>
             <td style="padding: 0px 5px; font-size: 11px ;"><b>ENVIADO A: </b>'. $descenva .'</td>
+            <td style="padding: 0px 5px; font-size: 11px ;"><b>FECHA: </b>'. $fech .'</td>
         </tr>
         </table>
         <table width=100% border=1 class="zebra">
             <thead class="thead-dark">
                 <tr>
-                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;">#</th>
-                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;">Nro Carpeta Fiscal</th>
+                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;" width=20>#</th>
+                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;" width=170>Nro Carpeta Fiscal</th>
+                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;" width=120>Fecha Registro</th>
                     <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;">Motivo</th>
-                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;">C&oacute;digo</th>
-                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;">A&ntilde;o</th>
-                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;">N&uacute;mero</th>
+                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;" width=60>C&oacute;digo</th>
+                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;" width=30>A&ntilde;o</th>
+                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;" width=60>N&uacute;mero</th>
                 </tr>
             </thead>
             <tbody style="font-size:11px;">';
@@ -1606,6 +1608,7 @@ function isValidPdf(string $path): bool
             <tr>
             <td style="padding: 5px 5px; font-size:11px ; text-transform:none;">' . $contador . '</td>
             <td style="padding: 5px 5px; font-size:11px ; text-transform:none;">'. $carpeta->carpetafiscal .'</td>
+            <td style="padding: 5px 5px; font-size:11px ; text-transform:none;">'. $carpeta->fechahora_registro .'</td>
             <td style="padding: 5px 5px; font-size:11px ; text-transform:none;">'. $motivos[$carpeta->motivo] .'</td>
             <td style="padding: 5px 5px; font-size:11px ; text-transform:none;">'. substr($carpeta->carpetafiscal,8,3) .'</td>
             <td style="padding: 5px 5px; font-size:11px ; text-transform:none;">'. substr($carpeta->carpetafiscal,11,4) .'</td>
@@ -1714,10 +1717,12 @@ function isValidPdf(string $path): bool
         $depe = $carpetasfcod->id_dependencia; 
         $ingp = $carpetasfcod->ingresopor; 
         $enva = $carpetasfcod->enviadoa;        
+        $fecha = $carpetasfcod->fecha;        
+        $fechault = $carpetasfcod->fecha_ultimoregistro;        
 
         $carpetasf = DB::table('mesacarpetasf')
         ->where('id_codbarras', $idcodbar)
-        ->orderBy('carpetafiscal', 'asc')
+        ->orderBy('id_carpeta', 'asc')
         ->get();
         $descingp="";
         if ($ingp==1) {$descingp="TURNO CORPORATIVA";}
@@ -1743,22 +1748,25 @@ function isValidPdf(string $path): bool
         $tablahtml = '
         <table>
         <tr>
+            <td style="padding: 0px 5px; font-size: 11px ;"><b>INGRESO POR: </b>'. $descingp .'</td>
             <td style="padding: 0px 5px; font-size: 11px ;" colspan=2><b>DEPENDENCIA: </b>'. $descdepe .'</td>
         </tr>
         <tr>
-            <td style="padding: 0px 5px; font-size: 11px ;"><b>INGRESO POR: </b>'. $descingp .'</td>
             <td style="padding: 0px 5px; font-size: 11px ;"><b>ENVIADO A: </b>'. $descenva .'</td>
+            <td style="padding: 0px 5px; font-size: 11px ;"><b>FECHA INICIAL: </b>'. $fecha .'</td>
+            <td style="padding: 0px 5px; font-size: 11px ;"><b>FECHA ULT. REGISTRO: </b>'. $fechault .'</td>
         </tr>
         </table>
         <table width=100% border=1 class="zebra">
             <thead class="thead-dark">
                 <tr>
-                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;">#</th>
-                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;">Nro Carpeta Fiscal</th>
+                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;" width=20>#</th>
+                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;" width=170>Nro Carpeta Fiscal</th>
+                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;" width=120>Fecha Registro</th>
                     <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;">Motivo</th>
-                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;">C&oacute;digo</th>
-                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;">A&ntilde;o</th>
-                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;">N&uacute;mero</th>
+                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;" width=60>C&oacute;digo</th>
+                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;" width=30>A&ntilde;o</th>
+                    <th style="padding: 5px 10px; font-size: 11px ; text-transform:none;" width=60>N&uacute;mero</th>
                 </tr>
             </thead>
             <tbody style="font-size:11px;">';
@@ -1777,6 +1785,7 @@ function isValidPdf(string $path): bool
             <tr>
             <td style="padding: 5px 5px; font-size:11px ; text-transform:none;">' . $contador . '</td>
             <td style="padding: 5px 5px; font-size:11px ; text-transform:none;">'. $carpeta->carpetafiscal .'</td>
+            <td style="padding: 5px 5px; font-size:11px ; text-transform:none;">'. $carpeta->fechahora_registro .'</td>
             <td style="padding: 5px 5px; font-size:11px ; text-transform:none;">'. $motivos[$carpeta->motivo] .'</td>
             <td style="padding: 5px 5px; font-size:11px ; text-transform:none;">'. substr($carpeta->carpetafiscal,8,3) .'</td>
             <td style="padding: 5px 5px; font-size:11px ; text-transform:none;">'. substr($carpeta->carpetafiscal,11,4) .'</td>
