@@ -1375,6 +1375,7 @@ function isValidPdf(string $path): bool
         $fechaActualFormateada = now()->format('Y-m-d');  // Formato 'YYYY-MM-DD'
 
         $id_codbarras=0;
+        $completo="N";
         //si es turno cerro, reviso la cuota de C1, C2 y C3 para saber a cual corresponde
         if ($request->input('ingp')=="2") {
             $cantenva=0;

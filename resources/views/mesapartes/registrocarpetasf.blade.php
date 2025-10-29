@@ -642,7 +642,7 @@ document.getElementById('codbarras').addEventListener('input', function () {
                         let anio = carpfiscal.substring(11, 15); 
                         let expe = parseInt(carpfiscal.substring(15, 21)); 
                         let motivo=registro.motivo;
-                        let fechareg=registro.fechahora_registro;
+                        let fechareg = registro.fechahora_registro ?? '';
 
                         tabla.row.add([contador, carpfiscal, fechareg, motivos[motivo], idde, anio, expe]);
                         contador++;
