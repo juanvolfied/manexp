@@ -1305,11 +1305,10 @@ function isValidPdf(string $path): bool
         $fechinic = now()->format('Y-m-d');  // Formato 'YYYY-MM-DD'
 
         $carpetasfcod = DB::table('mesacarpetasf_codbarras')
-        //->where('id_dependencia', $request->input('depe'))
         ->where('ingresopor', $request->input('ingp'))
         ->where('tpreporte', 'AC') //Apoyo Cerro Colorado
         ->orderByRaw('YEAR(fecha) DESC')
-        ->orderBy('numero', 'desc')
+        ->orderBy('id_codbarras', 'desc')
         ->first();
         if (!$carpetasfcod) {
             $sgteenva="C1";
@@ -1341,13 +1340,25 @@ function isValidPdf(string $path): bool
         ->where('id_dependencia', $request->input('depe'))
         ->where('ingresopor', $request->input('ingp'))
         ->where('enviadoa', $request->input('enva'))
-        //->where('motivo', $request->input('moti'))
         ->orderBy('id_carpeta', 'asc')
         ->get();
-
+        $completo = "N";
+        if ($request->input('ingp')=="2") {
+            $cantenva=0;
+            $carpetasfcod = DB::table('mesacarpetasf_codbarras')
+            ->where('ingresopor', $request->input('ingp'))
+            ->where('id_dependencia', $request->input('depe'))
+            ->where('fecha', $request->input('fech'))
+            ->where('tpreporte', 'AC') //Apoyo Cerro Colorado
+            ->first();
+            if ($carpetasfcod) {
+                $completo = $carpetasfcod->completo;
+            }
+        }
         return response()->json([
             'success' => true,
             'registros' => $carpetasf,
+            'completo' => $completo,
         ]);
     }
     public function buscaCarpeta(Request $request)
@@ -1379,19 +1390,14 @@ function isValidPdf(string $path): bool
         //si es turno cerro, reviso la cuota de C1, C2 y C3 para saber a cual corresponde
         if ($request->input('ingp')=="2") {
             $cantenva=0;
-            $sgteenva="";
             $carpetasfcod = DB::table('mesacarpetasf_codbarras')
             ->where('ingresopor', $request->input('ingp'))
             ->where('id_dependencia', $request->input('depe'))
+            ->where('fecha', $request->input('fech'))
             ->where('tpreporte', 'AC') //Apoyo Cerro Colorado
-            ->orderByRaw('YEAR(fecha) DESC')
-            ->orderBy('numero', 'desc')
             ->first();
-            if (!$carpetasfcod) {
-                $sgteenva="C1";
-            } else {
+            if ($carpetasfcod) {
                 $id_codbarras=$carpetasfcod->id_codbarras;
-                $enva = $carpetasfcod->enviadoa;
                 $cant = $carpetasfcod->cantidad;
                 $comp = $carpetasfcod->completo;
                 if ($comp=="S") {
@@ -1400,20 +1406,13 @@ function isValidPdf(string $path): bool
                         'message' => "SE COMPLETO LA CANTIDAD DE REGISTROS DEL PAQUETE INICIADO EN FECHA ". $fecha,
                     ]);             
                 }    
-                
-                if ($comp=="S") {
-                    if ($enva=="C1") {$sgteenva="C2";}
-                    if ($enva=="C2") {$sgteenva="C3";}
-                    if ($enva=="C3") {$sgteenva="C1";}
-                } else {
-                    $sgteenva=$enva;
-                    $cantenva=$cant;
-                }
+                $cantenva=$cant;
             }
             $cantenva++;
-            $completo="N";
-            if (($sgteenva=="C1" || $sgteenva=="C3") && $cantenva==36) {$completo="S";}
-            if ($sgteenva=="C2" && $cantenva==42) {$completo="S";}
+
+            if ((($enva=="C1" || $enva=="C3") && $cantenva==36) || ($enva=="C2" && $cantenva==42)) {
+                $completo="S";
+            }
 
 
             $ladepe = DB::table('dependencia')
@@ -1433,19 +1432,16 @@ function isValidPdf(string $path): bool
                     $nuevoNumero = $carpetasfcod->numero + 1;
                 }
 
-                //$desp = str_pad($request->input('desp'), 2, '0', STR_PAD_LEFT);
-                //$enva = $request->input('enva');
-
                 $nume = str_pad($nuevoNumero, 6, '0', STR_PAD_LEFT);
 
-                $codigo="DF" . substr($anio,2,2) . $datodist . $sgteenva . $nume;
+                $codigo="DF" . substr($anio,2,2) . $datodist . $enva . $nume;
                 $id_codbarras = DB::table('mesacarpetasf_codbarras')->insertGetId([
                 //DB::table('mesacarpetasf_codbarras')->insert([
                     'fecha' => $request->input('fech'),
                     'fecha_ultimoregistro' => $fechaActualFormateada,
                     'id_dependencia' => $request->input('depe'),
                     'ingresopor' => $request->input('ingp'),
-                    'enviadoa' => $sgteenva, //$request->input('enva'),
+                    'enviadoa' => $enva, //$request->input('enva'),
                     'numero' => $nuevoNumero,
                     'codigo' => $codigo,
                     'tpreporte' => "AC",
@@ -1463,8 +1459,6 @@ function isValidPdf(string $path): bool
                     'fecha_ultimoregistro' => $fechaActualFormateada,
                 ]);
             }
-
-            $enva=$sgteenva;
         }
 
         $moti="0";
@@ -1484,24 +1478,18 @@ function isValidPdf(string $path): bool
             //'id_usuario' => Auth::user()->id_usuario,
         ]);        
 
-
-        $envaret=$enva;
-        if ($completo=="S" && $enva=="C1") { $envaret="C2"; }
-        if ($completo=="S" && $enva=="C2") { $envaret="C3"; }
-        if ($completo=="S" && $enva=="C3") { $envaret="C1"; }
-
         $carpetasf = DB::table('mesacarpetasf')
         ->where('fecha', $request->input('fech'))
         ->where('id_dependencia', $request->input('depe'))
         ->where('ingresopor', $request->input('ingp'))
-        ->where('enviadoa', $envaret)
+        ->where('enviadoa', $enva)
         ->orderBy('id_carpeta', 'asc')
         ->get();
 
         return response()->json([
             'success' => true,
             'registros' => $carpetasf,
-            'enviretorno' => $envaret,
+            'completo' => $completo,
             'message' => "LA CARPETA FUE REGISTRADA SATISFACTORIAMENTE",
         ]);        
     }

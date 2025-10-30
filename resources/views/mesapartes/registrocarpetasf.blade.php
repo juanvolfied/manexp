@@ -41,7 +41,7 @@ function numeroAOrdinal($numero) {
                 </div>
                 <div class="card-body">
 
-                    <div class="row" id="codigoverificar">
+                    <div class="row">
                       <div class="col-md-12 col-lg-12">
                         <div class="form-group border p-3 rounded shadow-sm bg-light">                
                         <h5 class="text-primary"><i class="fas fa-tasks"></i> Seleccione Opciones y Presione Bot&oacute;n Continuar</h5>
@@ -181,7 +181,7 @@ function numeroAOrdinal($numero) {
                         </div>
                       </div>
                       <div class="col-md-3 col-lg-3 text-center">
-                        <h4 class="text-danger" id="canreg"></h4>
+                        <h3 class="text-danger" id="canreg"></h3>
                       </div>
                     </div><br>
 
@@ -190,7 +190,7 @@ function numeroAOrdinal($numero) {
 
         
 
-                    <div class="row" id="codigoverificar">
+                    <div class="row">
                       <div class="col-md-12 col-lg-12">
                         <div class="form-group border p-3 rounded shadow-sm bg-light">    
                             <div class="row">
@@ -618,7 +618,6 @@ document.getElementById('codbarras').addEventListener('input', function () {
         document.getElementById('datadependencia').innerHTML=descdepe;
         document.getElementById('dataingresopor').innerHTML=descingp;
         document.getElementById('dataenviadoa').innerHTML=descenva;
-
         $.ajax({
             url: '{{ route("mesapartes.buscacarpetasf") }}', 
             method: 'POST',
@@ -648,7 +647,11 @@ document.getElementById('codbarras').addEventListener('input', function () {
                         contador++;
                     });
                     tabla.draw();
-                    document.getElementById('canreg').innerHTML = response.registros.length + '<br>Carpetas';
+                    //document.getElementById('canreg').innerHTML = response.registros.length + '<br>Carpetas';
+                    document.getElementById('canreg').innerHTML ='<b>' + response.registros.length + ' Carpetas</b>' + (response.completo === 'S' ? '<br>Completo' : '') ;
+                    let deshabilitar = (response.completo === 'S' ? true : false);
+                    document.querySelectorAll('#codigoverificar input, #codigoverificar select, #codigoverificar textarea, #codigoverificar button')
+                    .forEach(e => e.disabled = deshabilitar);
 
 
                     document.getElementById('datacabe').style.display = 'none';
@@ -736,23 +739,10 @@ document.getElementById('codbarras').addEventListener('input', function () {
                         contador++;
                     });
                     tabla.draw();
-                    document.getElementById('canreg').innerHTML = response.registros.length + '<br>Carpetas';
-
-                    let enviretorno = response.enviretorno;
-                    const opciones = {
-                        C1: "Coordinación 1ra",
-                        C2: "Coordinación 2da",
-                        C3: "Coordinación 3ra"
-                    };
-                    if (enva !== enviretorno && opciones[enviretorno]) {
-                        const select = document.getElementById("enviadoa");
-                        select.innerHTML = `<option value="${enviretorno}" selected>${opciones[enviretorno]}</option>`;
-
-                        let xenva = document.getElementById("enviadoa");
-                        let descenva = xenva.options[xenva.selectedIndex].text;             
-                        document.getElementById('dataenviadoa').innerHTML=descenva;
-                    }
-
+                    document.getElementById('canreg').innerHTML ='<b>' + response.registros.length + ' Carpetas</b>' + (response.completo === 'S' ? '<br>Completo' : '') ;
+                    let deshabilitar = (response.completo === 'S' ? true : false);
+                    document.querySelectorAll('#codigoverificar input, #codigoverificar select, #codigoverificar textarea, #codigoverificar button')
+                    .forEach(e => e.disabled = deshabilitar);
 
 
                     document.getElementById('btngrabar').style.display = 'none';
