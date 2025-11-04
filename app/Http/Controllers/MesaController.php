@@ -1460,6 +1460,73 @@ function isValidPdf(string $path): bool
                 ]);
             }
         }
+        if ($request->input('ingp')=="1" || $request->input('ingp')=="3") {
+            $tprepo = ($request->input('ingp')=="1") ? "TC" : "TD";
+            $cantenva=0;
+            $carpetasfcod = DB::table('mesacarpetasf_codbarras')
+            ->where('ingresopor', $request->input('ingp'))
+            ->where('id_dependencia', $request->input('depe'))
+            ->where('fecha', $request->input('fech'))
+            ->where('enviadoa', $enva)
+            ->where('tpreporte', $tprepo) //Apoyo Cerro Colorado
+            ->first();
+            if ($carpetasfcod) {
+                $id_codbarras=$carpetasfcod->id_codbarras;
+                $cant = $carpetasfcod->cantidad;
+                $cantenva=$cant;
+            }
+            $cantenva++;
+
+            $ladepe = DB::table('dependencia')
+            ->where('id_dependencia', $request->input('depe'))
+            ->first();
+            $datodist=$ladepe->datodistrito;
+
+            if ($cantenva==1) {
+                $carpetasfcod = DB::table('mesacarpetasf_codbarras')
+                ->whereYear('fecha', $anio)
+                ->where('id_dependencia', $request->input('depe'))
+                ->orderBy('numero', 'desc')
+                ->first();
+                if (!$carpetasfcod) {
+                    $nuevoNumero = 1;
+                } else {
+                    $nuevoNumero = $carpetasfcod->numero + 1;
+                }
+
+                $nume = str_pad($nuevoNumero, 6, '0', STR_PAD_LEFT);
+
+                $codigo="DF" . substr($anio,2,2) . $datodist . $enva . $nume;
+                $id_codbarras = DB::table('mesacarpetasf_codbarras')->insertGetId([
+                //DB::table('mesacarpetasf_codbarras')->insert([
+                    'fecha' => $request->input('fech'),
+                    'fecha_ultimoregistro' => $fechaActualFormateada,
+                    'id_dependencia' => $request->input('depe'),
+                    'ingresopor' => $request->input('ingp'),
+                    'enviadoa' => $enva, //$request->input('enva'),
+                    'numero' => $nuevoNumero,
+                    'codigo' => $codigo,
+                    'tpreporte' => $tprepo,
+                    'cantidad' => $cantenva,
+                    'completo' => $completo,
+                    //'id_personal' => Auth::user()->id_personal,
+                    //'id_usuario' => Auth::user()->id_usuario,
+                ]);  
+            } else {
+                DB::table('mesacarpetasf_codbarras')
+                ->where('id_codbarras', $id_codbarras)
+                ->update([
+                    'cantidad' => $cantenva,
+                    'completo' => $completo,
+                    'fecha_ultimoregistro' => $fechaActualFormateada,
+                ]);
+            }
+        }
+
+
+
+
+
 
         $moti="0";
         if ($enva=="C1" || $enva=="C2" || $enva=="C3") {
@@ -1515,6 +1582,7 @@ function isValidPdf(string $path): bool
         $tipos = [
             'TCOF' => 'generapdfcarpetasf_fecha',
             'TCE' => 'generapdfcarpetasf_turnoc',
+            'TDEF' => 'generapdfcarpetasf_fecha',
         ];
         if (isset($tipos[$tpreporte])) {
             $metodo = $tipos[$tpreporte];
@@ -1529,24 +1597,32 @@ function isValidPdf(string $path): bool
         $depe = $request->query('depe');
         $ingp = $request->query('ingp');
         $enva = $request->query('enva');
+        $tprepo = ($request->input('ingp')=="1") ? "TC" : "TD";
 
-        $carpetasf = DB::table('mesacarpetasf')
-        ->where('fecha', $fech)
+        $carpetasfcod = DB::table('mesacarpetasf_codbarras')
         ->where('id_dependencia', $depe)
         ->where('ingresopor', $ingp)
         ->where('enviadoa', $enva)
+        ->where('fecha', $fech)
+        ->where('tpreporte', $tprepo)
+        ->first();
+        $idcodbar = $carpetasfcod->id_codbarras;
+        $codigogenerar = $carpetasfcod->codigo;
+
+        $carpetasf = DB::table('mesacarpetasf')
+        ->where('id_codbarras', $idcodbar)
         ->orderBy('fechahora_registro', 'desc')
         ->get();
         $descingp="";
         if ($ingp==1) {$descingp="TURNO CORPORATIVA";}
-        if ($ingp==2) {$descingp="TURNO CERRO";}
+        if ($ingp==3) {$descingp="TURNO DESPACHO";}
 
         $descri = [
             '01' => '1er. Despacho', '02' => '2do. Despacho', '03' => '3er. Despacho',
             '04' => '4to. Despacho', '05' => '5to. Despacho', '06' => '6to. Despacho',
             '07' => '7mo. Despacho', '08' => '8vo. Despacho', '09' => '9no. Despacho',
             '10' => '10mo. Despacho', '11' => '11er. Despacho', '12' => '12do. Despacho',
-            'C1' => 'Coordinación 1ra', 'C2' => 'Coordinación 2da', 'C3' => 'Coordinación 3ra',
+            'C1' => 'Coordinación 1ra', 'C2' => 'Coordinación 2da', 'C3' => 'Coordinación 3ra', 'CC' => 'Coordinación',
         ];
         $descenva = $descri[$enva] ?? '';
 
@@ -1635,7 +1711,6 @@ function isValidPdf(string $path): bool
         ';
 
 
-        $codigogenerar="";
         //$barcodeData = str_pad($nro_mov, 5, '0', STR_PAD_LEFT) ."-".$ano_mov."-". ( $tipo_mov == 'GI' ? 'I' : $tipo_mov );
         $barcodeData = $codigogenerar;
 
@@ -1665,11 +1740,11 @@ function isValidPdf(string $path): bool
         </style>    
         </head>
         <body>
-<!--        <div style='position: absolute; top:  20px; right: 20px;'>
+        <div style='position: absolute; top:  20px; right: 20px;'>
             <img src='data:image/png;base64,{{ $barcode }}' alt='Código de barras' style='width: 200px; height: 50px;'>
-        </div>-->
+        </div>
         
-        <h3 style='text-align: center;'>REGISTRO DE CARPETAS FISCALES<br>TURNO CORPORATIVA</h3>";
+        <h3 style='text-align: center;'>REGISTRO DE CARPETAS FISCALES<br>".$descingp."</h3>";
         $html .= $tablahtml ;
         $html .= "</body>
         </html>";
@@ -1871,8 +1946,6 @@ function isValidPdf(string $path): bool
         ->header('Content-Disposition', 'inline; filename="pdfcodbar'. (Auth::user()->id_personal) .'.pdf"');
 
     }
-
-
 
 
 }

@@ -52,6 +52,7 @@ function numeroAOrdinal($numero) {
                                     <option value="">-- Seleccione --</option>
                                     <option value="1">TURNO CORPORATIVA</option>
                                     <option value="2">TURNO CERRO</option>
+                                    <option value="3">TURNO DESPACHO</option>
                                 </select>
                             </div>
                             <div class="col-md-5">
@@ -199,7 +200,7 @@ function numeroAOrdinal($numero) {
                                 </div>
                                 <div class="col-md-6 col-lg-6 text-end">
                                     <input type="hidden" id="codigocf" name="codigocf">
-                                    <button id="botonimprimir" type="button" onclick="imprimirpdf()" class="btn  " style="background-color: #6c757d; color: white;" id="btnimprimir"><i class="fas fa-print me-1"></i> Imprimir Turno Corporativa</button>
+                                    <button id="botonimprimir" type="button" onclick="imprimirpdf()" class="btn  " style="background-color: #6c757d; color: white;" id="btnimprimir"><i class="fas fa-print me-1"></i> Imprimir</button>
                                 </div>
                             </div>    
         <table id="tablacarpetassgf" class="table table-striped table-bordered" width=100%>
@@ -395,13 +396,13 @@ function cambiadependencia(valor) {
         });
 
     }
-}
-function cambiaenviadoa(valor) {
-    let ingp = document.getElementById("ingresopor").value;
-    const select = document.getElementById("enviadoa");
-    select.innerHTML = ``;
-    if (ingp=="1") {
-        let depe = document.getElementById("dependencia").value;
+    if (valor=="3") {
+        selectize.addOption({ value: '0', text: '-- Seleccione --' });
+        opciones.forEach(opt => {
+            selectize.addOption({ value: opt.id_dependencia, text: opt.descripcion });
+        });
+        selectize.refreshOptions(false);
+        setTimeout(() => selectize.setValue('0'), 0);
         select.innerHTML = `
             <option value="">-- Seleccione --</option>
             <option value="01">1er. Despacho</option>
@@ -417,29 +418,56 @@ function cambiaenviadoa(valor) {
             <option value="11">11er. Despacho</option>
             <option value="12">12do. Despacho</option>
         `;
-        if (depe==34) {
-            const option = document.createElement("option");
-            option.value = "C1";
-            option.text = "Coordinación 1ra";
-            select.appendChild(option);
-        }        
-        if (depe==38) {
-            const option = document.createElement("option");
-            option.value = "C2";
-            option.text = "Coordinación 2da";
-            select.appendChild(option);
-        }        
-        if (depe==42) {
-            const option = document.createElement("option");
-            option.value = "C3";
-            option.text = "Coordinación 3ra";
-            select.appendChild(option);
-        }        
+        document.getElementById('botonimprimir').classList.remove('d-none');
+        document.getElementById('botonimprimir').classList.add('d-inline-block');    
+    }
+
+
+}
+function cambiaenviadoa(valor) {
+    let ingp = document.getElementById("ingresopor").value;
+    const select = document.getElementById("enviadoa");
+    select.innerHTML = ``;
+    if (ingp=="1") {
+        let depe = document.getElementById("dependencia").value;
+        if (depe!=34 && depe!=38 && depe!=42) {
+            select.innerHTML = `<option value="CC" selected>Coordinación</option>`; 
+            displaymotivo("CC");
+        }
+        if (valor==34) { 
+            select.innerHTML = `<option value="C1" selected>Coordinación 1ra</option>`; 
+            displaymotivo("C1");
+        }
+        if (valor==38) { 
+            select.innerHTML = `<option value="C2" selected>Coordinación 2da</option>`; 
+            displaymotivo("C2");
+        }
+        if (valor==42) { 
+            select.innerHTML = `<option value="C3" selected>Coordinación 3ra</option>`; 
+            displaymotivo("C3");
+        }
     }
     if (ingp=="2") {
         if (valor==34) { select.innerHTML = `<option value="C1" selected>Coordinación 1ra</option>`; }
         if (valor==38) { select.innerHTML = `<option value="C2" selected>Coordinación 2da</option>`; }
         if (valor==42) { select.innerHTML = `<option value="C3" selected>Coordinación 3ra</option>`; }
+    }
+    if (ingp=="3") {
+        select.innerHTML = `
+            <option value="">-- Seleccione --</option>
+            <option value="01">1er. Despacho</option>
+            <option value="02">2do. Despacho</option>
+            <option value="03">3er. Despacho</option>
+            <option value="04">4to. Despacho</option>
+            <option value="05">5to. Despacho</option>
+            <option value="06">6to. Despacho</option>
+            <option value="07">7mo. Despacho</option>
+            <option value="08">8vo. Despacho</option>
+            <option value="09">9no. Despacho</option>
+            <option value="10">10mo. Despacho</option>
+            <option value="11">11er. Despacho</option>
+            <option value="12">12do. Despacho</option>
+        `;
     }
 }
 
@@ -784,7 +812,9 @@ document.getElementById('codbarras').addEventListener('input', function () {
         let depe = document.getElementById("dependencia").value;
         let ingp = document.getElementById("ingresopor").value;
         let enva = document.getElementById("enviadoa").value;
-        let tpre ='TCOF';
+        let tpre ='';
+        if (ingp=="1") { tpre ='TCOF'; } //turno corporativa por fecha
+        if (ingp=="3") { tpre ='TDEF'; } //turno despacho por fecha
         //const codigocf = document.getElementById('codigocf').value;
         //if (codigocf=="") {
         //    alert("DATOS NO DISPONIBLES");
