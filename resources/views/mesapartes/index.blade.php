@@ -45,6 +45,11 @@ function numeroAOrdinal($numero) {
     @else
         <div id="messageOK" class="alert alert-success" style="display:none;"><b></b></div>
     @endif
+    @if(session('error'))
+        <div id="messageErr" class="alert alert-danger"><b>{{ session('error') }}</b></div>
+    @else
+        <div id="messageErr" class="alert alert-danger" style="display:none;"><b></b></div>
+    @endif
 
     <a href="{{ route('mesapartes.libroescritos') }}" class="btn btn-primary mb-3">+ Nuevo Registro - Recepci&oacute;n F&iacute;sico</a>
     <a href="{{ route('mesapartes.libroescritosv') }}" class="btn btn-secondary mb-3">+ Nuevo Registro - Recepci&oacute;n Virtual</a>

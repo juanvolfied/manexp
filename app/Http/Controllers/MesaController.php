@@ -138,7 +138,7 @@ class MesaController extends Controller
         $query = DB::table('libroescritos')
             ->select('*')
             ->where('libroescritos.id_fiscal', $fiscal)
-            ->whereDate('fecharegistro', '=', $fechareg);        
+            ->whereDate('fecharegistro', '=', $fechareg);
         $segdetalle = $query
             ->orderBy('fecharegistro', 'desc')
             ->get();
@@ -747,7 +747,9 @@ class MesaController extends Controller
         $existingFiles = [];
         foreach ($fileNames as $fileName) {
             $codigo = pathinfo($fileName, PATHINFO_FILENAME);
-            $libroescritos = DB::table('libroescritos')->where('codescrito', $codigo)->first();
+            $libroescritos = DB::table('libroescritos')
+            ->where('codescrito', $codigo)
+            ->first();
             if ($libroescritos) {
                 $fecha = new \DateTime($libroescritos->fecharegistro);
                 $anio = $fecha->format('Y');
@@ -1109,7 +1111,9 @@ function isValidPdf(string $path): bool
     $codigo = strtoupper($request->input('codescrito'));
 
     // Verificar si ya existe el código
-    $exists = DB::table('libroescritos')->where('codescrito', $codigo)->exists();
+    $exists = DB::table('libroescritos')
+    ->where('codescrito', $codigo)
+    ->exists();
 
     if ($exists) {
         return back()
@@ -1284,7 +1288,32 @@ function isValidPdf(string $path): bool
             'message' => 'EL REGISTRO HA SIDO ELIMINADO.',
         ]);        
     }
+    public function anularEscrito($codescrito)
+    {
+        DB::beginTransaction(); // Para garantizar consistencia
+        try {
+            $registro = DB::table('libroescritos')
+                ->where('codescrito', $codescrito)
+                ->first();
+            if (!$registro) {
+                return redirect()->route('mesapartes.index')
+                                ->with('error', 'C&Oacute;DIGO '. $codescrito .' NO ENCONTRADO.');
+            }
 
+            $data = (array) $registro;
+            DB::table('libroescritosanulados')->insert($data);
+
+            DB::table('libroescritos')->where('codescrito', $codescrito)->delete();
+
+            DB::commit();
+            return redirect()->route('mesapartes.index')
+                            ->with('success', 'EL REGISTRO HA SIDO ANULADO CORRECTAMENTE.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('mesapartes.index')
+                            ->with('error', 'OCURRIO UN ERROR AL INTENTAR ANULAR EL ESCRITO '. $codescrito .'.');
+        }
+    }
 
 
 
