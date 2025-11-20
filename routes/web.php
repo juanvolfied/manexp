@@ -26,6 +26,7 @@ use App\Http\Controllers\MesaController;
 use App\Http\Controllers\DepPoliController;
 use App\Http\Controllers\SolicitudCarpetasController;
 use App\Http\Controllers\CarpetasSGFController;
+use App\Http\Controllers\TransporteController;
 
 Route::get('/login', [UsuarioLoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [UsuarioLoginController::class, 'login'])->name('usuario.login');
@@ -278,3 +279,40 @@ Route::put('/carpetassgf/{id_generado}', [CarpetasSGFController::class, 'update'
 
 Route::get('/carpetassgf/reporteavance', [CarpetasSGFController::class, 'mostrarGraficoDatos'])->name('carpetassgf.carpetassgreporte');
 Route::get('/carpetassgf/grafico', [CarpetasSGFController::class, 'graficoPorIntervalo'])->name('carpetassgf.grafico');
+
+
+
+//TRANSPORTE
+// Ruta para listar
+Route::get('/transportec/conductor', [TransporteController::class, 'indexConductor'])->name('transporte.indexconductor');
+// Ruta para formulario de creaci�n
+Route::get('/transportec/createconductor', [TransporteController::class, 'createConductor'])->name('transporte.createconductor');
+// Ruta para guardar nuevo personal
+Route::post('/transportec/conductor', [TransporteController::class, 'storeConductor'])->name('transporte.storeconductor');
+// Ruta para mostrar un registro (opcional)
+Route::get('/transportec/{conductor}', [TransporteController::class, 'showConductor'])->name('transporte.showconductor');
+// Ruta para formulario de edici�n
+Route::get('/transportec/{conductor}/edit', [TransporteController::class, 'editConductor'])->name('transporte.editconductor');
+// Ruta para actualizar un registro existente
+Route::put('/transportec/{conductor}', [TransporteController::class, 'updateConductor'])->name('transporte.updateconductor');
+// Ruta para eliminar un registro
+Route::delete('/transportec/{conductor}', [TransporteController::class, 'destroyConductor'])->name('transporte.destroyconductor');
+
+// Ruta para listar
+Route::get('/transportev/vehiculo', [TransporteController::class, 'indexVehiculo'])->name('transporte.indexvehiculo');
+// Ruta para formulario de creaci�n
+Route::get('/transportev/createvehiculo', [TransporteController::class, 'createVehiculo'])->name('transporte.createvehiculo');
+// Ruta para guardar nuevo personal
+Route::post('/transportev/vehiculo', [TransporteController::class, 'storeVehiculo'])->name('transporte.storevehiculo');
+// Ruta para mostrar un registro (opcional)
+Route::get('/transportev/{nroplaca}', [TransporteController::class, 'showVehiculo'])->name('transporte.showvehiculo');
+// Ruta para formulario de edici�n
+Route::get('/transportev/{nroplaca}/edit', [TransporteController::class, 'editVehiculo'])->name('transporte.editvehiculo');
+// Ruta para actualizar un registro existente
+Route::put('/transportev/{nroplaca}', [TransporteController::class, 'updateVehiculo'])->name('transporte.updatevehiculo');
+// Ruta para eliminar un registro
+Route::delete('/transportev/{nroplaca}', [TransporteController::class, 'destroyVehiculo'])->name('transporte.destroyvehiculo');
+
+
+Route::get('/transporte/movimiento', [TransporteController::class, 'controlMovimiento'])->name('transporte.movimiento');
+Route::post('/transporte/grabamovimiento', [TransporteController::class, 'grabaMovimiento'])->name('transporte.grabamovimiento');

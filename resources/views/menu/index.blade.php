@@ -429,9 +429,38 @@
 
 
 
+
+    @php
+        $menutransporte = in_array($perfil, ['Admin','otroxxx']);
+        $menuActivo = request()->is('transporte/movimiento', 'transporte/consultamov');
+    @endphp
+    @if ($menucarpetassgf)
+              <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
+                <a data-bs-toggle="collapse" href="#transporte">
+                  <i class="fas fa-car"></i>
+                  <p>TRANSPORTE</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse {{ $menuActivo ? 'show' : '' }}" id="transporte">
+                  <ul class="nav nav-collapse">
+
+                    <li class="{{ request()->is('transporte/movimiento') ? 'active' : '' }}">
+                      <a href="{{ route('transporte.movimiento') }}">
+                        <span class="sub-item">Ingreso/Salida Veh&iacute;culos</span>
+                      </a>
+                    </li>
+
+                  </ul>
+                </div>
+              </li>
+    @endif <!--menutransporte-->    
+
+
+
+
     @php
         $menumantenimiento = in_array($perfil, ['Admin','MesaPartesAdmin']);
-        $menuActivo = request()->is('personal', 'deppolicial', 'mantenimiento/reactiva', 'mantenimiento/verdependencias', 'mantenimiento/verdependenciassgf', 'backup');
+        $menuActivo = request()->is('personal', 'deppolicial', 'transportec/conductor', 'transportev/vehiculo', 'mantenimiento/reactiva', 'mantenimiento/verdependencias', 'mantenimiento/verdependenciassgf', 'backup');
         $menuActivo2 = request()->is('usuarios', 'perfilusuario');
     @endphp    
     @if($menumantenimiento)
@@ -446,6 +475,16 @@
                     <li class="{{ request()->is('personal') ? 'active' : '' }}">
                       <a href="{{ route('personal.index') }}">
                         <span class="sub-item">Personal</span>
+                      </a>
+                    </li>
+                    <li class="{{ request()->is('transportec/conductor') ? 'active' : '' }}">
+                      <a href="{{ route('transporte.indexconductor') }}">
+                        <span class="sub-item">Conductores</span>
+                      </a>
+                    </li>
+                    <li class="{{ request()->is('transportev/vehiculo') ? 'active' : '' }}">
+                      <a href="{{ route('transporte.indexvehiculo') }}">
+                        <span class="sub-item">Veh&iacute;culos</span>
                       </a>
                     </li>
                     <li class="{{ request()->is('deppolicial') ? 'active' : '' }}">
