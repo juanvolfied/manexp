@@ -340,6 +340,52 @@ class TransporteController extends Controller
         ]);        
     }
 
+    public function consultarIntervalo()
+    {
+        return view('transporte.consultaintervalofecha');
+    }
+    public function consultarIntervalodetalle(Request $request)
+    {
+        $fechaini = $request->input('fechaini');    
+        $fechafin = $request->input('fechafin');    
+
+        $segdetalle = DB::table('tra_controlvehiculos')
+        ->leftJoin('tra_conductores', 'tra_controlvehiculos.id_conductor', '=', 'tra_conductores.id_conductor')
+        ->leftJoin('tra_vehiculos', 'tra_controlvehiculos.placa', '=', 'tra_vehiculos.nroplaca')
+        ->select(
+            'tra_controlvehiculos.fechahora_registro',
+            'tra_controlvehiculos.tipo_mov',
+            'tra_conductores.apellido_paterno',
+            'tra_conductores.apellido_materno',
+            'tra_conductores.nombres',
+            'tra_controlvehiculos.placa',
+            'tra_vehiculos.marca',
+            'tra_vehiculos.modelo',
+            'tra_vehiculos.color',
+            'tra_controlvehiculos.kilometraje',
+            'tra_controlvehiculos.observacion',
+        )
+        ->whereDate('fechahora_registro', '>=', $fechaini)
+        ->whereDate('fechahora_registro', '<=', $fechafin)
+        ->orderBy('id_movimiento', 'desc') 
+        ->get();
+
+        if ($segdetalle->isNotEmpty()) {
+            return response()->json([
+                'success' => true,
+                'registros' => $segdetalle,
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'NO SE ENCONTRARON MOVIMIENTOS DEL'. $fechaini .' AL '. $fechafin .' .',
+            ]);
+        }
+
+    }
+
+
+
 
 
 }

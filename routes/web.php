@@ -317,3 +317,5 @@ Route::delete('/transportev/{nroplaca}', [TransporteController::class, 'destroyV
 Route::get('/transporte/movimiento', [TransporteController::class, 'controlMovimiento'])->name('transporte.movimiento');
 Route::post('/transporte/grabamovimiento', [TransporteController::class, 'grabaMovimiento'])->name('transporte.grabamovimiento');
 Route::post('/transporte/valida', [TransporteController::class, 'validaIDPlaca'])->name('transporte.valida');
+Route::get('/transporte/consultaintervalofechas', [TransporteController::class, 'consultarIntervalo'])->name('transporte.consultaintervalo');
+Route::post('/transporte/consultaintervalodetalle', [TransporteController::class, 'consultarIntervalodetalle'])->name('transporte.consultaintervalodetalle');
