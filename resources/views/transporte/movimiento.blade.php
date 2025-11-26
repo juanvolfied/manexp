@@ -36,12 +36,35 @@
                                         @error('tipo') <div class="text-danger">{{ $message }}</div> @enderror
                                 </div>
                                 <div class="col-md-4 col-lg-4">
-                                    <label for="id_conductor" class="form-label"><b>ID Conductor</b></label>
-                                    <input type="text" name="id_conductor" id="id_conductor" class="form-control" maxlength="8" value="" placeholder="00000000">
+                                    <!--<label for="id_conductor" class="form-label"><b>ID Conductor</b></label>
+                                    <input type="text" name="id_conductor" id="id_conductor" class="form-control" maxlength="8" value="" placeholder="00000000" >-->
+
+                                    <div class="form-group" style="padding:5px;">
+                                        <label for="id_conductor"><b>ID Conductor</b></label>
+                                        <div class="input-group">
+                                            <input type="text" name="id_conductor" id="id_conductor" class="form-control" maxlength="8" value="" placeholder="00000000" onkeydown="validaidkey()" autofocus>
+                                            <button class="btn btn-primary" style="padding:0px 1rem!important; z-index: 1;" type="button" onclick="validaid()">
+                                            <i class="fas fa-check me-1"></i> Validar
+                                            </button>
+                                        </div>                                    
+                                    </div>
+
                                 </div>
                                 <div class="col-md-4 col-lg-4">
-                                    <label for="placa" class="form-label"><b>Placa Veh&iacute;culo</b></label>
-                                    <input type="text" name="placa" id="placa" class="form-control" maxlength="7" value="" placeholder="Ejem. AAA-111">
+                                    <!--<label for="placa" class="form-label"><b>Placa Veh&iacute;culo</b></label>
+                                    <input type="text" name="placa" id="placa" class="form-control" maxlength="7" value="" placeholder="Ejem. AAA-111">-->
+
+                                    <div class="form-group" style="padding:5px;">
+                                        <label for="placa"><b>Placa Veh&iacute;culo</b></label>
+                                        <div class="input-group">
+                                            <input type="text" name="placa" id="placa" class="form-control" maxlength="7" value="" placeholder="Ejem. AAA-111" onkeydown="validaplacakey()">
+                                            <button class="btn btn-primary" style="padding:0px 1rem!important; z-index: 1;" type="button" onclick="validaplaca()">
+                                            <i class="fas fa-check me-1"></i> Validar
+                                            </button>
+                                        </div>                                    
+                                    </div>
+
+
                                 </div>
                             </div>
 
@@ -128,6 +151,7 @@
                                     <tr>
                                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">ID Conductor</th>
                                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Conductor</th>
+                                        <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Fecha</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -135,6 +159,7 @@
                                         <tr>
                                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->id_conductor }}</td>
                                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->apellido_paterno }} {{ $p->apellido_materno }} {{ $p->nombres }}</td>
+                                            <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->fechahora_ultimomov }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -149,6 +174,7 @@
                                     <tr>
                                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Placa</th>
                                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Veh&iacute;culo</th>
+                                        <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Fecha</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -156,6 +182,7 @@
                                         <tr>
                                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->nroplaca }}</td>
                                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->marca }} {{ $p->modelo }} {{ $p->color }}</td>
+                                            <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->fechahora_ultimomov }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -176,6 +203,7 @@
                                     <tr>
                                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">ID Conductor</th>
                                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Conductor</th>
+                                        <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Fecha</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -183,6 +211,7 @@
                                         <tr>
                                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->id_conductor }}</td>
                                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->apellido_paterno }} {{ $p->apellido_materno }} {{ $p->nombres }}</td>
+                                            <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->fechahora_ultimomov }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -197,6 +226,7 @@
                                     <tr>
                                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Placa</th>
                                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Veh&iacute;culo</th>
+                                        <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Fecha</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -204,6 +234,7 @@
                                         <tr>
                                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->nroplaca }}</td>
                                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->marca }} {{ $p->modelo }} {{ $p->color }}</td>
+                                            <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->fechahora_ultimomov }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -272,6 +303,107 @@ IMask(document.getElementById('placa'), {
     'A': /[A-Za-z0-9]/  // permite letras o números en los primeros 3
   }
 });
+
+    function validaidkey() {
+        if (event.keyCode === 13) {
+            validaid();
+        }
+    }
+    function validaid() {
+        let idco = document.getElementById("id_conductor").value;
+        if (idco==""){
+            alert("Ingrese el ID del conductor");
+            return false;
+        }
+
+        $.ajax({
+            url: '{{ route("transporte.valida") }}', 
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                idco: idco,
+            },
+            success: function(response) {
+                let mensaje = response.message || 'Respuesta sin mensaje';
+                if (response.success) {
+                    document.getElementById("placa").focus();
+                } else {
+                    document.getElementById('textomostrar').innerHTML = `
+                    <div style="display:flex; align-items:flex-start; gap:10px;">
+                        <i class="fas fa-exclamation-triangle fa-3x" style="color:#f0ad4e; flex-shrink:0;"></i>
+                        <div>${response.message}</div>
+                    </div>
+                    `;
+                    const myModal = new bootstrap.Modal(document.getElementById('textoModal'));
+                    myModal.show();
+                }
+            },
+            error: function(xhr, status, error) {
+                        if (xhr.status === 419) {
+                            // No autorizado - probablemente sesi�n expirada
+                            alert('TU SESION HA EXPIRADO. SERAS REDIRIGIDO AL LOGIN.');
+                            window.location.href = '{{ route("usuario.login") }}';
+                        } else {
+                            // Otro tipo de error
+                            console.error('Error en la petici�n:', xhr.status);
+                            alert('Hubo un error al grabar.');
+                        }
+            }
+
+        });
+
+    }
+    function validaplacakey() {
+        if (event.keyCode === 13) {
+            validaplaca();
+        }
+    }
+    function validaplaca() {
+        let plac = document.getElementById("placa").value;
+        if (plac==""){
+            alert("Ingrese la placa del vehiculo");
+            return false;
+        }
+
+        $.ajax({
+            url: '{{ route("transporte.valida") }}', 
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                plac: plac,
+            },
+            success: function(response) {
+                let mensaje = response.message || 'Respuesta sin mensaje';
+                if (response.success) {
+                    document.getElementById("kilomet").focus();
+                } else {
+                    document.getElementById('textomostrar').innerHTML = `
+                    <div style="display:flex; align-items:flex-start; gap:10px;">
+                        <i class="fas fa-exclamation-triangle fa-3x" style="color:#f0ad4e; flex-shrink:0;"></i>
+                        <div>${response.message}</div>
+                    </div>
+                    `;
+                    const myModal = new bootstrap.Modal(document.getElementById('textoModal'));
+                    myModal.show();
+                }
+            },
+            error: function(xhr, status, error) {
+                        if (xhr.status === 419) {
+                            // No autorizado - probablemente sesi�n expirada
+                            alert('TU SESION HA EXPIRADO. SERAS REDIRIGIDO AL LOGIN.');
+                            window.location.href = '{{ route("usuario.login") }}';
+                        } else {
+                            // Otro tipo de error
+                            console.error('Error en la petici�n:', xhr.status);
+                            alert('Hubo un error al grabar.');
+                        }
+            }
+
+        });
+
+    }
+
+
 
     function grabarmov(e) {
         let tipo = document.getElementById("tipo").value;

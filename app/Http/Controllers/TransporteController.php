@@ -230,34 +230,116 @@ class TransporteController extends Controller
                 'success' => false,
                 'message' => "EL VEHICULO DE PLACA {$request->plac} NO ESTA REGISTRADO.",
             ]);
-        }        
-        
-        $fechaHoraActualFormateada = now()->format('Y-m-d H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
-        DB::table('tra_controlvehiculos')
-        ->insert([
-            'fechahora_registro' => $fechaHoraActualFormateada,
-            'tipo_mov' => $request->input('tipo'),
-            'id_conductor' => $request->input('idco'),
-            'placa' => $request->input('plac'),
-            'kilometraje' => $request->input('kilo'),
-            'observacion' => $request->input('obse'),
-            'id_personal' => Auth::user()->id_personal,
-        ]);
-        DB::table('tra_conductores')
-        ->where('id_conductor', $request->input('idco'))
-        ->update([
-            'ensede' => $request->input('tipo')=="I" ? "S" : "N"  ,
-        ]);
-        DB::table('tra_vehiculos')
-        ->where('nroplaca', $request->input('plac'))
-        ->update([
-            'ensede' => $request->input('tipo')=="I" ? "S" : "N"  ,
-        ]);        
+        }
+        $datoidco = DB::table('tra_controlvehiculos')
+            ->where('id_conductor', $request->idco)
+            ->orderBy('id_movimiento', 'desc')
+            ->first();
+        if ($datoidco) {
+            $tipo=$datoidco->tipo_mov;
+            if ($request->input('tipo') == $tipo) {
+                $tpmsg = $tipo=="I" ? "YA SE ENCUENTRA EN LA SEDE" : "YA SE ENCUENTRA EN UNA DILIGENCIA";
+                return response()->json([
+                    'success' => false,
+                    'message' => "EL CONDUCTOR CON ID {$request->idco} {$tpmsg}.",
+                ]);
+            }
+        }
+        $datoplac = DB::table('tra_controlvehiculos')
+            ->where('placa', $request->plac)
+            ->orderBy('id_movimiento', 'desc')
+            ->first();
+        if ($datoplac) {
+            $tipo=$datoplac->tipo_mov;
+            if ($request->input('tipo') == $tipo) {
+                $tpmsg = $tipo=="I" ? "YA SE ENCUENTRA EN LA SEDE" : "YA SE ENCUENTRA EN UNA DILIGENCIA";
+                return response()->json([
+                    'success' => false,
+                    'message' => "EL VEHICULO DE PLACA {$request->plac} {$tpmsg}.",
+                ]);
+            }
+        }
 
+
+
+        try {
+
+            DB::beginTransaction(); // ← INICIA LA TRANSACCIÓN
+            
+            $fechaHoraActualFormateada = now()->format('Y-m-d H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
+            DB::table('tra_controlvehiculos')
+            ->insert([
+                'fechahora_registro' => $fechaHoraActualFormateada,
+                'tipo_mov' => $request->input('tipo'),
+                'id_conductor' => $request->input('idco'),
+                'placa' => $request->input('plac'),
+                'kilometraje' => $request->input('kilo'),
+                'observacion' => $request->input('obse'),
+                'id_personal' => Auth::user()->id_personal,
+            ]);
+            DB::table('tra_conductores')
+            ->where('id_conductor', $request->input('idco'))
+            ->update([
+                'ensede' => $request->input('tipo')=="I" ? "S" : "N"  ,
+                'fechahora_ultimomov' => $fechaHoraActualFormateada,
+            ]);
+            DB::table('tra_vehiculos')
+            ->where('nroplaca', $request->input('plac'))
+            ->update([
+                'ensede' => $request->input('tipo')=="I" ? "S" : "N"  ,
+                'fechahora_ultimomov' => $fechaHoraActualFormateada,
+            ]);        
+            DB::commit(); // ← GUARDA TODO
+
+            return response()->json([
+                'success' => true,
+                'message' => "EL MOVIMIENTO FUE GUARDADO DE FORMA SATISFACTORIA",
+            ]);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack(); // ← DESHACE TODO
+
+            return response()->json([
+                'success' => false,
+                'message' => "OCURRIO UN ERROR AL GUARDAR. INTENTE NUEVAMENTE.",
+                'error'   => $e->getMessage(), // ← opcional, quitar en producción
+            ]);
+        }
+
+
+    }
+
+    public function validaIDPlaca(Request $request)
+    {
+        if ($request->filled('idco')) {
+            $existe = DB::table('tra_conductores')
+                ->where('id_conductor', $request->idco)
+                ->exists();
+            if (!$existe) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "EL CONDUCTOR CON ID {$request->idco} NO ESTA REGISTRADO.",
+                ]);
+            }        
+        }        
+        if ($request->filled('plac')) {
+            $existe = DB::table('tra_vehiculos')
+                ->where('nroplaca', $request->plac)
+                ->exists();
+            if (!$existe) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "EL VEHICULO DE PLACA {$request->plac} NO ESTA REGISTRADO.",
+                ]);
+            }        
+        }
         return response()->json([
             'success' => true,
-            'message' => "EL MOVIMIENTO FUE GUARDADO DE FORMA SATISFACTORIA",
-        ]);
+            'message' => "DATO VALIDADO",
+        ]);        
     }
+
+
 
 }
