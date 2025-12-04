@@ -27,6 +27,7 @@ use App\Http\Controllers\DepPoliController;
 use App\Http\Controllers\SolicitudCarpetasController;
 use App\Http\Controllers\CarpetasSGFController;
 use App\Http\Controllers\TransporteController;
+use App\Http\Controllers\AgendaController;
 
 Route::get('/login', [UsuarioLoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [UsuarioLoginController::class, 'login'])->name('usuario.login');
@@ -319,3 +320,27 @@ Route::post('/transporte/grabamovimiento', [TransporteController::class, 'grabaM
 Route::post('/transporte/valida', [TransporteController::class, 'validaIDPlaca'])->name('transporte.valida');
 Route::get('/transporte/consultaintervalofechas', [TransporteController::class, 'consultarIntervalo'])->name('transporte.consultaintervalo');
 Route::post('/transporte/consultaintervalodetalle', [TransporteController::class, 'consultarIntervalodetalle'])->name('transporte.consultaintervalodetalle');
+
+/*
+Route::get('/calendar', function () {
+    return view('agenda/calendar');
+})->name('agenda.calendar');*/
+Route::get('/agendavehicular', [AgendaController::class, 'agendaVehicular'])->name('agenda.agendavehicular');
+Route::post('/grabaragendavehicular', [AgendaController::class, 'grabaragendaVehicular'])->name('agenda.grabaragendavehicular');
+Route::post('/grabaraprueba', [AgendaController::class, 'grabarAprueba'])->name('agenda.grabaraprueba');
+
+Route::get('/events', [AgendaController::class, 'index']);
+Route::post('/events', [AgendaController::class, 'store']);
+
+//Route::get('/admin/agenda', [EventController::class, 'index']);
+//Route::post('/admin/agenda/events', [EventController::class, 'store']);
+Route::put('/admin/agenda/events/{event}', [AgendaController::class, 'update']);
+Route::delete('/admin/agenda/events/{event}', [AgendaController::class, 'destroy']);
+
+/*
+Route::get('/solicitarvehiculo', function () {
+    return view('agenda/solicitarvehiculo');
+})->name('agenda.solicitarvehiculo');
+*/
+Route::get('/solicitarvehiculo', [AgendaController::class, 'solicitarVehiculo'])->name('agenda.solicitarvehiculo');
+Route::post('/grabarsolicitud', [AgendaController::class, 'grabarSolicitud'])->name('agenda.grabarsolicitud');

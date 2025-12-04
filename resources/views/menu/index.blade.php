@@ -369,7 +369,7 @@
 
     @php
         $menuescritos = in_array($perfil, ['Admin','Despacho']);
-        $menuActivo = request()->is('mesapartes/consultaescritos', 'otro');
+        $menuActivo = request()->is('mesapartes/consultaescritos', 'agenda/solicitarvehiculo', 'otro');
     @endphp
     @if ($menuescritos)
               <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
@@ -384,6 +384,23 @@
                     <li class="{{ request()->is('mesapartes/consultaescritos') ? 'active' : '' }}">
                       <a href="{{ route('mesapartes.consultaescritos') }}">
                         <span class="sub-item">Consulta de escritos</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
+                <a data-bs-toggle="collapse" href="#agendatra">
+                  <i class="fas fa-file"></i>
+                  <p>AGENDA VEHICULAR</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse {{ $menuActivo ? 'show' : '' }}" id="agendatra">
+                  <ul class="nav nav-collapse">
+
+                    <li class="{{ request()->is('agenda/solicitarvehiculo') ? 'active' : '' }}">
+                      <a href="{{ route('agenda.solicitarvehiculo') }}">
+                        <span class="sub-item">Solicitar uso vehicular</span>
                       </a>
                     </li>
                   </ul>
@@ -432,7 +449,7 @@
 
     @php
         $menutransporte = in_array($perfil, ['Admin','Transporte']);
-        $menuActivo = request()->is('transporte/movimiento', 'transporte/consultamov', 'transporte/consultaintervalofechas');
+        $menuActivo = request()->is('transporte/movimiento', 'transporte/consultamov', 'transporte/consultaintervalofechas', 'agenda/agendavehicular');
     @endphp
     @if ($menutransporte)
               <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
@@ -452,6 +469,12 @@
                     <li class="{{ request()->is('transporte/consultaintervalofechas') ? 'active' : '' }}">
                       <a href="{{ route('transporte.consultaintervalo') }}">
                         <span class="sub-item">Consulta Intervalo de fechas</span>
+                      </a>
+                    </li>
+
+                    <li class="{{ request()->is('agenda/agendavehicular') ? 'active' : '' }}">
+                      <a href="{{ route('agenda.agendavehicular') }}">
+                        <span class="sub-item">Agenda Vehicular</span>
                       </a>
                     </li>
 
@@ -518,12 +541,12 @@
                         <span class="sub-item">Selecciona Dependencias para Registro de Carpetas SGF</span>
                       </a>
                     </li>
-        @endif
                     <li class="{{ request()->is('backup') ? 'active' : '' }}">
                       <a href="{{ route('backup') }}">
                         <span class="sub-item">Backup</span>
                       </a>
                     </li>
+        @endif
                   </ul>
                 </div>
               </li>
@@ -733,6 +756,7 @@
     <script src="{{ asset('js/core/jquery-3.7.1.min.js') }}"></script>
 
 <script src="{{ asset('js/imask.js') }}"></script>
+<script src="{{ asset('js/fullcalendar614.min.js') }}"></script>
 
 
 <!-- JS de Selectize -->
