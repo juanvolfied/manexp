@@ -25,6 +25,7 @@
                 <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Apellido Paterno</th>
                 <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Apellido Materno</th>
                 <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Nombres</th>
+                <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Celular</th>
                 <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Nro Licencia</th>
                 <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Categor&iacute;a</th>
                 <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Activo</th>
@@ -38,6 +39,7 @@
                     <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->apellido_paterno }}</td>
                     <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->apellido_materno }}</td>
                     <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->nombres }}</td>
+                    <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->nrocelular }}</td>
                     <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->nrolicencia }}</td>
                     <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->categoria }}</td>
                     <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->activo }}</td>
@@ -70,7 +72,7 @@
 $(document).ready(function() {
     $('#tablapersonal').DataTable({
   "columnDefs": [
-    { "orderable": false, "targets": [7, 8] }  // Evitar orden en columnas de acción si no es necesario
+    { "orderable": false, "targets": [8, 9] }  // Evitar orden en columnas de acción si no es necesario
   ],
         "pageLength": 20,  // Número de filas por página
         "lengthMenu": [10, 25, 50, 100],  // Opciones de paginación

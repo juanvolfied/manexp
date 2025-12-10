@@ -21,12 +21,23 @@ class AgendaController extends Controller
             ->orderBy('apellido_materno', 'asc') 
             ->orderBy('nombres', 'asc') 
             ->get();
+        $conductores = DB::table('tra_conductores')
+            ->where('activo','S')            
+            ->orderBy('apellido_paterno', 'asc') 
+            ->orderBy('apellido_materno', 'asc') 
+            ->orderBy('nombres', 'asc') 
+            ->get();
         $agenda = DB::table('agenda')
             ->leftJoin('personal', 'agenda.id_fiscal', '=', 'personal.id_personal')
+            ->leftJoin('tra_conductores', 'agenda.id_conductor', '=', 'tra_conductores.id_conductor')
+            ->select('agenda.*', 'personal.apellido_paterno', 'personal.apellido_materno', 'personal.nombres', 
+            DB::raw("CONCAT(tra_conductores.apellido_paterno, ' ', tra_conductores.apellido_materno, ' ', tra_conductores.nombres) AS conductor"),
+            'tra_conductores.nrocelular'
+            )
             ->where('agenda.tipo','V')
             ->orderBy('fechahora_inicia', 'desc') 
             ->get();
-        return view('agenda.agendavehicular', compact('personal','agenda'));
+        return view('agenda.agendavehicular', compact('personal','conductores','agenda'));
     }
     public function grabarAgendaVehicular(Request $request) {
         $fecha = $request->input('start');
@@ -55,6 +66,7 @@ class AgendaController extends Controller
         $event = DB::table('agenda')->insert([
             'tipo' => $request->input('tipo') ,
             'id_fiscal' => $request->input('fiscal') ,
+            'id_conductor' => $request->input('conductor') ,
             'id_dependencia' => $iddep,
             'despacho' => $despa,
             'asunto' => $request->input('asunto') ,
@@ -70,10 +82,12 @@ class AgendaController extends Controller
     }
     public function grabarAprueba(Request $request) {
         $idevento = $request->input('idevento');
+        $idconductor = $request->input('idconductor');
         $event = DB::table('agenda')
         ->where('id_evento',$idevento)
         ->update([
             'estado' => "A",
+            'id_conductor' => $idconductor,
         ]);
         return response()->json([
             'success' => true,
@@ -156,6 +170,11 @@ class AgendaController extends Controller
             ->get();
         $agenda = DB::table('agenda')
             ->leftJoin('personal', 'agenda.id_fiscal', '=', 'personal.id_personal')
+            ->leftJoin('tra_conductores', 'agenda.id_conductor', '=', 'tra_conductores.id_conductor')
+            ->select('agenda.*', 'personal.apellido_paterno', 'personal.apellido_materno', 'personal.nombres', 
+            DB::raw("CONCAT(tra_conductores.apellido_paterno, ' ', tra_conductores.apellido_materno, ' ', tra_conductores.nombres) AS conductor"),
+            'tra_conductores.nrocelular'
+            )
             ->where('agenda.id_dependencia',Auth::user()->personal->id_dependencia)
             ->where('agenda.despacho',Auth::user()->personal->despacho)
             ->orderBy('fechahora_inicia', 'desc') 

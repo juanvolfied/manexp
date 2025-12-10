@@ -42,6 +42,7 @@ class TransporteController extends Controller
             'apellido_paterno' => 'required|max:30',
             'apellido_materno' => 'required|max:30',
             'nombres' => 'required|max:30',
+            'nrocelular' => 'required|max:9',
             'activo' => 'required|in:S,N',
         ]);
 
@@ -50,6 +51,7 @@ class TransporteController extends Controller
             'apellido_paterno' => $request->input('apellido_paterno'),
             'apellido_materno' => $request->input('apellido_materno'),
             'nombres' => $request->input('nombres'),
+            'nrocelular' => $request->input('nrocelular'),
             'nrolicencia' => $request->input('nrolicencia'),
             'categoria' => $request->input('categoria'),
             'activo' => $request->input('activo'),
@@ -80,6 +82,7 @@ class TransporteController extends Controller
             'apellido_paterno' => 'required|max:30',
             'apellido_materno' => 'required|max:30',
             'nombres' => 'required|max:30',
+            'nrocelular' => 'required|max:9',
             'activo' => 'required|in:S,N',
         ]);
 
@@ -89,6 +92,7 @@ class TransporteController extends Controller
             'apellido_paterno' => $request->input('apellido_paterno'),
             'apellido_materno' => $request->input('apellido_materno'),
             'nombres' => $request->input('nombres'),
+            'nrocelular' => $request->input('nrocelular'),
             'nrolicencia' => $request->input('nrolicencia'),
             'categoria' => $request->input('categoria'),
             'activo' => $request->input('activo'),

@@ -129,4 +129,156 @@ class InventarioController extends Controller
         ]);
     }
 
+    public function validaInventario()
+    {
+        DB::statement("
+            CREATE TEMPORARY TABLE temp_inventarios AS
+            SELECT DISTINCT nro_inventario
+            FROM ubicacion_exp
+            where nro_inventario like 'are-%' ORDER BY nro_inventario;
+        ");
+
+        $result = DB::select("SELECT * FROM temp_inventarios ORDER BY nro_inventario DESC LIMIT 1");
+        $ultimoRegistro = $result[0]->nro_inventario;
+        $ultreg = substr($ultimoRegistro,4,6);
+
+        DB::statement("
+        CREATE TEMPORARY TABLE numeros_temp (n INT PRIMARY KEY);
+        ");
+
+        DB::statement("INSERT INTO numeros_temp (n)
+        SELECT ones.n + tens.n * 10 + hunds.n * 100 + thous.n * 1000 + t_thous.n * 10000 + h_thous.n * 100000 AS n
+        FROM 
+        (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 
+        UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) ones,
+        (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 
+        UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) tens,
+        (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 
+        UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) hunds,
+        (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 
+        UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) thous,
+        (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 
+        UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) t_thous,
+        (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 
+        UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) h_thous
+        WHERE (ones.n + tens.n*10 + hunds.n*100 + thous.n*1000 + t_thous.n*10000 + h_thous.n*100000) BETWEEN 1 AND ". $ultreg ."; ");  
+
+        $are_faltantes = DB::select("
+        WITH faltantes AS (
+            SELECT n.n AS numero
+            FROM numeros_temp n
+            LEFT JOIN temp_inventarios t 
+                ON t.nro_inventario = CONCAT('ARE-', LPAD(n.n, 6, '0'))
+            WHERE t.nro_inventario IS NULL
+        ),
+        rangos AS (
+            SELECT 
+                MIN(numero) AS inicio,
+                MAX(numero) AS fin
+            FROM (
+                SELECT 
+                    numero,
+                    numero - ROW_NUMBER() OVER (ORDER BY numero) AS grp
+                FROM faltantes
+            ) t
+            GROUP BY grp
+        )
+        SELECT CONCAT('ARE-', LPAD(inicio, 6, '0')) as rangodesde, CONCAT('ARE-', LPAD(fin, 6, '0')) AS rangohasta
+        FROM rangos
+        ORDER BY inicio;
+        "); //SELECT CONCAT('ARE-', LPAD(inicio, 6, '0'), ' al ARE-', LPAD(fin, 6, '0')) AS rango_faltante
+
+
+        // Eliminar la tabla temporal
+        DB::statement("DROP TEMPORARY TABLE IF EXISTS temp_inventarios");
+        DB::statement("DROP TEMPORARY TABLE IF EXISTS numeros_temp");
+        
+
+
+
+
+
+
+
+        DB::statement("
+            CREATE TEMPORARY TABLE temp_inventarios AS
+            SELECT DISTINCT nro_inventario
+            FROM ubicacion_exp
+            where nro_inventario like 'int25%' ORDER BY nro_inventario;
+        ");
+
+        $result = DB::select("SELECT * FROM temp_inventarios ORDER BY nro_inventario DESC LIMIT 1");
+        $ultimoRegistro = $result[0]->nro_inventario;
+        $ultreg = substr($ultimoRegistro,5,5);
+
+        DB::statement("
+        CREATE TEMPORARY TABLE numeros_temp (n INT PRIMARY KEY);
+        ");
+
+        DB::statement("INSERT INTO numeros_temp (n)
+        SELECT ones.n + tens.n * 10 + hunds.n * 100 + thous.n * 1000 + t_thous.n * 10000 + h_thous.n * 100000 AS n
+        FROM 
+        (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 
+        UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) ones,
+        (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 
+        UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) tens,
+        (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 
+        UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) hunds,
+        (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 
+        UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) thous,
+        (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 
+        UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) t_thous,
+        (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 
+        UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) h_thous
+        WHERE (ones.n + tens.n*10 + hunds.n*100 + thous.n*1000 + t_thous.n*10000 + h_thous.n*100000) BETWEEN 1 AND ". $ultreg ."; ");  
+
+        $int_faltantes = DB::select("
+        WITH faltantes AS (
+            SELECT n.n AS numero
+            FROM numeros_temp n
+            LEFT JOIN temp_inventarios t 
+                ON t.nro_inventario = CONCAT('int25', LPAD(n.n, 5, '0'))
+            WHERE t.nro_inventario IS NULL
+        ),
+        rangos AS (
+            SELECT 
+                MIN(numero) AS inicio,
+                MAX(numero) AS fin
+            FROM (
+                SELECT 
+                    numero,
+                    numero - ROW_NUMBER() OVER (ORDER BY numero) AS grp
+                FROM faltantes
+            ) t
+            GROUP BY grp
+        )
+        SELECT CONCAT('INT25', LPAD(inicio, 5, '0')) as rangodesde, CONCAT('INT25', LPAD(fin, 5, '0')) AS rangohasta
+        FROM rangos
+        ORDER BY inicio;
+        "); //SELECT CONCAT('ARE-', LPAD(inicio, 6, '0'), ' al ARE-', LPAD(fin, 6, '0')) AS rango_faltante
+
+
+        // Eliminar la tabla temporal
+        DB::statement("DROP TEMPORARY TABLE IF EXISTS temp_inventarios");
+        DB::statement("DROP TEMPORARY TABLE IF EXISTS numeros_temp");
+
+
+$nosonareint = DB::select("
+SELECT distinct nro_inventario FROM `ubicacion_exp` where nro_inventario not like 'are-%' and nro_inventario not like 'int25%' order by nro_inventario;
+");
+
+
+
+
+
+
+
+
+        //return response()->json($result);
+
+
+        return view('inventario.validainventario', compact('are_faltantes','int_faltantes','nosonareint'));
+    }    
+
+
 }

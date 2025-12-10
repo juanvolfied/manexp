@@ -86,7 +86,7 @@
     @php
         $menuinventario = in_array($perfil, ['Admin', 'Inventario','Archivo']);
         $puedeVerGrafico = in_array($perfil, ['Admin','Archivo']);
-        $menuActivo = request()->is('inventario', 'inventariov2', 'seguimiento', 'grafico', 'graficopie');
+        $menuActivo = request()->is('inventario', 'inventariov2', 'seguimiento', 'grafico', 'graficopie', 'validainventario');
     @endphp
     @if ($menuinventario)
               <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
@@ -121,6 +121,11 @@
                     <li class="{{ request()->is('graficopie') ? 'active' : '' }}" >
                       <a href="{{ route('graficopie') }}">
                         <span class="sub-item">Gr&aacute;fico por Dependencia</span>
+                      </a>
+                    </li>
+                    <li class="{{ request()->is('validainventario') ? 'active' : '' }}" >
+                      <a href="{{ route('validainventario') }}">
+                        <span class="sub-item">Valida secuencia en Nro Inventario</span>
                       </a>
                     </li>
       @endif
@@ -449,7 +454,7 @@
 
     @php
         $menutransporte = in_array($perfil, ['Admin','Transporte']);
-        $menuActivo = request()->is('transporte/movimiento', 'transporte/consultamov', 'transporte/consultaintervalofechas', 'agenda/agendavehicular');
+        $menuActivo = request()->is('transporte/movimiento', 'transporte/consultamov', 'transporte/consultaintervalofechas', 'agendavehicular');
     @endphp
     @if ($menutransporte)
               <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
@@ -472,7 +477,7 @@
                       </a>
                     </li>
 
-                    <li class="{{ request()->is('agenda/agendavehicular') ? 'active' : '' }}">
+                    <li class="{{ request()->is('agendavehicular') ? 'active' : '' }}">
                       <a href="{{ route('agenda.agendavehicular') }}">
                         <span class="sub-item">Agenda Vehicular</span>
                       </a>

@@ -60,6 +60,7 @@
                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Detalle</th>
                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Fecha</th>
                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Fecha Termino</th>
+                        <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Conductor Designado</th>
                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Estado</th>
                     </tr>
                 </thead>
@@ -71,6 +72,7 @@
                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->detalle }}</td>
                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->fechahora_inicia }}</td>
                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->fechahora_termina }}</td>
+                            <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->conductor }} - {{ $p->nrocelular }}</td>
 <td 
     style="
         padding: 5px 5px!important; 
@@ -288,9 +290,14 @@
             default:
                 icon = '<i class="fas fa-calendar"></i>';  // Por defecto
         }
+        // Formatear la hora (HH:MM)
+        let startTime = arg.event.start;
+        let hours = startTime.getHours().toString().padStart(2,'0');
+        let minutes = startTime.getMinutes().toString().padStart(2,'0');
+        let timeStr = hours + ':' + minutes;
 
         return { 
-            html: '<b>' + icon + ' &nbsp;' + arg.event.title  + '</b>'
+            html: '<b>' + icon + ' &nbsp;' + timeStr + ' - ' + arg.event.title + '</b>'
         };
     },
     eventDidMount: function(info) {

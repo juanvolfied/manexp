@@ -46,6 +46,8 @@
                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Detalle</th>
                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Fecha</th>
                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Fecha Termino</th>
+                        <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Conductor Designado</th>
+
                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Estado</th>
                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Acci&oacute;n</th>
                     </tr>
@@ -58,6 +60,8 @@
                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->detalle }}</td>
                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->fechahora_inicia }}</td>
                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->fechahora_termina }}</td>
+                            <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->conductor }} - {{ $p->nrocelular }}</td>
+                            
 <td 
     style="
         padding: 5px 5px!important; 
@@ -70,7 +74,14 @@
 </b></td>
                             <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
                             @if($p->estado == 'S')
-                                <a href="#" onclick="aprobar('{{ $p->id_evento }}')" data-bs-toggle="tooltip" title="Aprobar y agendar uso de vehículo" style="color: green;"><i class="fas fa-check-circle fa-lg"></i><br>Agendar</a>
+                                <a href="#" 
+                                onclick="aprobar(this)"
+                                data-id="{{ $p->id_evento }}"
+                                data-nombre="{{ $p->apellido_paterno }} {{ $p->apellido_materno }} {{ $p->nombres }}"
+                                data-asunto="{{ $p->asunto }}"
+                                data-detalle="{{ $p->detalle }}"
+                                data-inicio="{{ $p->fechahora_inicia }}"                                                                
+                                data-bs-toggle="tooltip" title="Aprobar y agendar uso de vehículo" style="color: green;"><i class="fas fa-check-circle fa-lg"></i><br>Agendar</a>
                             @else
                                 <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-check-circle fa-lg text-muted" ></i><br>Agendar</a>
                             @endif 
@@ -122,6 +133,8 @@
     </div>
   </div>
 </div>
+
+
 
 <!-- MODAL BOOTSTRAP PARA CREAR EVENTO -->
 <div class="modal fade" id="eventModal" tabindex="-1" aria-hidden="true">
@@ -196,7 +209,24 @@
             <label for="horatermino"><b>Hora termino</b></label>
             <input type="time" class="form-control" name="horatermino" id="horatermino">
             </div>
+        </div><hr style="height: 3px; background-color: #222; border: none;">
+        
+        <div class="row mb-3" >
+            <div class="col-md-4 col-lg-4">
+            <div class="form-group" style="padding:0px;">
+                <label for="conductor"><b>Conductor Designado:</b></label>
+                <select name="conductor" id="conductor" class="form-select" data-live-search="true" required>
+                    <option value="">Seleccione...</option>
+                    @foreach ($conductores as $cond)
+                    <option value="{{ $cond->id_conductor }}" >
+                        {{ $cond->apellido_paterno }} {{ $cond->apellido_materno }} {{ $cond->nombres }}
+                    </option>			    
+                    @endforeach
+                </select>
+            </div>
+            </div>
         </div>
+
       </div>
 
       <div class="modal-footer">
@@ -208,7 +238,62 @@
 </div>
 
 
+
+<!-- MODAL BOOTSTRAP PARA CREAR EVENTO -->
+<div class="modal fade" id="eventModal2" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-md" >
+    <form id="formCreateEvent2" class="modal-content" autocomplete="off">
+        @csrf
+
+      <div class="modal-header">
+        <h5 class="modal-title">Agendar Solicitud de Vehículo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="row mb-3">
+          <div class="col-md-12 col-lg-12">
+            <table width=100%>
+            <tr><td><b>FISCAL:</b></td><td><span id="fis"></span></td></tr>
+            <tr><td><b>ASUNTO:</b></td><td><span id="asu"></span></td></tr>
+            <tr><td><b>DETALLE:</b></td><td><span id="det"></span></td></tr>
+            <tr><td><b>FECHA:</b></td><td><span id="fec"></span></td></tr>
+            </tr></table>
+            <hr>
+            <div class="form-group" style="padding:0px;">
+              <label for="conductor2"><b>Conductor Designado:</b></label>
+              <select name="conductor2" id="conductor2" class="form-select" data-live-search="true" required>
+                <option value="">Seleccione...</option>
+                @foreach ($conductores as $cond)
+                <option value="{{ $cond->id_conductor }}">
+                    {{ $cond->apellido_paterno }} {{ $cond->apellido_materno }} {{ $cond->nombres }}
+                </option>
+                @endforeach
+              </select>
+            </div>
+          </div>
+        </div> <!-- cierre row -->
+
+        <input type="hidden" id="idevento">
+      </div> <!-- cierre modal-body -->
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-success" onclick="grabaaprobacion()">Aceptar y Agendar Solicitud</button>
+      </div>
+
+    </form> <!-- cierre form -->
+  </div>
+</div>
+
+
 <body>
+
+
+
+
+
+
 @push('scripts')
 <script>
   $(document).ready(function() {
@@ -397,6 +482,10 @@ document.getElementById('tab2-tab')
             alert("Ingrese la hora");
             return false;
         }
+        if (document.getElementById('conductor').value=="") {
+            alert("Seleccione el conductor designado");
+            return false;
+        }
 
 
         const tipo = "V";
@@ -407,13 +496,14 @@ document.getElementById('tab2-tab')
         const end   = document.getElementById('fechatermino').value;
         const hstart = document.getElementById('horainicio').value;
         const hend = document.getElementById('horainicio').value;
+        const conductor = document.getElementById('conductor').value;
         const response = await fetch('/manexp/public/grabaragendavehicular', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN':  '{{ csrf_token() }}'
             },
-            body: JSON.stringify({ tipo, fiscal, asunto, detalle, start, end, hstart, hend })
+            body: JSON.stringify({ tipo, fiscal, asunto, detalle, start, end, hstart, hend, conductor })
         });
         const data = await response.json(); // ← IMPORTANTE
 
@@ -438,16 +528,39 @@ document.getElementById('tab2-tab')
         });
 
 
-        function aprobar(idevento) {
-            if (!confirm("LA SOLICITUD SERA APROBADA Y AGENDADA, ¿DESEA CONTINUAR CON ESTE PROCEDIMIENTO?")) {
-                return; // Si cancela, salir de la función
+        function aprobar(el) {
+            var idevento = el.dataset.id;
+            var nombre   = el.dataset.nombre;
+            var asunto   = el.dataset.asunto;
+            var detalle  = el.dataset.detalle;
+            var inicio   = el.dataset.inicio;
+            var termino  = el.dataset.termino;            
+
+            document.getElementById('idevento').value=idevento;
+            document.getElementById('fis').innerHTML=nombre;
+            document.getElementById('asu').innerHTML=asunto;
+            document.getElementById('det').innerHTML=detalle;
+            document.getElementById('fec').innerHTML=inicio;
+            var miModal2 = new bootstrap.Modal(document.getElementById('eventModal2'));
+            miModal2.show();
+        }
+        function grabaaprobacion() {
+            if (document.getElementById('conductor2').value=="") {
+                alert("SELECCIONE AL CONDUCTOR DESIGNADO");
+                return false;
             }
+            var miModal2 = new bootstrap.Modal(document.getElementById('eventModal2'));
+            miModal2.hide();
+
+            idevento=document.getElementById('idevento').value;
+            idconductor=document.getElementById('conductor2').value;
             $.ajax({
                 url: '{{ route("agenda.grabaraprueba") }}', 
                 method: 'POST',
                 data: {
                     _token: '{{ csrf_token() }}',
                     idevento: idevento,
+                    idconductor: idconductor,
                 },
                 success: function(response) {
                     if (response.success) {

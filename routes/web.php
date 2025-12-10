@@ -82,6 +82,7 @@ Route::get('/grafico-usuario', [InventarioController::class, 'graficoPorUsuario'
 Route::get('/graficopie', [InventarioController::class, 'mostrarGraficoPie'])->name('graficopie');
 Route::get('/graficopie-fecha', [InventarioController::class, 'graficoPieFecha'])->name('graficopie.fecha');
 
+Route::get('/validainventario', [InventarioController::class, 'validaInventario'])->name('validainventario');
 
 
 

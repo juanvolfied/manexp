@@ -32,6 +32,13 @@
     </div>
 </div>
 <div class="row">
+    <div class="col-md-2 col-lg-2">
+        <div class="form-group" style="padding:5px;">
+            <label for="nrocelular" class="form-label"><b>Celular</b></label>
+            <input type="text" name="nrocelular" class="form-control" maxlength="9" value="{{ old('nrocelular', $conductores->nrocelular ?? '') }}">
+            @error('nrocelular') <div class="text-danger">{{ $message }}</div> @enderror
+        </div>
+    </div>
     <div class="col-md-3 col-lg-3">
         <div class="form-group" style="padding:5px;">
             <label for="nrolicencia" class="form-label"><b>Nro Licencia</b></label>
