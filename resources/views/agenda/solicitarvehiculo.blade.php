@@ -297,7 +297,7 @@
         let timeStr = hours + ':' + minutes;
 
         return { 
-            html: '<b>' + icon + ' &nbsp;' + timeStr + ' - ' + arg.event.title + '</b>'
+            html: '<b>' + icon + ' &nbsp;' + timeStr + ' ' + arg.event.title + '</b>'
         };
     },
     eventDidMount: function(info) {

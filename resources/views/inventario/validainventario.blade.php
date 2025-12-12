@@ -12,7 +12,9 @@
     <div class="card">
         
         <div class="card-header  d-flex justify-content-between align-items-center">
-        <div class="card-title">Valida secuencia de Nro de Inventario - Identificar códigos faltantes y no correspondientes</div>
+        <div class="card-title">Valida secuencia de Nro de Inventario - Códigos faltantes y no correspondientes</div>
+        <a href="#" id="btnImprimir" class="btn btn-primary mb-0">Imprimir</a>
+
         </div>
 
         <div class="card-body">
@@ -99,8 +101,61 @@
         </div>        
     </div>  
 
+<!-- Modal -->
+<div class="modal fade" id="modalPDF" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Vista previa PDF</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <iframe id="iframePDF" style="width:100%; height:80vh;" frameborder="0"></iframe>
+      </div>
+    </div>
+  </div>
+</div>
 
 <body>
+<script>
+
+document.getElementById("btnImprimir").addEventListener("click", function(e){
+    e.preventDefault();
+    imprimir();
+});
+
+function xximprimir() {
+    alert("Función llamada correctamente");
+}
+
+async function imprimir() { 
+    const arefaltantes = @json($are_faltantes);
+    const intfaltantes = @json($int_faltantes);
+    const nosonareint = @json($nosonareint);
+    try {
+        const response = await fetch("{{ route('validaimprime') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ arefaltantes, intfaltantes, nosonareint })
+        });
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        document.getElementById('iframePDF').src = url;
+        new bootstrap.Modal(document.getElementById('modalPDF')).show();
+
+    } catch (error) {
+        console.error(error);
+        alert('Ocurrió un error generando el PDF.');
+    }
+}
+
+</script>
+
+
 @push('scripts')
 
 <script>
@@ -192,6 +247,10 @@ $(document).ready(function() {
 
 
 });
+
+
+
+
 </script>
 @endpush
 

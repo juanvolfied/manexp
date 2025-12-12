@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\Usuarios;
 use Illuminate\Support\Facades\Auth;
+use Mpdf\Mpdf;
 
 class InventarioController extends Controller
 {
@@ -280,5 +281,110 @@ SELECT distinct nro_inventario FROM `ubicacion_exp` where nro_inventario not lik
         return view('inventario.validainventario', compact('are_faltantes','int_faltantes','nosonareint'));
     }    
 
+
+    public function validaImprime(Request $request)
+    {
+        $arefaltantes = $request->arefaltantes;
+        $intfaltantes = $request->intfaltantes;
+        $nosonareint = $request->nosonareint;
+
+        $html1 = '
+            <style>
+                table { border-collapse: collapse; }
+                td { border: 1px solid #000; padding: 4px; }
+            </style>
+                <table style="font-size: 10px;">
+                    <tr>
+                        <td><b>DESDE</b></td>
+                        <td><b>HASTA</b></td>
+                    </tr>
+                <tbody>';
+                foreach ($arefaltantes as $p) {
+                    if ($p['rangodesde']==$p['rangohasta']) {
+                    $html1 .= "<tr>
+                                <td align='center'>{$p['rangodesde']}</td>
+                                <td></td>
+                            </tr>";
+
+                    } else {
+                    $html1 .= "<tr>
+                                <td align='center'>{$p['rangodesde']}</td>
+                                <td align='center'>{$p['rangohasta']}</td>
+                            </tr>";
+                    }
+                }
+        $html1 .= '</tbody></table>';
+
+        $html2 = '<table style="font-size: 10px;">
+                    <tr>
+                        <td><b>DESDE</b></td>
+                        <td><b>HASTA</b></td>
+                    </tr>
+                <tbody>';
+                foreach ($intfaltantes as $p) {
+                    if ($p['rangodesde']==$p['rangohasta']) {
+                    $html2 .= "<tr>
+                                <td align='center'>{$p['rangodesde']}</td>
+                                <td></td>
+                            </tr>";
+
+                    } else {
+                    $html2 .= "<tr>
+                                <td align='center'>{$p['rangodesde']}</td>
+                                <td align='center'>{$p['rangohasta']}</td>
+                            </tr>";
+                    }
+                }
+        $html2 .= '</tbody></table>';
+
+
+        $html3 = '
+                <table style="font-size: 10px;">
+                    <tr>
+                        <td><b>NRO INVENTARIO</b></td>
+                    </tr>';
+                foreach ($nosonareint as $p) {
+                    $html3 .= "<tr>
+                                <td align='center'>{$p['nro_inventario']}</td>
+                            </tr>";
+                }
+        $html3 .= '</table>';
+
+        $mpdf = new Mpdf([
+            'mode' => 'c',
+            'format' => 'A4-P',
+            'default_font_size' => 10,
+            'default_font' => 'Arial',
+            'margin_left' => 10,
+            'margin_right' => 10,
+            'margin_top' => 5,
+            'margin_bottom' => 3,
+            'margin_header' => 1,
+            'margin_footer' => 1
+        ]);        
+
+        $mpdf->WriteHTML("<h3>FALTANTES CON PREFIJO ARE</h3>");
+        $mpdf->SetColumns(4);
+        $mpdf->WriteHTML($html1);
+        $mpdf->SetColumns(1);
+//$mpdf->AddPage();
+
+        $mpdf->WriteHTML("<h3>FALTANTES CON PREFIJO INT25</h3>");
+        $mpdf->SetColumns(4);
+        $mpdf->WriteHTML($html2);
+        $mpdf->SetColumns(1);
+
+        $mpdf->WriteHTML("<h3>NO CORRESPONDEN</h3>");
+        $mpdf->WriteHTML($html3);
+
+
+        $pdfContent = $mpdf->Output('', 'S'); // 'S' = devuelve el contenido como string
+        return response($pdfContent, 200)
+        ->header('Content-Type', 'application/pdf')
+        ->header('Content-Disposition', 'inline; filename="valida.pdf"');
+
+
+
+    }    
 
 }

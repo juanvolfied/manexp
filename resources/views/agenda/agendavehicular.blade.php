@@ -368,9 +368,14 @@
             default:
                 icon = '<i class="fas fa-calendar"></i>';  // Por defecto
         }
+        // Formatear la hora (HH:MM)
+        let startTime = arg.event.start;
+        let hours = startTime.getHours().toString().padStart(2,'0');
+        let minutes = startTime.getMinutes().toString().padStart(2,'0');
+        let timeStr = hours + ':' + minutes;
 
         return { 
-            html: '<b>' + icon + ' &nbsp;' + arg.event.title  + '</b>'
+            html: '<b>' + icon + ' &nbsp;' + timeStr + ' ' + arg.event.title + '</b>'
         };
     },
     eventDidMount: function(info) {
