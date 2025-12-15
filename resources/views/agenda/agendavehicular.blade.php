@@ -42,8 +42,10 @@
                 <thead class="thead-dark">
                     <tr>
                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Fiscal</th>
+                        <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Dependencia</th>
                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Asunto</th>
                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Detalle</th>
+                        <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Destino</th>
                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Fecha</th>
                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Fecha Termino</th>
                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Conductor Designado</th>
@@ -56,8 +58,10 @@
                     @foreach($agenda as $p)
                         <tr>
                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->apellido_paterno }} {{ $p->apellido_materno }} {{ $p->nombres }}</td>
+                            <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->abreviado }}</td>
                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->asunto }}</td>
                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->detalle }}</td>
+                            <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->lugardestino }}</td>
                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->fechahora_inicia }}</td>
                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->fechahora_termina }}</td>
                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->conductor }} - {{ $p->nrocelular }}</td>
@@ -78,8 +82,10 @@
                                 onclick="aprobar(this)"
                                 data-id="{{ $p->id_evento }}"
                                 data-nombre="{{ $p->apellido_paterno }} {{ $p->apellido_materno }} {{ $p->nombres }}"
+                                data-abreviado="{{ $p->abreviado }}"
                                 data-asunto="{{ $p->asunto }}"
                                 data-detalle="{{ $p->detalle }}"
+                                data-lugardestino="{{ $p->lugardestino }}"
                                 data-inicio="{{ $p->fechahora_inicia }}"                                                                
                                 data-bs-toggle="tooltip" title="Aprobar y agendar uso de vehículo" style="color: green;"><i class="fas fa-check-circle fa-lg"></i><br>Agendar</a>
                             @else
@@ -120,7 +126,9 @@
             <tr>
               <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">Asunto</th>
               <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">Detalle</th>
+              <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">Destino</th>
               <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">Fiscal</th>
+              <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">Dependencia</th>
               <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">Inicio</th>
               <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">Fin</th>
             </tr>
@@ -183,9 +191,13 @@
 
         </div>
         <div class="row mb-3" >
-            <div class="col-md-12 col-lg-12">
+            <div class="col-md-9 col-lg-9">
             <label for="detalle"><b>Detalle de la diligencia</b></label>
             <input type="text" class="form-control" name="detalle" id="detalle" maxlength="100">
+            </div>
+            <div class="col-md-3 col-lg-3">
+            <label for="lugardestino"><b>Lugar Destino</b></label>
+            <input type="text" class="form-control" name="lugardestino" id="lugardestino" maxlength="25">
             </div>
 
         </div>
@@ -255,8 +267,10 @@
           <div class="col-md-12 col-lg-12">
             <table width=100%>
             <tr><td><b>FISCAL:</b></td><td><span id="fis"></span></td></tr>
+            <tr><td><b>DEPENDENCIA:</b></td><td><span id="dep"></span></td></tr>
             <tr><td><b>ASUNTO:</b></td><td><span id="asu"></span></td></tr>
             <tr><td><b>DETALLE:</b></td><td><span id="det"></span></td></tr>
+            <tr><td><b>DESTINO:</b></td><td><span id="des"></span></td></tr>
             <tr><td><b>FECHA:</b></td><td><span id="fec"></span></td></tr>
             </tr></table>
             <hr>
@@ -424,7 +438,9 @@
                 tr.innerHTML = `
                     <td style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">${e.title}</td>
                     <td style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">${e.extendedProps.detalle || ''}</td>
+                    <td style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">${e.extendedProps.lugardestino || ''}</td>
                     <td style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">${e.extendedProps.fiscal || ''}</td>
+                    <td style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">${e.extendedProps.abreviado || ''}</td>
                     <td style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">${e.start.toLocaleString()}</td>
                     <td style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">${e.end ? e.end.toLocaleString() : ''}</td>
                 `;
@@ -479,6 +495,10 @@ document.getElementById('tab2-tab')
             alert("Ingrese el Asunto/Motivo de la diligencia");
             return false;
         }
+        if (document.getElementById('lugardestino').value=="") {
+            alert("Ingrese el lugar de destino de la diligencia");
+            return false;
+        }
         if (document.getElementById('fechainicio').value=="") {
             alert("Ingrese la fecha de la diligencia");
             return false;
@@ -497,6 +517,7 @@ document.getElementById('tab2-tab')
         const fiscal = document.getElementById('fiscal').value;
         const asunto = document.getElementById('asunto').value;
         const detalle = document.getElementById('detalle').value;
+        const lugardestino = document.getElementById('lugardestino').value;
         const start = document.getElementById('fechainicio').value;
         const end   = document.getElementById('fechatermino').value;
         const hstart = document.getElementById('horainicio').value;
@@ -508,7 +529,7 @@ document.getElementById('tab2-tab')
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN':  '{{ csrf_token() }}'
             },
-            body: JSON.stringify({ tipo, fiscal, asunto, detalle, start, end, hstart, hend, conductor })
+            body: JSON.stringify({ tipo, fiscal, asunto, detalle, lugardestino, start, end, hstart, hend, conductor })
         });
         const data = await response.json(); // ← IMPORTANTE
 
@@ -536,15 +557,19 @@ document.getElementById('tab2-tab')
         function aprobar(el) {
             var idevento = el.dataset.id;
             var nombre   = el.dataset.nombre;
+            var abreviado   = el.dataset.abreviado;
             var asunto   = el.dataset.asunto;
             var detalle  = el.dataset.detalle;
+            var lugardestino  = el.dataset.lugardestino;
             var inicio   = el.dataset.inicio;
             var termino  = el.dataset.termino;            
 
             document.getElementById('idevento').value=idevento;
             document.getElementById('fis').innerHTML=nombre;
+            document.getElementById('dep').innerHTML=abreviado;
             document.getElementById('asu').innerHTML=asunto;
             document.getElementById('det').innerHTML=detalle;
+            document.getElementById('des').innerHTML=lugardestino;
             document.getElementById('fec').innerHTML=inicio;
             var miModal2 = new bootstrap.Modal(document.getElementById('eventModal2'));
             miModal2.show();

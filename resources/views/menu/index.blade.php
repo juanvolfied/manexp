@@ -86,7 +86,7 @@
     @php
         $menuinventario = in_array($perfil, ['Admin', 'Inventario','Archivo']);
         $puedeVerGrafico = in_array($perfil, ['Admin','Archivo']);
-        $menuActivo = request()->is('inventario', 'inventariov2', 'seguimiento', 'grafico', 'graficopie', 'validainventario');
+        $menuActivo = request()->is('inventario', 'inventariov2', 'inventariov3', 'seguimiento', 'grafico', 'graficopie', 'validainventario');
     @endphp
     @if ($menuinventario)
               <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
@@ -107,6 +107,14 @@
                         <span class="sub-item">Registro de Inventario forma 2</span>
                       </a>
                     </li>
+        @if(in_array($perfil, ['Adminxxxx','Archivoxxxx']))
+                    <li class="{{ request()->is('inventariov3') ? 'active' : '' }}">
+                      <a href="{{ route('inventariov3') }}" style="background-color:#ff0000;">
+                        <span class="sub-item" style="color:#ffffff;">Reg. Inventario (ADMIN)</span>
+                      </a>
+                    </li>
+        @endif
+
                     <li class="{{ request()->is('seguimiento') ? 'active' : '' }}" >
                       <a href="{{ route('seginventario') }}">
                         <span class="sub-item">Seguimiento</span>

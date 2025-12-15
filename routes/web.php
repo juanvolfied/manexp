@@ -72,6 +72,7 @@ Route::post('/expediente-lect', [MenuController::class, 'grabalecturaExpediente'
 Route::post('/expediente-inve', [MenuController::class, 'grabainventarioExpediente'])->name('expediente.inventa');
 Route::post('/eliminar-item', [MenuController::class, 'eliminarItem'])->name('elimina.item');
 Route::get('/inventariov2', [MenuController::class, 'nuevoExpedientev2'])->name('inventariov2');
+Route::get('/inventariov3', [MenuController::class, 'nuevoExpedientev3'])->name('inventariov3');
 
 
 Route::get('/seguimiento', [MenuController::class, 'seguimientoInventario'])->name('seginventario');

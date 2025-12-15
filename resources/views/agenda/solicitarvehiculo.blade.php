@@ -58,6 +58,7 @@
                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Fiscal</th>
                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Asunto</th>
                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Detalle</th>
+                        <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Destino</th>
                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Fecha</th>
                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Fecha Termino</th>
                         <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Conductor Designado</th>
@@ -70,6 +71,7 @@
                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->apellido_paterno }} {{ $p->apellido_materno }} {{ $p->nombres }}</td>
                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->asunto }}</td>
                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->detalle }}</td>
+                            <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->lugardestino }}</td>
                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->fechahora_inicia }}</td>
                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->fechahora_termina }}</td>
                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->conductor }} - {{ $p->nrocelular }}</td>
@@ -117,7 +119,9 @@
             <tr>
               <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">Asunto</th>
               <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">Detalle</th>
+              <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">Destino</th>
               <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">Fiscal</th>
+              <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">Dependencia</th>
               <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">Inicio</th>
               <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">Fin</th>
             </tr>
@@ -178,9 +182,13 @@
 
         </div>
         <div class="row mb-3" >
-            <div class="col-md-12 col-lg-12">
+            <div class="col-md-9 col-lg-9">
             <label for="detalle"><b>Detalle de la diligencia</b></label>
             <input type="text" class="form-control" name="detalle" id="detalle" maxlength="100">
+            </div>
+            <div class="col-md-3 col-lg-3">
+            <label for="lugardestino"><b>Lugar Destino</b></label>
+            <input type="text" class="form-control" name="lugardestino" id="lugardestino" maxlength="25">
             </div>
 
         </div>
@@ -346,7 +354,9 @@
                 tr.innerHTML = `
                     <td style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">${e.title}</td>
                     <td style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">${e.extendedProps.detalle || ''}</td>
+                    <td style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">${e.extendedProps.lugardestino || ''}</td>
                     <td style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">${e.extendedProps.fiscal || ''}</td>
+                    <td style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">${e.extendedProps.abreviado || ''}</td>
                     <td style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">${e.start.toLocaleString()}</td>
                     <td style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; font-weight: normal;">${e.end ? e.end.toLocaleString() : ''}</td>
                 `;
@@ -401,6 +411,10 @@ document.getElementById('tab2-tab')
             alert("Ingrese el Asunto/Motivo de la diligencia");
             return false;
         }
+        if (document.getElementById('lugardestino').value=="") {
+            alert("Ingrese el lugar de destino de la diligencia");
+            return false;
+        }
         if (document.getElementById('fechainicio').value=="") {
             alert("Ingrese la fecha de la diligencia");
             return false;
@@ -415,6 +429,7 @@ document.getElementById('tab2-tab')
         const fiscal = document.getElementById('fiscal').value;
         const asunto = document.getElementById('asunto').value;
         const detalle = document.getElementById('detalle').value;
+        const lugardestino = document.getElementById('lugardestino').value;
         const start = document.getElementById('fechainicio').value;
         const end   = document.getElementById('fechatermino').value;
         const hstart = document.getElementById('horainicio').value;
@@ -425,7 +440,7 @@ document.getElementById('tab2-tab')
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN':  '{{ csrf_token() }}'
             },
-            body: JSON.stringify({ tipo, fiscal, asunto, detalle, start, end, hstart, hend })
+            body: JSON.stringify({ tipo, fiscal, asunto, detalle, lugardestino, start, end, hstart, hend })
         });
         const data = await response.json(); // ← IMPORTANTE
 

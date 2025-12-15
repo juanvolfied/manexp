@@ -42,6 +42,13 @@ class MenuController extends Controller
             ->get();
         return view('inventario.reginventariov2', compact('dependencias'));
     }
+    public function nuevoExpedientev3()
+    {
+        $dependencias = Dependencia::where('inventario', 'S')
+            ->orderBy('descripcion', 'asc')
+            ->get();
+        return view('inventario.reginventariov3', compact('dependencias'));
+    }
 
 
 

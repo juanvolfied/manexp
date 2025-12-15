@@ -29,8 +29,9 @@ class AgendaController extends Controller
             ->get();
         $agenda = DB::table('agenda')
             ->leftJoin('personal', 'agenda.id_fiscal', '=', 'personal.id_personal')
+            ->leftJoin('dependencia', 'agenda.id_dependencia', '=', 'dependencia.id_dependencia')
             ->leftJoin('tra_conductores', 'agenda.id_conductor', '=', 'tra_conductores.id_conductor')
-            ->select('agenda.*', 'personal.apellido_paterno', 'personal.apellido_materno', 'personal.nombres', 
+            ->select('agenda.*', 'personal.apellido_paterno', 'personal.apellido_materno', 'personal.nombres', 'dependencia.abreviado', 
             DB::raw("CONCAT(tra_conductores.apellido_paterno, ' ', tra_conductores.apellido_materno, ' ', tra_conductores.nombres) AS conductor"),
             'tra_conductores.nrocelular'
             )
@@ -71,6 +72,7 @@ class AgendaController extends Controller
             'despacho' => $despa,
             'asunto' => $request->input('asunto') ,
             'detalle' => $request->input('detalle') ,
+            'lugardestino' => $request->input('lugardestino') ,
             'fechahora_inicia' => $fechaHora,
             'fechahora_termina' => $fechaHoraf,
             'estado' => "A",
@@ -100,12 +102,14 @@ class AgendaController extends Controller
         $tipo = $request->query('tipo'); // GET /events?tipo=V
         $query = DB::table('agenda')
         ->leftJoin('personal', 'agenda.id_fiscal', '=', 'personal.id_personal')
+        ->leftJoin('dependencia', 'agenda.id_dependencia', '=', 'dependencia.id_dependencia')
         ->where('estado', 'A')
         ->select(
             'agenda.*',
             'personal.apellido_paterno',
             'personal.apellido_materno',
             'personal.nombres',
+            'dependencia.abreviado',
         );
         if ($tipo) {
             $query->where('tipo', $tipo);
@@ -121,7 +125,9 @@ class AgendaController extends Controller
                     'end'   => $e->fechahora_termina,
                     'tipo'  => $e->tipo,
                     'detalle'  => $e->detalle,
+                    'lugardestino'  => $e->lugardestino,
                     'fiscal'  => $e->apellido_paterno . ' ' . $e->apellido_materno . ' ' . $e->nombres,
+                    'abreviado'  => $e->abreviado,
                 ];
             })
         );
@@ -206,6 +212,7 @@ class AgendaController extends Controller
             'despacho' => Auth::user()->personal->despacho,
             'asunto' => $request->input('asunto') ,
             'detalle' => $request->input('detalle') ,
+            'lugardestino' => $request->input('lugardestino') ,
             'fechahora_inicia' => $fechaHora,
             'fechahora_termina' => $fechaHoraf,
             'estado' => "S",
