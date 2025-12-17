@@ -413,7 +413,7 @@ function verificarEnter(event) {
         $.ajax({
             url: '{{ route("expediente.lectura") }}',
             method: 'POST',
-            data: formData,
+            data: formData + '&invcambio=S',
             success: function(response) {
                 let mensaje = response.message || 'Respuesta sin mensaje';
                 if (response.success) {
@@ -782,6 +782,7 @@ function ejecutabuscar() {
 
 function eliminarItem(index,event) {
     if (event) event.preventDefault(); // Previene recarga
+    let nroinv = document.getElementById('nroinventario').value;
 
     const item = scannedItems[index];
     const codbar = item.codbarras;
@@ -793,7 +794,9 @@ function eliminarItem(index,event) {
             data: {
                 _token: '{{ csrf_token() }}',
                 codbarras: codbar,
-                tomo: tomo
+                tomo: tomo,
+                invcambio: 'S',
+                nroinventario: nroinv,
             },
             success: function(response) {
               if (response.success) {

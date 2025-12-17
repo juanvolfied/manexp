@@ -135,6 +135,7 @@ class MenuController extends Controller
         $tip_exp=substr($codbar,21,4);
         $dep_exp = (int) $dep_exp; 
         $tomo = $request->input('tomo');
+
         $idexpe = 0;
         if ($existe) {
             $idexpe = $existe->id_expediente; 
@@ -144,6 +145,7 @@ class MenuController extends Controller
             ->first();
         }
             
+        $invcambio = $request->input('invcambio');
         //$fechaHoraActualFormateada = now()->format('Y-m-d H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
         $fechaActual = now()->format('Y-m-d');  // Formato 'YYYY-MM-DD HH:mm:ss'
         $horaActual = now()->format('H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
@@ -222,6 +224,17 @@ class MenuController extends Controller
                     'cuadernos' => ($request->has('checkcuade') ? 'S' : 'N') ,
                 ]);
             });
+
+            if ($invcambio !== null) {
+                DB::table('inventario_cambios')->insert([
+                    'nro_inventario' => $request->nroinventario,
+                    'fechahora_registro' => now()->format('Y-m-d H:i:s'),
+                    'codbarras' => $request->input('codbarras'),
+                    'tomo' => $tomo,
+                    'tipo_accion' => 'A',
+                    'id_personal' => Auth::user()->id_personal,
+                ]);
+            }
 
             return response()->json([
                 'success' => true,
@@ -315,6 +328,8 @@ class MenuController extends Controller
         $codbarras = $request->input('codbarras');
         $tomo = $request->input('tomo');
 
+        $invcambio = $request->input('invcambio');
+
         try {
             DB::beginTransaction(); // ⬅️ Inicia la transacción
 
@@ -332,6 +347,17 @@ class MenuController extends Controller
             if (!$existe) {
                 DB::table('expediente')->where('codbarras', $codbarras)->delete();
             }
+            if ($invcambio !== null) {
+                DB::table('inventario_cambios')->insert([
+                    'nro_inventario' => $request->nroinventario,
+                    'fechahora_registro' => now()->format('Y-m-d H:i:s'),
+                    'codbarras' => $request->input('codbarras'),
+                    'tomo' => $tomo,
+                    'tipo_accion' => 'E',
+                    'id_personal' => Auth::user()->id_personal,
+                ]);
+            }
+
             DB::commit(); // ⬅️ Confirma los cambios
             return response()->json(['success' => true]);            
         } catch (\Exception $e) {

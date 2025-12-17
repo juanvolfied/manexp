@@ -107,7 +107,7 @@
                         <span class="sub-item">Registro de Inventario forma 2</span>
                       </a>
                     </li>
-        @if(in_array($perfil, ['Adminxxxx','Archivoxxxx']))
+        @if(in_array($perfil, ['Admin','Archivo']))
                     <li class="{{ request()->is('inventariov3') ? 'active' : '' }}">
                       <a href="{{ route('inventariov3') }}" style="background-color:#ff0000;">
                         <span class="sub-item" style="color:#ffffff;">Reg. Inventario (ADMIN)</span>
