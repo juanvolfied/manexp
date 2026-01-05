@@ -103,6 +103,8 @@ Route::post('/mesapartes/consultaintervalodetalle', [MesaController::class, 'con
 Route::post('/mesapartes/anular/{codescrito}', [MesaController::class, 'anularEscrito'])->name('mesapartes.anular');
 
 Route::get('/mesapartes/consultafiltros', [MesaController::class, 'consultarFiltros'])->name('mesapartes.consultafiltros');
+Route::get('/mesapartes/calendarcargos', [MesaController::class, 'calendarCargos']);
+
 Route::post('/mesapartes/consultafiltrosdetalle', [MesaController::class, 'consultarFiltrosdetalle'])->name('mesapartes.consultafiltrosdetalle');
 
 Route::get('/mesapartes/estadisticas', [MesaController::class, 'estadisticas'])->name('mesapartes.estadisticas');

@@ -108,6 +108,35 @@ class MesaController extends Controller
         return view('mesapartes.registroescritosv', compact('fiscales','deppoli'));
     }
 
+    public function calendarCargos(Request $request)
+    {
+        $fiscalId = $request->fiscal_id;
+        $cargos = DB::table('librocargos')
+        ->where('id_fiscal', $fiscalId)
+        ->get();
+        return response()->json(
+            $cargos->map(function ($e) {
+                $anio = substr($e->fechacargo, 0, 4); // "2025"
+                $mes  = substr($e->fechacargo, 5, 2); // "09"
+
+                $rutalow = storage_path("app/mesapartescargos/{$anio}/{$mes}/" . strtolower($e->codcargo) . ".pdf");
+                $ruta = storage_path("app/mesapartescargos/{$anio}/{$mes}/" . strtoupper($e->codcargo) . ".pdf");
+                if (file_exists($rutalow)) {
+                    rename($rutalow, $ruta);
+                }
+                $existedigital=file_exists($ruta);
+
+                $titulo = $existedigital ? "Digitalizado" : "Generado";
+                return [
+                    'title' => $titulo,
+                    'start' => $e->fechacargo,
+                    'end'   => $e->fechacargo,
+                    'existe'=> $existedigital,
+                ];
+            })
+        );
+    }
+
     public function consultarFiscal()
     {
         $fiscales = DB::table('personal')

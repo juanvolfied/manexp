@@ -11,11 +11,17 @@
 
     <form id="form-filtros" class="row g-3" autocomplete="off">
         @csrf
+        <div class="row">
+
         <div class="col-md-4 col-lg-4">
-            <div class="form-group" style="padding:5px;">
+                <div class="form-group" style="padding:0px;">
+
                 <label for="fiscal" class="form-label"><b>Fiscal</b></label>
 
-                <select name="fiscal" id="fiscal" class="" onchange="oculta()">
+                    <div class="input-group">
+        <div class="flex-fill">
+
+                <select name="fiscal" id="fiscal" class="" onchange="oculta()" >
                         <option value="">-- Seleccione --</option>
                         @foreach($fiscales as $p)
                             <option value="{{ $p->id_personal }}" {{ old('fiscal', $libroescritos->id_fiscal ?? '') == $p->id_personal ? 'selected' : '' }}>
@@ -23,9 +29,36 @@
                             </option>
                         @endforeach
                             </select>
+        </div>                            
+                    <button class="btn btn-success" style="padding:0px 1rem!important; z-index: 1;" type="button" onclick="abrirCalendario()">
+                    <i class="fas fa-calendar-alt fa-lg me-1"></i></button>
 
                 @error('fiscal') <div class="text-danger">{{ $message }}</div> @enderror
-            </div>       
+
+                    </div>
+                </div>
+
+
+<!--
+            <div class="row">
+                <div class="col-md-6 col-lg-6">
+                <div class="form-group" style="padding:5px;">
+                    <label for="nroinventario"><b>Nro Inventario:</b></label>
+                    <div class="input-group">
+                    <input type="text" class="form-control form-control-sm" name="nroinventario" id="nroinventario" onkeydown="buscanroinventa(event)" autofocus/>
+                    
+                    <button class="btn btn-primary" style="padding:0px 1rem!important; z-index: 1;" type="button" onclick="ejecutabuscar()">
+                    <i class="fas fa-check me-1"></i> Verificar
+                    </button>
+                    
+                    </div>
+                    
+                </div>
+                </div>
+            </div>
+-->            
+
+
 <!--            <div class="form-group" style="padding:5px;font-size:12px; color:blue;" id="descdependencia">
                 {{ isset($libroescritos) ? $libroescritos->descripcion : '' }}
             </div>-->
@@ -48,6 +81,9 @@
             <a href="#" onclick="verdigital()" class="btn btn-warning w-100" id="botoncargo" style="display:none;">Cargo</a>
             <input type="hidden" id="rutapdf" value="">
         </div>        
+
+        </div> <!-- row -->
+
     </form>
 
     <div class="mt-5">
@@ -88,6 +124,21 @@
       </div>
     </div>
   </div>
+</div>
+
+
+<div class="modal fade" id="modalCalendario" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-calendar-alt"></i> CARGOS A FISCALES</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="calendar"></div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @endsection
@@ -288,4 +339,83 @@ function mostrarDetalle(anio, mes, codigo) {
     $('#pdfModal').modal('show');
 }
 </script>
+
+<style>
+.fc-event-main {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+
+<script>
+let calendar;
+function abrirCalendario() {
+    const fiscalId = document.getElementById('fiscal').value;
+    // Mostrar modal
+    let modal = new bootstrap.Modal(document.getElementById('modalCalendario'));
+    modal.show();
+    // Esperar que el modal esté visible
+    setTimeout(() => {
+        if (calendar) {
+            calendar.destroy();
+        }
+        calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+            initialView: 'dayGridMonth',
+            locale: 'es',
+            height: 'auto',
+            events: function(fetchInfo, successCallback, failureCallback) {
+                fetch(`/manexp/public/mesapartes/calendarcargos?fiscal_id=${fiscalId}`)
+                    .then(response => response.json())
+                    .then(data => successCallback(data))
+                    .catch(error => failureCallback(error));
+            },
+            eventContent: function(arg) {
+                let icon = '';
+
+                switch(arg.event.extendedProps.existe) {
+                    case true:
+                        icon = '<i class="fas fa-file-pdf fa-2x d-block text-center"></i>';
+                        break;
+                    case false:
+                        icon = '<i class="fas fa-file-alt fa-2x d-block text-center"></i>';
+                        break;
+                    default:
+                        icon = '<i class="fas fa-calendar"></i>';  // Por defecto
+                }
+                return { 
+                    html: '<b>' + icon + ' ' + arg.event.title + '</b>'
+                };
+            },
+            eventDidMount: function(info) {
+                switch(info.event.extendedProps.existe) {
+                    case true:
+                        info.el.style.backgroundColor = '#198754';
+                        textColor  = '#ffffff';
+                        break;
+                    case false:
+                        info.el.style.backgroundColor = '#ffc107';
+                        textColor  = '#000000';
+                        break;
+                    default:
+                        //info.el.style.backgroundColor = '#0d6efd';
+                        textColor  = '#000000';
+                }
+
+            // Cambiar color del texto interno
+            info.el.querySelectorAll(
+                '.fc-event-title, .fc-event-time, .fc-event-main'
+            ).forEach(el => {
+                el.style.color = textColor;
+            });
+
+
+            }
+                        
+        });
+        calendar.render();
+    }, 300);
+}
+</script>
+
 @endsection

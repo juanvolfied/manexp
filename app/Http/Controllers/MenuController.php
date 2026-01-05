@@ -275,6 +275,7 @@ class MenuController extends Controller
             if (trim($request->observacion) !="" ) {
                 ObsInventario::create([
                 'nro_inventario' => $request->nroinventarioobs,
+                'fechahora' => $fechaActual . " " . $horaActual,
                 'observacion' => $request->observacion,
                 ]);
             }
