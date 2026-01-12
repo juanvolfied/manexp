@@ -373,33 +373,42 @@ function abrirCalendario() {
             eventContent: function(arg) {
                 let icon = '';
 
-                switch(arg.event.extendedProps.existe) {
-                    case true:
-                        icon = '<i class="fas fa-file-pdf fa-2x d-block text-center"></i>';
-                        break;
-                    case false:
-                        icon = '<i class="fas fa-file-alt fa-2x d-block text-center"></i>';
-                        break;
-                    default:
-                        icon = '<i class="fas fa-calendar"></i>';  // Por defecto
+                if (arg.event.extendedProps.activo=="N") {
+                    icon = '<i class="fas fa-ban fa-2x d-block text-center"></i>';
+                } else {
+                    switch(arg.event.extendedProps.existe) {
+                        case true:
+                            icon = '<i class="fas fa-file-pdf fa-2x d-block text-center"></i>';
+                            break;
+                        case false:
+                            icon = '<i class="fas fa-file-alt fa-2x d-block text-center"></i>';
+                            break;
+                        default:
+                            icon = '<i class="fas fa-calendar"></i>';  // Por defecto
+                    }
                 }
                 return { 
                     html: '<b>' + icon + ' ' + arg.event.title + '</b>'
                 };
             },
             eventDidMount: function(info) {
-                switch(info.event.extendedProps.existe) {
-                    case true:
-                        info.el.style.backgroundColor = '#198754';
-                        textColor  = '#ffffff';
-                        break;
-                    case false:
-                        info.el.style.backgroundColor = '#ffc107';
-                        textColor  = '#000000';
-                        break;
-                    default:
-                        //info.el.style.backgroundColor = '#0d6efd';
-                        textColor  = '#000000';
+                if (info.event.extendedProps.activo=="N") {
+                    info.el.style.backgroundColor = '#ff0000';
+                    textColor  = '#ffffff';
+                } else {
+                    switch(info.event.extendedProps.existe) {
+                        case true:
+                            info.el.style.backgroundColor = '#198754';
+                            textColor  = '#ffffff';
+                            break;
+                        case false:
+                            info.el.style.backgroundColor = '#ffc107';
+                            textColor  = '#000000';
+                            break;
+                        default:
+                            //info.el.style.backgroundColor = '#0d6efd';
+                            textColor  = '#000000';
+                    }
                 }
 
             // Cambiar color del texto interno

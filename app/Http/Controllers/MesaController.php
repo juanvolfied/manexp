@@ -125,13 +125,17 @@ class MesaController extends Controller
                     rename($rutalow, $ruta);
                 }
                 $existedigital=file_exists($ruta);
-
+                if ($e->activo=="N") {
+                $titulo = "Anulado";
+                } else {
                 $titulo = $existedigital ? "Digitalizado" : "Generado";
+                }
                 return [
                     'title' => $titulo,
                     'start' => $e->fechacargo,
                     'end'   => $e->fechacargo,
                     'existe'=> $existedigital,
+                    'activo'=> $e->activo,
                 ];
             })
         );
@@ -1328,11 +1332,32 @@ function isValidPdf(string $path): bool
                 return redirect()->route('mesapartes.index')
                                 ->with('error', 'C&Oacute;DIGO '. $codescrito .' NO ENCONTRADO.');
             }
+            $id_fiscal     = $registro->id_fiscal;
+            $fecha = substr($registro->fecharegistro, 0, 10);
+
 
             $data = (array) $registro;
             DB::table('libroescritosanulados')->insert($data);
 
             DB::table('libroescritos')->where('codescrito', $codescrito)->delete();
+
+            $existe = DB::table('libroescritos')
+                ->where('id_fiscal', $id_fiscal)
+                ->whereBetween('fecharegistro', [
+                    $fecha . ' 00:00:00',
+                    $fecha . ' 23:59:59'
+                ])
+                ->exists();
+            if (!$existe) {
+            DB::table('librocargos')
+                ->where('fechacargo', $fecha)
+                ->where('id_fiscal', $id_fiscal)
+                ->update([
+                    'activo' => 'N'
+                ]);
+            }
+
+
 
             DB::commit();
             return redirect()->route('mesapartes.index')
