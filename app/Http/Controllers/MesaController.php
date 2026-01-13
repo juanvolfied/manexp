@@ -1658,6 +1658,132 @@ function isValidPdf(string $path): bool
         ->get();
         return view('mesapartes.reportecarpetasf01', compact('carpetastcerro'));
     }
+    public function reporteCarpetasf02(Request $request)
+    {
+        $lafecha = $request->input('fecha', date('Y-m-d'));
+        $carpetasf = DB::table('mesacarpetasf')
+        ->leftJoin('dependencia', 'mesacarpetasf.id_dependencia', '=', 'dependencia.id_dependencia')
+        ->select(
+            'mesacarpetasf.*',
+            'dependencia.descripcion',
+            'dependencia.abreviado'
+        )
+        ->where('fecha', $lafecha)
+        ->orderBy('fechahora_registro', 'desc')
+        ->get();
+        return view('mesapartes.reportecarpetasf02', compact('carpetasf','lafecha'));
+    }
+    public function imprimirCarpetasfec(Request $request)
+    {
+    $carpetasf = $request->input('carpetasf'); // array
+    $lafecha   = $request->input('lafecha');   // string
+
+        $html1 = '
+            <style>
+                table { border-collapse: collapse; }
+                td { border: 1px solid #000; padding: 4px; }
+                thead tr { background-color: #d9d9d9; font-weight: bold; }
+                tbody tr:nth-child(odd) { background-color: #f2f2f2; }
+            </style>
+
+                <h4 style="text-align: center;">Carpetas Fiscales Registradas en Fecha: '.$lafecha.'</h4>
+                <table id="tablacarpetassgf" class="table table-striped table-bordered" width=100% style="font-size: 10px;">
+                    <thead>
+                        <tr>
+                            <td><b>#</b></td>
+                            <td><b>Nro Carpeta Fiscal</b></td>
+                            <td><b>Ingreso por</b></td>
+                            <td><b>Dependencia</b></td>
+                            <td><b>Enviado a</b></td>
+                            <td><b>Fecha Registro</b></td>
+                            <td><b>Motivo</b></td>
+                            <td><b>C&oacute;digo</b></td>
+                            <td><b>A&ntilde;o</b></td>
+                            <td><b>N&uacute;mero</b></td>
+                        </tr>
+                    </thead>
+                    <tbody>';
+                        $tipos = [
+                            'CC' => 'Coordinación',
+                            'C1' => 'Coordinación 1ra',
+                            'C2' => 'Coordinación 2da',
+                            'C3' => 'Coordinación 3ra',
+                            '01' => '1er. Despacho',
+                            '02' => '2do. Despacho',
+                            '03' => '3er. Despacho',
+                            '04' => '4to. Despacho',
+                            '05' => '5to. Despacho',
+                            '06' => '6to. Despacho',
+                            '07' => '7mo. Despacho',
+                            '08' => '8vo. Despacho',
+                            '09' => '9no. Despacho',
+                            '10' => '10mo. Despacho',
+                            '11' => '11er. Despacho',
+                            '12' => '12do. Despacho',
+                        ];
+                        $ingresopor = [
+                            0 => '',
+                            1 => 'TURNO CORPORATIVA',
+                            2 => 'TURNO CERRO',
+                            3 => 'TURNO DESPACHO',
+                        ];
+                        $motivo = [
+                            0 => '',
+                            1 => 'DERIVACIÓN',
+                            2 => 'ACUMULACIÓN',
+                            3 => 'VIRTUAL',
+                            4 => 'NUEVA',
+                            5 => 'REASIGNACIÓN',
+                        ];
+                    foreach ($carpetasf as $index => $item) {
+                        $idde = substr($item['carpetafiscal'], 8, 3); 
+                        $anio = substr($item['carpetafiscal'], 11, 4); 
+                        $expe = intval( substr($item['carpetafiscal'], 15, 6) ); 
+
+                        $html1 .= '
+                        <tr>
+                            <td>'.($index + 1).'</td>
+                            <td>'.$item['carpetafiscal'].'</td>
+                            <td>'.$ingresopor[$item['ingresopor']].'</td>
+                            <td>'.$item['abreviado'].'</td>
+                            <td>'.$tipos[$item['enviadoa']].'</td>
+                            <td>'.$item['fechahora_registro'].'</td>
+                            <td>'.$motivo[$item['motivo']].'</td>
+                            <td>'.$idde.'</td>
+                            <td>'.$anio.'</td>
+                            <td>'.$expe.'</td>
+                        </tr>';
+                    }
+
+        $html1 .= '
+                </tbody></table>';
+
+        $mpdf = new Mpdf([
+            'mode' => 'c',
+            'format' => 'A4-P',
+            'default_font_size' => 10,
+            'default_font' => 'Arial',
+            'margin_left' => 10,
+            'margin_right' => 10,
+            'margin_top' => 5,
+            'margin_bottom' => 3,
+            'margin_header' => 1,
+            'margin_footer' => 1
+        ]);        
+
+        $mpdf->WriteHTML($html1);
+
+        $pdfContent = $mpdf->Output('', 'S'); // 'S' = devuelve el contenido como string
+        return response($pdfContent, 200)
+        ->header('Content-Type', 'application/pdf')
+        ->header('Content-Disposition', 'inline; filename="valida.pdf"');
+
+    }    
+
+
+
+
+
 
     public function imprimirCarpetasf(Request $request)
     {
