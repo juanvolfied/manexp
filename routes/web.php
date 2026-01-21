@@ -28,6 +28,7 @@ use App\Http\Controllers\SolicitudCarpetasController;
 use App\Http\Controllers\CarpetasSGFController;
 use App\Http\Controllers\TransporteController;
 use App\Http\Controllers\AgendaController;
+use App\Http\Controllers\RecaudacionController;
 
 Route::get('/login', [UsuarioLoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [UsuarioLoginController::class, 'login'])->name('usuario.login');
@@ -351,3 +352,13 @@ Route::get('/solicitarvehiculo', function () {
 */
 Route::get('/solicitarvehiculo', [AgendaController::class, 'solicitarVehiculo'])->name('agenda.solicitarvehiculo');
 Route::post('/grabarsolicitud', [AgendaController::class, 'grabarSolicitud'])->name('agenda.grabarsolicitud');
+
+
+
+Route::get('/recaudacion/indexregistro', [RecaudacionController::class, 'indexRegistro'])->name('recaudacion.indexregistro');
+Route::get('/recaudacion/registrodatos', [RecaudacionController::class, 'registroDatos'])->name('recaudacion.registrodatos');
+Route::post('/recaudacion/registrograba', [RecaudacionController::class, 'registroGraba'])->name('recaudacion.registrograba');
+
+
+Route::get('/recaudacion/estadisticausuarios', [RecaudacionController::class, 'estadisticaUsuarios'])->name('recaudacion.estadisticausuarios');
+Route::get('/recaudacion/estadisticasdetalle', [RecaudacionController::class, 'estadisticasdetalle'])->name('recaudacion.estadisticasdetalle');

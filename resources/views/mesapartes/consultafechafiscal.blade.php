@@ -77,7 +77,7 @@
         <div class="col-md-2 d-flex align-items-center">
             <a href="#" onclick="generapdf(event)" class="btn btn-primary w-100" id="botonimprime" style="display:none;">Imprimir Escritos</a>
         </div>        
-        <div class="col-md-2 d-flex align-items-center">
+        <div class="col-md-2 d-flex align-items-center" style="display:none;">
             <a href="#" onclick="verdigital()" class="btn btn-warning w-100" id="botoncargo" style="display:none;">Cargo</a>
             <input type="hidden" id="rutapdf" value="">
         </div>        
@@ -128,19 +128,81 @@
 
 
 <div class="modal fade" id="modalCalendario" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content modal-content2">
             <div class="modal-header">
                 <h5 class="modal-title"><i class="fas fa-calendar-alt"></i> CARGOS A FISCALES</h5>
+
+                <button
+                    class="btn btn-info ms-auto me-2"
+                    type="button"
+                    onclick="volver()"
+                    id="volver"
+                    style="display:none;"
+                >
+                    <i class="fas fa-arrow-left me-1"></i> Volver al Calendario
+                </button>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <div id="calendar"></div>
+            <div class="modal-body modal-body2" id="container">
+                <div class="panel panel-1">
+                    <div id="calendar"></div>
+                </div>
+
+                <div class="panel panel-2">
+                    <iframe id="pdfFrame2" src="" width="100%" height="600px" style="border: none;"></iframe>
+                </div>
             </div>
         </div>
     </div>
 </div>
+<style>
+.modal-content2{
+  overflow: hidden;
+}
 
+.modal-body2{
+  display: flex;
+  width: 200%; /* dos paneles */
+  /*height: 100%;*/
+  transition: transform 0.5s ease;
+}
+
+/* Cada contenido ocupa todo el modal */
+.panel {
+  width: 50%;
+  /*height: 100%;
+  padding: 20px;*/
+  padding-left: 10px;
+  padding-right: 10px;
+  box-sizing: border-box;
+}
+
+/* Opcional para distinguir */
+/*.panel-1 { background: #f1f1f1; }
+.panel-2 { background: #dff6ff; }*/
+
+/* Estado activo: mover a la izquierda */
+.modal-body2.mostrar-segundo {
+  transform: translateX(-50%);
+}
+</style>  
+<script>
+function cambiar(pdfcal) {
+    let pdfUrl = `../../storage/app/mesapartescargos/`+ pdfcal +`.pdf`;
+    $('#pdfFrame2').attr('src', pdfUrl);
+
+    document.getElementById("container")
+    .classList.add("mostrar-segundo");
+    document.getElementById('volver').style.display = 'block';
+}
+
+function volver() {
+  document.getElementById("container")
+    .classList.remove("mostrar-segundo");
+    document.getElementById('volver').style.display = 'none';
+}    
+</script>  
 @endsection
 
 <style>
@@ -298,7 +360,7 @@ function mostrarescritos(event) {
                 
                 });
                 if (response.cargodigital) {
-                    document.getElementById('botoncargo').style.display = 'block';
+                    //document.getElementById('botoncargo').style.display = 'block';
                     document.getElementById('rutapdf').value = response.rutacargo;
                 }
                 document.getElementById('botonimprime').style.display = 'block';
@@ -351,6 +413,8 @@ function mostrarDetalle(anio, mes, codigo) {
 <script>
 let calendar;
 function abrirCalendario() {
+    volver();
+    
     const fiscalId = document.getElementById('fiscal').value;
     // Mostrar modal
     let modal = new bootstrap.Modal(document.getElementById('modalCalendario'));
@@ -370,6 +434,12 @@ function abrirCalendario() {
                     .then(data => successCallback(data))
                     .catch(error => failureCallback(error));
             },
+            eventClick: function(info) {
+                info.jsEvent.preventDefault();
+                if (info.event.extendedProps.existe === true) {
+                    cambiar(info.event.extendedProps.rutacargo);
+                }
+            },            
             eventContent: function(arg) {
                 let icon = '';
 
@@ -392,6 +462,9 @@ function abrirCalendario() {
                 };
             },
             eventDidMount: function(info) {
+                if (info.event.extendedProps.existe === true) {
+                    info.el.style.cursor = 'pointer';
+                }
                 if (info.event.extendedProps.activo=="N") {
                     info.el.style.backgroundColor = '#ff0000';
                     textColor  = '#ffffff';

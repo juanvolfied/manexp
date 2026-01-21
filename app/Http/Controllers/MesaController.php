@@ -125,6 +125,7 @@ class MesaController extends Controller
                     rename($rutalow, $ruta);
                 }
                 $existedigital=file_exists($ruta);
+                $rutacargo="{$anio}/{$mes}/" . strtoupper($e->codcargo);
                 if ($e->activo=="N") {
                 $titulo = "Anulado";
                 } else {
@@ -136,9 +137,11 @@ class MesaController extends Controller
                     'end'   => $e->fechacargo,
                     'existe'=> $existedigital,
                     'activo'=> $e->activo,
+                    'rutacargo' => $rutacargo,
                 ];
             })
         );
+
     }
 
     public function consultarFiscal()

@@ -429,6 +429,41 @@
 
 
 
+    @php
+        $menurecauda = in_array($perfil, ['Admin','Recauda']);
+        $menuActivo = request()->is('recaudacion/indexregistro', 'recaudacion/estadisticausuarios');
+    @endphp
+    @if ($menurecauda)
+              <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
+                <a data-bs-toggle="collapse" href="#recauda">
+                  <i class="fas fa-file-invoice-dollar"></i>
+                  <p>RECAUDACI&Oacute;N</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse {{ $menuActivo ? 'show' : '' }}" id="recauda">
+                  <ul class="nav nav-collapse">
+                    <li class="{{ request()->is('recaudacion/indexregistro') ? 'active' : '' }}">
+                      <a href="{{ route('recaudacion.indexregistro') }}">
+                        <span class="sub-item">Registro de Datos</span>
+                      </a>
+                    </li>
+                    <li class="{{ request()->is('recaudacion/estadisticausuarios') ? 'active' : '' }}">
+                      <a href="{{ route('recaudacion.estadisticausuarios') }}">
+                        <span class="sub-item">Estadistica por Usuarios</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+    @endif <!--menurecauda-->
+
+
+
+
+
+
+
+
 
     @php
         $menucarpetassgf = in_array($perfil, ['Admin','CarpetasSGF']);
