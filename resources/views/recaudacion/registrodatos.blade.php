@@ -341,6 +341,10 @@ document.getElementById("grabarBtn").addEventListener("click", function(event) {
         document.getElementById("despacho").value="";
         document.getElementById("voucher").value="";
         document.getElementById("monto").value="";
+        var selectize = $('#iddependencia')[0].selectize;
+        selectize.clear();
+        var selectize = $('#dependencia')[0].selectize;
+        selectize.clear();
 
                     $('#messageOK').html('<b>' + mensaje + '</b>');
                     messageOK.style.opacity = '1';

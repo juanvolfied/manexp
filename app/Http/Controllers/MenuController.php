@@ -266,6 +266,7 @@ class MenuController extends Controller
         $horaActual = now()->format('H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
         $anoActual = substr($fechaActual,0,4);
 
+
         // Convertir el JSON a un array
         $scannedItems = json_decode($request->scannedItems, true);
 
@@ -283,7 +284,21 @@ class MenuController extends Controller
                 ->where('nro_inventario', $request->nroinventarioobs)
                 ->where('activo', 'S')
                 ->update(['activo' => 'N']);
-	
+
+
+                $data = [];
+                if ($request->filled('newarchivo')) {
+                    $data['archivo'] = $request->newarchivo;
+                }
+                if ($request->filled('newanaquel')) {
+                    $data['anaquel'] = $request->newanaquel;
+                }
+                if (!empty($data)) {
+                    DB::table('ubicacion_exp')
+                        ->where('nro_inventario', $request->nroinventarioobs)
+                        ->update($data);
+                }                
+
             foreach ($scannedItems as $item) {
                 $registro = Expedientes::where('codbarras', $item['codbarras'])->first();
                 $idExpediente = $registro->id_expediente; 

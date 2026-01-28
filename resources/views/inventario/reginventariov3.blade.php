@@ -150,7 +150,25 @@
                     </div>
                     <div class="row">
                       <div class="col-md-3 col-lg-3">
-                          <table width="100%"><tr><td width="100px;"><b>Archivo:</b></td><td id="datarch"></td></tr></table>
+                          <!--<table width="100%"><tr><td width="100px;"><b>Archivo:</b></td><td id="datarch"></td></tr></table>-->
+                          <table width="100%"><tr><td width="100px;"><b>Archivo:</b></td><td>
+                            <select name="datarch" id="datarch" class="form-select form-control-sm" >
+                              <option value=""></option>
+                              <option value="1">Archivo 001</option>
+                              <option value="2">Archivo 002</option>
+                              <option value="3">Archivo 003</option>
+                              <option value="4">Archivo 004</option>
+                              <option value="5">Archivo 005</option>
+                              <option value="6">Archivo 006</option>
+                              <option value="7">Archivo 007</option>
+                              <option value="8">Archivo 008</option>
+                              <option value="9">Archivo 009</option>
+                              <option value="10">Archivo 010</option>
+                              <option value="11">Archivo 011</option>
+                              <option value="12">Archivo 012</option>
+                              <option value="99">Archivo de Gesti&oacute;n</option>
+                            </select>                          
+                          </td></tr></table>
                       </div>
                       <div class="col-md-3 col-lg-3">
                           <table width="100%"><tr><td width="100px;"><b>Nro Paquete:</b></td><td id="datpaqu"></td></tr></table>
@@ -158,8 +176,15 @@
                       <div class="col-md-3 col-lg-3">
                           <table width="100%"><tr><td width="100px;"><b>Serie:</b></td><td id="datseri"></td></tr></table>
                       </div>
-                      <div class="col-md-3 col-lg-3">
+                      <!--<div class="col-md-3 col-lg-3">
                           <table width="100%"><tr><td width="100px;"><b>Anaquel:</b></td><td id="datanaq"></td></tr></table>
+                      </div>-->
+                      <div class="col-md-3 col-lg-3">
+                        <!--<div class="form-group" style="padding:5px;">-->
+                          <table width="100%"><tr><td width="100px;"><b>Anaquel:</b></td><td>
+                          <input type="text" class="form-control form-control-sm" name="datanaq" id="datanaq" maxlength="10" style="width: 100px;" />
+                          </td></tr></table>
+                        <!--</div>-->
                       </div>
                     </div>
                     <div class="row">
@@ -178,15 +203,46 @@
                     <div class="row">
                       <div class="col-12 col-md-12 col-lg-12">
                           <table width="100%"><tr><td><b>Nro Inventario: </b><span id="datinve2"></span></td>
-                          <td ><span id="datarch2"></span></td></tr></table>
+                          </table>
                       </div>
                     </div>
                     <div class="row">
                       <div class="col-12 col-md-12 col-lg-12">
+                          <table width="100%"><tr><td width="100px;"><b>Archivo:</b></td><td>
+                            <select name="datarch2" id="datarch2" class="form-select form-control-sm" >
+                              <option value=""></option>
+                              <option value="1">Archivo 001</option>
+                              <option value="2">Archivo 002</option>
+                              <option value="3">Archivo 003</option>
+                              <option value="4">Archivo 004</option>
+                              <option value="5">Archivo 005</option>
+                              <option value="6">Archivo 006</option>
+                              <option value="7">Archivo 007</option>
+                              <option value="8">Archivo 008</option>
+                              <option value="9">Archivo 009</option>
+                              <option value="10">Archivo 010</option>
+                              <option value="11">Archivo 011</option>
+                              <option value="12">Archivo 012</option>
+                              <option value="99">Archivo de Gesti&oacute;n</option>
+                            </select>                          
+                          </td></tr></table>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-12 col-md-12 col-lg-12">
                           <table width="100%"><tr><td><b>Paquete: </b><span id="datpaqu2"></span></td>
                           <td><b>Serie: </b><span id="datseri2"></span></td>
-                          <td ><b>Anaquel: </b><span id="datanaq2"></span></td></tr></table>
+                          </tr></table>
                       </div>
+                      <div class="col-md-3 col-lg-3">
+                        <!--<div class="form-group" style="padding:5px;">-->
+                          <table width="100%"><tr><td width="100px;"><b>Anaquel:</b></td><td>
+                          <input type="text" class="form-control form-control-sm" name="datanaq2" id="datanaq2" maxlength="10" style="width: 100px;" />
+                          </td></tr></table>
+                        <!--</div>-->
+                      </div>
+
                     </div>
                     <div class="row">
                       <div class="col-md-6 col-lg-6">
@@ -279,6 +335,9 @@
 	          <input type="hidden" id="scannedItemsInput" name="scannedItems">
 	          <input type="hidden" id="nroinventarioobs" name="nroinventarioobs">
 
+	          <input type="hidden" id="newarchivo" name="newarchivo">
+	          <input type="hidden" id="newanaquel" name="newanaquel">
+
 <!-- Modal -->
 <div class="modal fade" id="textoModal" tabindex="-1" aria-labelledby="textoModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -346,6 +405,31 @@
 @section('scripts')
 <script>
     $('#dependencia').selectize();
+
+
+function sincronizar(origen, destino) {
+    $(destino).val($(origen).val()).trigger('change');
+}
+$('#datarch').on('change', function () {
+    sincronizar(this, '#datarch2');
+});
+$('#datarch2').on('change', function () {
+    sincronizar(this, '#datarch');
+});
+
+function syncInput(origen, destino) {
+    $(destino).val($(origen).val());
+}
+$('#datanaq').on('input', function () {
+    syncInput(this, '#datanaq2');
+});
+$('#datanaq2').on('input', function () {
+    syncInput(this, '#datanaq');
+});
+
+
+
+
 </script>
 @endsection
 
@@ -354,6 +438,14 @@
 
 <script>
   const abreviados = @json($dependencias->pluck('abreviado', 'id_dependencia'));
+
+
+
+
+
+
+
+
 
 
 document.getElementById("miFormulario").addEventListener("keydown", function(event) {
@@ -554,18 +646,18 @@ document.getElementById("IniciaScan").addEventListener("click", function(event) 
     }
    
     $('#datinve').text($('#nroinventario').val()); 
-    $('#datarch').text($('#archivo option:selected').text());
+    $('#datarch').val($('#archivo option:selected').val());
     $('#datpaqu').text($('#nropaquete').val());
     $('#datseri').text($('#serie').val());
-    $('#datanaq').text($('#anaquel').val());
+    $('#datanaq').val($('#anaquel').val());
     $('#datdepe').text($('#dependencia option:selected').text());
     $('#datdesp').text($('#despacho option:selected').text());
 
     $('#datinve2').text($('#nroinventario').val()); 
-    $('#datarch2').text($('#archivo option:selected').text());
+    $('#datarch2').val($('#archivo option:selected').val());
     $('#datpaqu2').text($('#nropaquete').val());
     $('#datseri2').text($('#serie').val());
-    $('#datanaq2').text($('#anaquel').val());
+    $('#datanaq2').val($('#anaquel').val());
 //    $('#datdepe2').text($('#dependencia option:selected').text());
     $('#datdepe2').text(abreviados[$('#dependencia').val()]);
     $('#datdesp2').text($('#despacho option:selected').text());
@@ -601,6 +693,14 @@ document.getElementById("grabarBtn").addEventListener("click", function(event) {
     if (event) event.preventDefault(); // Previene recarga
     if (scannedItems.length > 0) {
         event.preventDefault();  // Prevenir el comportamiento por defecto
+        document.getElementById('newarchivo').value = "";
+        document.getElementById('newanaquel').value = "";
+        if (document.getElementById('archivo').value != document.getElementById('datarch').value) {
+          document.getElementById('newarchivo').value = document.getElementById('datarch').value;
+        }
+        if (document.getElementById('anaquel').value != document.getElementById('datanaq').value) {
+          document.getElementById('newanaquel').value = document.getElementById('datanaq').value;
+        }
         document.getElementById("miFormulario2").submit();
     } else {
         document.getElementById('messageErr').innerHTML = '<b>No puedes inventariar si no hay registros lectoreados</b>';
@@ -681,18 +781,18 @@ codigo = codigo.replace("'", "-");
                 $('#despacho').val(response.despacho);
                 
                 $('#datinve').text($('#nroinventario').val()); 
-                $('#datarch').text($('#archivo option:selected').text());
+                $('#datarch').val($('#archivo option:selected').val());
                 $('#datpaqu').text($('#nropaquete').val());
                 $('#datseri').text($('#serie').val());
-                $('#datanaq').text($('#anaquel').val());
+                $('#datanaq').val($('#anaquel').val());
                 $('#datdepe').text($('#dependencia option:selected').text());
                 $('#datdesp').text($('#despacho option:selected').text());
 
                 $('#datinve2').text($('#nroinventario').val()); 
-                $('#datarch2').text($('#archivo option:selected').text());
+                $('#datarch2').val($('#archivo option:selected').val());
                 $('#datpaqu2').text($('#nropaquete').val());
                 $('#datseri2').text($('#serie').val());
-                $('#datanaq2').text($('#anaquel').val());
+                $('#datanaq2').val($('#anaquel').val());
                 //$('#datdepe2').text($('#dependencia option:selected').text());
                 $('#datdepe2').text(abreviados[response.paq_dependencia]);
                 $('#datdesp2').text($('#despacho option:selected').text());
