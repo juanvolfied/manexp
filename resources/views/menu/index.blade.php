@@ -502,7 +502,7 @@
 
     @php
         $menutransporte = in_array($perfil, ['Admin','Transporte']);
-        $menuActivo = request()->is('transporte/movimiento', 'transporte/consultamov', 'transporte/consultaintervalofechas', 'agendavehicular');
+        $menuActivo = request()->is('transporte/registroasistencia', 'transporte/movimiento', 'transporte/movimiento2', 'transporte/consultamov', 'transporte/consultaintervalofechas', 'agendavehicular');
     @endphp
     @if ($menutransporte)
               <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
@@ -513,10 +513,20 @@
                 </a>
                 <div class="collapse {{ $menuActivo ? 'show' : '' }}" id="transporte">
                   <ul class="nav nav-collapse">
+                    <li class="{{ request()->is('transporte/registroasistencia') ? 'active' : '' }}">
+                      <a href="{{ route('transporte.registroasistencia') }}">
+                        <span class="sub-item">Registro de Asistencia</span>
+                      </a>
+                    </li>
 
                     <li class="{{ request()->is('transporte/movimiento') ? 'active' : '' }}">
                       <a href="{{ route('transporte.movimiento') }}">
                         <span class="sub-item">Ingreso/Salida Veh&iacute;culos</span>
+                      </a>
+                    </li>
+                    <li class="{{ request()->is('transporte/movimiento2') ? 'active' : '' }}">
+                      <a href="{{ route('transporte.movimiento2') }}">
+                        <span class="sub-item">Ingreso/Salida Veh&iacute;culos CONTROL</span>
                       </a>
                     </li>
                     <li class="{{ request()->is('transporte/consultaintervalofechas') ? 'active' : '' }}">

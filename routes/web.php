@@ -329,6 +329,14 @@ Route::post('/transporte/valida', [TransporteController::class, 'validaIDPlaca']
 Route::get('/transporte/consultaintervalofechas', [TransporteController::class, 'consultarIntervalo'])->name('transporte.consultaintervalo');
 Route::post('/transporte/consultaintervalodetalle', [TransporteController::class, 'consultarIntervalodetalle'])->name('transporte.consultaintervalodetalle');
 
+Route::get('/transporte/registroasistencia', [TransporteController::class, 'registroAsistencia'])->name('transporte.registroasistencia');
+Route::post('/transporte/grabaasistencia', [TransporteController::class, 'grabaAsistencia'])->name('transporte.grabaasistencia');
+
+Route::get('/transporte/movimiento2', [TransporteController::class, 'controlMovimiento2'])->name('transporte.movimiento2');
+//Route::post('/transporte/grabamovimiento2', [TransporteController::class, 'grabaMovimiento2'])->name('transporte.grabamovimiento2');
+Route::post('/transporte/valida2', [TransporteController::class, 'validaIDPlaca2'])->name('transporte.valida2');
+
+
 /*
 Route::get('/calendar', function () {
     return view('agenda/calendar');
