@@ -22,7 +22,7 @@
                   <div class="card-body">
 
 
-    <form id="miFormulario" action="{{ route('mesapartes.store') }}" method="POST" autocomplete="off">
+    <form id="miFormulario"  autocomplete="off">
         @csrf
 
 
