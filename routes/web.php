@@ -121,6 +121,7 @@ Route::get('/mesapartes/imprimecarpetaspdf', [MesaController::class, 'imprimirCa
 Route::get('/mesapartes/reportecarpetasf01', [MesaController::class, 'reporteCarpetasf01'])->name('mesapartes.reportecarpetasf01');
 Route::get('/mesapartes/reportecarpetasf02', [MesaController::class, 'reporteCarpetasf02'])->name('mesapartes.reportecarpetasf02');
 Route::post('/mesapartes/imprimecarpetasfec', [MesaController::class, 'imprimirCarpetasfec'])->name('mesapartes.imprimecarpetasfec');
+Route::get('/mesapartes/consultacarpeta', [MesaController::class, 'consultaCarpeta'])->name('mesapartes.consultacarpeta');
 
 
 //Route::get('/mesapartes/{anolibro}/{numero}/edit', [MesaController::class, 'edit'])->name('mesapartes.edit');

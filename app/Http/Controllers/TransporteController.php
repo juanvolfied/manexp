@@ -256,19 +256,61 @@ class TransporteController extends Controller
 
     public function controlMovimiento()
     {
-        $conductoressede = DB::table('tra_conductores')
-            ->where('ensede', 'S')
-            ->get();        
+        $fecha = now()->format('Y-m-d'); 
+        $conductoressede = DB::table('tra_conductores as c')
+            ->select(
+                'c.id_conductor',
+                'c.apellido_paterno',
+                'c.apellido_materno',
+                'c.nombres',
+                'c.fechahora_ultimomov',
+                DB::raw("
+                    CASE 
+                        WHEN EXISTS (
+                            SELECT 1
+                            FROM tra_asistencia a
+                            WHERE a.id_conductor = c.id_conductor
+                            AND a.fecha = '{$fecha}'
+                        ) THEN 'S'
+                        ELSE 'N'
+                    END as marco_asistencia
+                ")
+            )
+            ->get();
+  
         $vehiculossede = DB::table('tra_vehiculos')
             ->where('ensede', 'S')
-            ->get();        
-        $conductoresdili = DB::table('tra_conductores')
-            ->where('ensede', 'N')
-            ->get();        
+            ->get();
         $vehiculosdili = DB::table('tra_vehiculos')
             ->where('ensede', 'N')
-            ->get();        
-        return view('transporte.movimiento', compact('conductoressede', 'vehiculossede', 'conductoresdili', 'vehiculosdili'));
+            ->get();
+
+            
+        $conductoressede->transform(function ($doc) use ($fecha) {
+            //$anio = substr($doc->fecharegistro, 0, 4); // "2025"
+            //$mes  = substr($doc->fecharegistro, 5, 2); // "09"
+            $doc->conductorensede = 'N';
+            if ($doc->marco_asistencia=="S") {
+                $idcond = $doc->id_conductor;
+                $movs = DB::table('tra_controlvehiculos')
+                    ->where('id_conductor', $idcond)
+                    ->whereDate('fechahora_registro', $fecha)
+                    ->orderBy('id_movimiento', 'desc') 
+                    ->first();
+                if ($movs) {
+                    if ($movs->tipo_mov=='I') {
+                        $doc->conductorensede = 'S';
+                    } else {
+                        $doc->conductorensede = 'N';
+                    }
+                } else {
+                    $doc->conductorensede = 'S';
+                }
+            }
+            return $doc; 
+        });
+
+        return view('transporte.movimiento', compact('conductoressede', 'vehiculossede', 'vehiculosdili'));            
     }
     public function grabaMovimiento(Request $request)
     {
@@ -392,17 +434,9 @@ class TransporteController extends Controller
                 ")
             )
             ->get();
-/*
-        $conductoressede = DB::table('tra_conductores')
-            ->leftJoin('tra_asistencia', 'tra_conductores.id_conductor', '=', 'tra_asistencia.id_conductor')
-            ->where('ensede', 'S')
-            ->where('tra_asistencia.fecha', $fecha)
-            ->get();        */
+
         $vehiculossede = DB::table('tra_vehiculos')
             ->where('ensede', 'S')
-            ->get();        
-        $conductoresdili = DB::table('tra_conductores')
-            ->where('ensede', 'N')
             ->get();        
         $vehiculosdili = DB::table('tra_vehiculos')
             ->where('ensede', 'N')
@@ -433,7 +467,7 @@ class TransporteController extends Controller
             return $doc; 
         });
 
-        return view('transporte.movimiento2', compact('conductoressede', 'vehiculossede', 'conductoresdili', 'vehiculosdili'));
+        return view('transporte.movimiento2', compact('conductoressede', 'vehiculossede', 'vehiculosdili'));
     }
     public function validaIDPlaca2(Request $request)
     {

@@ -1782,6 +1782,29 @@ function isValidPdf(string $path): bool
         ->header('Content-Disposition', 'inline; filename="valida.pdf"');
 
     }    
+    public function consultaCarpeta(Request $request)
+    {
+        $carpetasf = collect(); 
+        $busco = $request->filled('codigo');
+            $cfcodigo = $request->input('codigo', '');
+            $cfano = $request->input('ano', '');
+            $cfnumero = $request->input('numero', '');
+        if ($busco) {
+            $codcapfis="%" . $cfcodigo . $cfano . str_pad($cfnumero, 6, '0', STR_PAD_LEFT) . "%";
+            $carpetasf = DB::table('mesacarpetasf')
+            ->leftJoin('dependencia', 'mesacarpetasf.id_dependencia', '=', 'dependencia.id_dependencia')
+            ->select(
+                'mesacarpetasf.*',
+                'dependencia.descripcion',
+                'dependencia.abreviado'
+            )
+            ->where('carpetafiscal', 'LIKE', $codcapfis)
+            ->get();
+        }
+        //0123456789012345678901234
+        //0150601450320250089560000 8,3  11,4  15,6
+        return view('mesapartes.consultacarpeta', compact('carpetasf','busco','cfcodigo','cfano','cfnumero'));
+    }
 
 
 

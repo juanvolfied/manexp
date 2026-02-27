@@ -156,11 +156,13 @@
                                 </thead>
                                 <tbody>
                                     @foreach($conductoressede as $p)
+                                        @if ($p->marco_asistencia=="S" && $p->conductorensede=="S")
                                         <tr>
                                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->id_conductor }}</td>
                                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->apellido_paterno }} {{ $p->apellido_materno }} {{ $p->nombres }}</td>
                                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->fechahora_ultimomov }}</td>
                                         </tr>
+                                        @endif
                                     @endforeach
                                 </tbody>
                             </table>
@@ -207,12 +209,14 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($conductoresdili as $p)
+                                    @foreach($conductoressede as $p)
+                                        @if ($p->marco_asistencia=="S" && $p->conductorensede=="N")
                                         <tr>
                                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->id_conductor }}</td>
                                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->apellido_paterno }} {{ $p->apellido_materno }} {{ $p->nombres }}</td>
                                             <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->fechahora_ultimomov }}</td>
                                         </tr>
+                                        @endif
                                     @endforeach
                                 </tbody>
                             </table>
