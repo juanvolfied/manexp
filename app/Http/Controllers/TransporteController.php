@@ -625,6 +625,7 @@ class TransporteController extends Controller
     {
         $fechaini = $request->input('fechaini');    
         $fechafin = $request->input('fechafin');    
+        $agrupar = $request->input('agrupar');  
 
         $segdetalle = DB::table('tra_controlvehiculos')
         ->leftJoin('tra_conductores', 'tra_controlvehiculos.id_conductor', '=', 'tra_conductores.id_conductor')
@@ -643,9 +644,15 @@ class TransporteController extends Controller
             'tra_controlvehiculos.observacion',
         )
         ->whereDate('fechahora_registro', '>=', $fechaini)
-        ->whereDate('fechahora_registro', '<=', $fechafin)
-        ->orderBy('id_movimiento', 'desc') 
-        ->get();
+        ->whereDate('fechahora_registro', '<=', $fechafin);
+        if ($agrupar==1) {
+            $segdetalle->orderBy('apellido_paterno', 'asc') 
+            ->orderBy('apellido_materno', 'asc') 
+            ->orderBy('fechahora_registro', 'asc'); 
+        } else {
+            $segdetalle->orderBy('id_movimiento', 'asc');
+        }
+        $segdetalle = $segdetalle->get();
 
         if ($segdetalle->isNotEmpty()) {
             return response()->json([

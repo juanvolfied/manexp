@@ -24,6 +24,12 @@
                 <input type="date" id="fechafin" name="fechafin" class="form-control text-center" value="{{ old('fechafin', date('Y-m-d')) }}" style="width: 120px;" >
             </div>
         </div>
+        <div class="col-md-2">
+            <label for="fechafin" class="form-label"><b>Agrupar por conductor</b></label>
+            <div class="d-flex align-items-center gap-2">
+                <input type="checkbox" id="chkagrupar" name="chkagrupar" >
+            </div>
+        </div>
         <div class="col-md-2 d-flex align-items-end">
             <a href="#" onclick="mostrarescritos(event)" class="btn btn-primary w-100">Iniciar Consulta</a>
         </div>        
@@ -61,7 +67,7 @@
 <style>
     .card-body {
         overflow: visible !important;
-        position: relative; /* asegúrate de que esté definido */
+        position: relative; 
         z-index: 1;
     }
 </style>
@@ -77,6 +83,9 @@ function mostrarescritos(event) {
     if (event) event.preventDefault(); // Previene recarga
     const fechaini = document.getElementById('fechaini').value;
     const fechafin = document.getElementById('fechafin').value;
+    let check = document.getElementById('chkagrupar');
+    let agrupar = check.checked ? 1 : 0;
+
     if ( fechaini=="" ) {
         alert ("INGRESA LA FECHA INICIO");
         return false;
@@ -92,7 +101,8 @@ function mostrarescritos(event) {
         data: {
             _token: '{{ csrf_token() }}',
             fechaini: fechaini,
-            fechafin: fechafin
+            fechafin: fechafin,
+            agrupar: agrupar
         },
         success: function(response) {
             if (response.success) {                                
