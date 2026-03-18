@@ -507,7 +507,7 @@
 
 
     @php
-        $menutransporte = in_array($perfil, ['Admin','Transporte']);
+        $menutransporte = in_array($perfil, ['Admin','Transporte','Vigilancia']);
         $menuActivo = request()->is('transporte/registroasistencia', 'transporte/movimiento', 'transporte/movimiento2', 'transporte/consultamov', 'transporte/consultaintervalofechas', 'agendavehicular');
     @endphp
     @if ($menutransporte)
@@ -535,6 +535,8 @@
                         <span class="sub-item">Ingreso/Salida Veh&iacute;culos CONTROL</span>
                       </a>
                     </li>
+        @if(in_array($perfil, ['Admin','Transporte']))
+
                     <li class="{{ request()->is('transporte/consultaintervalofechas') ? 'active' : '' }}">
                       <a href="{{ route('transporte.consultaintervalo') }}">
                         <span class="sub-item">Consulta Intervalo de fechas</span>
@@ -546,6 +548,7 @@
                         <span class="sub-item">Agenda Vehicular</span>
                       </a>
                     </li>
+        @endif
 
                   </ul>
                 </div>
