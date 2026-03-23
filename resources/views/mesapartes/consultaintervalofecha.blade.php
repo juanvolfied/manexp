@@ -30,7 +30,12 @@
         <!--<div class="col-md-2 d-flex align-items-end">
             <a href="#" onclick="generapdf(event)" class="btn btn-primary w-100">Imprimir Escritos</a>
         </div>-->        
+    <div class="col-md-6 text-end">
+        <button id="botonimprimir" type="button" onclick="imprimirpdf()" class="btn  " style="background-color: #6c757d; color: white;" id="btnimprimir"><i class="fas fa-print me-1"></i> Imprimir</button>
+    </div>
     </form>
+
+
 
     <div class="mt-5">
         <table id="scanned-list" class="table table-striped table-sm">
@@ -217,6 +222,39 @@ function mostrarescritos(event) {
     });
 
 }
+    async function imprimirpdf() { 
+    const fechaini = document.getElementById('fechaini').value;
+    const fechafin = document.getElementById('fechafin').value;
+
+    const loader = document.getElementById('loader');
+    loader.style.display = 'block'; 
+
+        try {
+            const response = await fetch("{{ route('mesapartes.imprimeintervalo') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ 
+                    fechaini: fechaini,
+                    fechafin: fechafin
+                })
+            });
+
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+
+        loader.style.display = 'none';
+
+            document.getElementById('pdfViewer').src = url;
+            new bootstrap.Modal(document.getElementById('pdfModal')).show();
+
+        } catch (error) {
+            console.error(error);
+            alert('Ocurrió un error generando el PDF.');
+        }
+    }
 
 function numeroAOrdinal(numero) {
     const ordinales = {

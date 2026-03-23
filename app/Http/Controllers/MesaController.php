@@ -479,6 +479,138 @@ class MesaController extends Controller
         }
 
     }
+    public function imprimirIntervalo(Request $request)
+    {
+        $fechaini = $request->input('fechaini');    
+        $fechafin = $request->input('fechafin');    
+
+        $segdetalle = DB::table('libroescritos')
+        ->leftJoin('personal', 'libroescritos.id_fiscal', '=', 'personal.id_personal')
+        ->leftJoin('dependencia', 'libroescritos.id_dependencia', '=', 'dependencia.id_dependencia')
+        ->leftJoin('usuarios', 'libroescritos.id_usuario', '=', 'usuarios.id_usuario')
+        ->select(
+            'libroescritos.codescrito',
+            'libroescritos.tiporecepcion',
+            'dependencia.abreviado',
+            'libroescritos.despacho',
+            'personal.apellido_paterno',
+            'personal.apellido_materno',
+            'personal.nombres',
+            'libroescritos.tipo',
+            'libroescritos.descripcion as descripcionescrito',
+            'libroescritos.dependenciapolicial',
+            'libroescritos.remitente',
+            'libroescritos.carpetafiscal',
+            'libroescritos.folios',
+            'libroescritos.fecharegistro',
+            'usuarios.usuario'
+        )
+        ->whereDate('fecharegistro', '>=', $fechaini)
+        ->whereDate('fecharegistro', '<=', $fechafin)
+        ->orderBy('codescrito', 'asc') 
+        ->get();
+
+        $html1 = '
+            <style>
+                table { border-collapse: collapse; }
+                th, td { border: 1px solid #000; padding: 4px; }
+                th { font-size: 11px; }
+            </style>
+
+                <h4 style="text-align: center;">Consulta de escritos del: '.$fechaini.' al '.$fechafin.'</h4>
+                <table id="tablacarpetassgf" class="table table-striped table-bordered" width=100% style="font-size: 10px;">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Fecha</th>
+                            <th>C&oacute;digo</th>
+                            <th>Dependencia</th>
+                            <th>Despacho</th>
+                            <th>Fiscal</th>
+                            <th>Tipo</th>
+                            <th>Descripci&oacute;n</th>
+                            <th>Dependencia<br>Origen</th>
+                            <th>Remitente</th>
+                            <th>Carpeta<br>Fiscal</th>
+                            <th>Folios</th>
+                            <th>Usuario</th>
+                        </tr>
+                    </thead>
+                    <tbody>';
+                    $tipos = [
+                    'E'=> 'Escrito',
+                    'O'=> 'Oficio',
+                    'S'=> 'Solicitud',
+                    'C'=> 'Carta',
+                    'I'=> 'Invitación',
+                    'F'=> 'Informe',
+                    'Z'=> 'OTROS',                        
+                    ];
+                    $ordinales = [
+                        1=> '1er',
+                        2=> '2do',
+                        3=> '3er',
+                        4=> '4to',
+                        5=> '5to',
+                        6=> '6to',
+                        7=> '7mo',
+                        8=> '8vo',
+                        9=> '9no',
+                        10=> '10mo',
+                        11=> '11er'
+                    ];
+                    $rows = [];
+                    foreach ($segdetalle as $index => $item) {
+                        $rows[] = '
+                        <tr>
+                            <td>'.($index + 1).'</td>
+                            <td>'.$item->fecharegistro.'</td>
+                            <td>'.$item->codescrito.'</td>
+                            <td>'.$item->abreviado.'</td>
+                            <td>'.($item->despacho ? $ordinales[$item->despacho] : "") .' DESPACHO</td>
+                            <td>'.$item->apellido_paterno .' '. $item->apellido_materno .' '.$item->nombres .'</td>
+                            <td>'. $tipos[$item->tipo] .'</td>
+                            <td>'.$item->descripcionescrito .'</td>
+                            <td>'.$item->dependenciapolicial .'</td>
+                            <td>'.$item->remitente .'</td>
+                            <td>'.$item->carpetafiscal .'</td>
+                            <td>'.$item->folios .'</td>
+                            <td>'.$item->usuario .'</td>
+                        </tr>';
+                    }
+                    $html1 .= implode('', $rows);
+
+        $html1 .= '
+                </tbody></table>';
+
+        $mpdf = new Mpdf([
+            'mode' => 'c',
+            'format' => 'A4-P',
+            'default_font_size' => 10,
+            'default_font' => 'Arial',
+            'margin_left' => 10,
+            'margin_right' => 10,
+            'margin_top' => 5,
+            'margin_bottom' => 3,
+            'margin_header' => 1,
+            'margin_footer' => 1
+        ]);        
+$mpdf->simpleTables = true; // mejora mucho tablas grandes
+$mpdf->packTableData = true; // reduce memoria y tiempo
+$mpdf->useSubstitutions = false; // evita cálculos extra
+        $mpdf->WriteHTML($html1);
+        
+
+        $pdfContent = $mpdf->Output('', 'S'); // 'S' = devuelve el contenido como string
+        return response($pdfContent, 200)
+        ->header('Content-Type', 'application/pdf')
+        ->header('Content-Disposition', 'inline; filename="consintervalo.pdf"');
+
+    }    
+
+
+
+
 
     public function consultarFiltros()
     {

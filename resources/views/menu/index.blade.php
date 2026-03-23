@@ -798,7 +798,27 @@
             
           </div>
         </div>
+<div id="loader" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999;">
+    <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); text-align:center; color:white;">
+        <div class="spinner"></div>
+        <p>Generando PDF, espere...</p>
+    </div>
+</div>
 
+<style>
+.spinner {
+  border: 6px solid #ccc;
+  border-top: 6px solid #fff;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin: auto;
+}
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+</style>
         <footer class="footer">
           <div class="container-fluid d-flex justify-content-between">
             <nav class="pull-left">

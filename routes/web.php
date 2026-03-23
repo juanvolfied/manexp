@@ -134,6 +134,7 @@ Route::get('/mesapartes/{codigogenerar}/pdf', [MesaController::class, 'generarCo
 
 Route::get('/mesapartes/consultaescritos', [MesaController::class, 'consultarEscritos'])->name('mesapartes.consultaescritos');
 Route::post('/mesapartes/consultaescritosdet', [MesaController::class, 'consultarEscritosdetalle'])->name('mesapartes.consultaescritosdetalle');
+Route::post('/mesapartes/imprimeintervalo', [MesaController::class, 'imprimirIntervalo'])->name('mesapartes.imprimeintervalo');
 
 Route::get('/mesapartes/comprimeescritospdf', [MesaController::class, 'compresionindex'])->name('mesapartes.comprimeindex');
 Route::get('/mesapartes/{anio}/{mes}', [MesaController::class, 'verificarArchivos']);
