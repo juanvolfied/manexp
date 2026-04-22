@@ -332,6 +332,7 @@ class TransporteController extends Controller
                 'message' => "EL VEHICULO DE PLACA {$request->plac} NO ESTA REGISTRADO.",
             ]);
         }
+        /*
         $datoidco = DB::table('tra_controlvehiculos')
             ->where('id_conductor', $request->idco)
             ->orderBy('id_movimiento', 'desc')
@@ -346,6 +347,7 @@ class TransporteController extends Controller
                 ]);
             }
         }
+        */
         $datoplac = DB::table('tra_controlvehiculos')
             ->where('placa', $request->plac)
             ->orderBy('id_movimiento', 'desc')

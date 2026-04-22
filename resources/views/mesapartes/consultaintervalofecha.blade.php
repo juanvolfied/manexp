@@ -15,23 +15,33 @@
         <div class="col-md-2">
             <label for="fechaini" class="form-label"><b>Fecha Inicial</b></label>
             <div class="d-flex align-items-center gap-2">
-                <input type="date" id="fechaini" name="fechaini" class="form-control text-center" value="{{ old('fechaini', date('Y-m-d')) }}" style="width: 120px;" >
+                <input type="date" id="fechaini" name="fechaini" class="form-control text-center" value="{{ old('fechaini', date('Y-m-d')) }}" style="width: 130px;" >
             </div>
         </div>
         <div class="col-md-2">
             <label for="fechafin" class="form-label"><b>Fecha Final</b></label>
             <div class="d-flex align-items-center gap-2">
-                <input type="date" id="fechafin" name="fechafin" class="form-control text-center" value="{{ old('fechafin', date('Y-m-d')) }}" style="width: 120px;" >
+                <input type="date" id="fechafin" name="fechafin" class="form-control text-center" value="{{ old('fechafin', date('Y-m-d')) }}" style="width: 130px;" >
             </div>
         </div>
-        <div class="col-md-2 d-flex align-items-end">
-            <a href="#" onclick="mostrarescritos(event)" class="btn btn-primary w-100">Mostrar Escrito(s)</a>
+<div class="col-md-3 d-flex align-items-center">
+    <div class="form-check d-flex align-items-center gap-2 flex-wrap">
+        <input class="form-check-input" style="transform: scale(1.7);" type="checkbox" id="chksindigi" name="chksindigi" value="1">
+        <label class="form-check-label mb-0" for="chksindigi"><b>SOLO Escritos sin digitalizar</b></label>
+    </div>
+</div>
+        <div class="col-md-3 d-flex align-items-center">
+            <div class="d-flex align-items-center gap-2">
+            <a href="#" onclick="mostrarescritos(event)" class="btn btn-primary ">Mostrar Escrito(s)</a>
+            </div>
         </div>        
         <!--<div class="col-md-2 d-flex align-items-end">
             <a href="#" onclick="generapdf(event)" class="btn btn-primary w-100">Imprimir Escritos</a>
         </div>-->        
-    <div class="col-md-6 text-end">
+    <div class="col-md-2 d-flex align-items-center justify-content-end">
+            <div class="d-flex align-items-center gap-2">
         <button id="botonimprimir" type="button" onclick="imprimirpdf()" class="btn  " style="background-color: #6c757d; color: white;" id="btnimprimir"><i class="fas fa-print me-1"></i> Imprimir</button>
+            </div>
     </div>
     </form>
 
@@ -132,6 +142,8 @@ function mostrarescritos(event) {
     if (event) event.preventDefault(); // Previene recarga
     const fechaini = document.getElementById('fechaini').value;
     const fechafin = document.getElementById('fechafin').value;
+    const chksindigi = document.getElementById('chksindigi').checked; 
+
     if ( fechaini=="" ) {
         alert ("INGRESA LA FECHA INICIO");
         return false;
@@ -147,7 +159,8 @@ function mostrarescritos(event) {
         data: {
             _token: '{{ csrf_token() }}',
             fechaini: fechaini,
-            fechafin: fechafin
+            fechafin: fechafin,
+            chksindigi: chksindigi ? 1 : 0
         },
         success: function(response) {
             if (response.success) {                                
@@ -225,6 +238,7 @@ function mostrarescritos(event) {
     async function imprimirpdf() { 
     const fechaini = document.getElementById('fechaini').value;
     const fechafin = document.getElementById('fechafin').value;
+    const chksindigi = document.getElementById('chksindigi').checked; 
 
     const loader = document.getElementById('loader');
     loader.style.display = 'block'; 
@@ -238,7 +252,8 @@ function mostrarescritos(event) {
                 },
                 body: JSON.stringify({ 
                     fechaini: fechaini,
-                    fechafin: fechafin
+                    fechafin: fechafin,
+                    chksindigi: chksindigi ? 1 : 0
                 })
             });
 
