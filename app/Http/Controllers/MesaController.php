@@ -81,6 +81,32 @@ class MesaController extends Controller
 
         return view('mesapartes.registroescritos', compact('fiscales','deppoli'));
     }
+    public function nuevoEscritoRV()
+    {
+        $fiscales = DB::table('personal')
+        ->leftJoin('dependencia', 'personal.id_dependencia', '=', 'dependencia.id_dependencia')
+        ->select(
+            'personal.id_personal',
+            'personal.apellido_paterno',
+            'personal.apellido_materno',
+            'personal.nombres',
+            'personal.id_dependencia',
+            'personal.despacho',
+            'dependencia.descripcion',
+            'dependencia.abreviado'
+        )
+        ->where('fiscal_asistente', 'F')
+        ->orderBy('apellido_paterno', 'asc') 
+        ->orderBy('apellido_materno', 'asc') 
+        ->orderBy('nombres', 'asc') 
+        ->get();
+
+        $deppoli = DB::table('dependenciapolicial')
+            ->orderBy('descripciondep', 'asc') 
+            ->get();
+
+        return view('mesapartes.registroescritosrv', compact('fiscales','deppoli'));
+    }
     public function nuevoEscritoV() //nuevo escrito recepcionado virtualmente (por email)
     {
         $fiscales = DB::table('personal')
@@ -1234,6 +1260,284 @@ function isValidPdf(string $path): bool
 
 
 
+    public function registroVoucher()
+    {
+        return view('mesapartes.registrovoucher');
+    }
+    public function grabaVoucher(Request $request)
+    {
+        $tipovoucher = strtoupper($request->input('tipovoucher'));
+        $nrovoucher = strtoupper($request->input('nrovoucher'));
+
+
+        $voucher = DB::table('vouchercopias as v')
+            ->leftJoin('usuarios as u', 'v.id_usuario', '=', 'u.id_usuario')
+            ->leftJoin('personal as p', 'v.id_personal', '=', 'p.id_personal')
+            ->leftJoin('dependencia as d', 'v.id_dependencia', '=', 'd.id_dependencia')
+            ->select(
+                'v.*',
+                'p.apellido_paterno',
+                'p.apellido_materno',
+                'p.nombres',
+                'u.usuario',
+                'd.descripcion'
+            )
+            ->where('v.tpvoucher', $tipovoucher)
+            ->where('v.nrovoucher', $nrovoucher)
+            ->first();        
+        if ($voucher) {
+            $nombreCompleto = trim(
+                ($voucher->apellido_paterno ?? '') . ' ' .
+                ($voucher->apellido_materno ?? '') . ' ' .
+                ($voucher->nombres ?? '')
+            );
+            $mensaje = "
+            <div class='container-fluid'>
+                <div class='row mb-4'>
+                    <div class='col-12'><b>EL VOUCHER ".$nrovoucher." YA FUE REGISTRADO</b></div>
+                </div>
+                <div class='row mb-2'>
+                    <div class='col-md-4 col-lg-2'><b>Registrado por:</b></div>
+                    <div class='col-md-8 col-lg-10'>" . ($nombreCompleto ?: 'N/A') . " ( ". ($voucher->usuario ?? 'N/A') . " )". "</div>
+                </div>
+                <div class='row mb-2'>
+                    <div class='col-md-4 col-lg-2'><b>Dependencia:</b></div>
+                    <div class='col-md-8 col-lg-10'>" . ($voucher->descripcion ?? 'N/A') . "</div>
+                </div>
+                <div class='row mb-2'>
+                    <div class='col-md-4 col-lg-2'><b>Fecha Registro:</b></div>
+                    <div class='col-md-8 col-lg-10'>" . ($voucher->fechahoraregistro ?? 'N/A') . "</div>
+                </div>
+            </div>
+            ";            
+
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'codescrito' => $mensaje
+                ]);
+        }
+
+
+
+
+        try {
+            DB::transaction(function () use ($request) {
+                // Insertar el nuevo documento
+                DB::table('vouchercopias')->insert([
+                    'tpvoucher' => $request->input('tipovoucher'),
+                    'nrovoucher' => $request->input('nrovoucher'),
+                    'fechaoperacion' => $request->input('fecoperacion'),
+                    'monto' => $request->input('monto'),
+                    'carpetafiscal' => $request->input('carpetafiscal'),
+                    'dnisolicitante' => $request->input('dni'),
+
+                    'id_personal' => Auth::user()->id_personal,
+                    'id_usuario' => Auth::user()->id_usuario,
+                    'id_dependencia' => Auth::user()->personal->id_dependencia,
+                    'fechahoraregistro' => now(),
+                ]);
+            });
+            return redirect()->route('mesapartes.registrovoucher')->with('success', 'INFORMACION REGISTRADA DE FORMA SATISFACTORIA.');
+
+        } catch (QueryException $e) {
+            if ($e->getCode() == '23000') { // Código SQLSTATE para violación de restricción (como unique)
+                return back()
+                    ->withInput()
+                    ->withErrors(['codescrito' => 'CÓDIGO YA SE ENCUENTRA REGISTRADO']);
+            }
+
+            // Otro tipo de error
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'ERROR AL REGISTRAR LA INFORMACIÓN.']);
+        }        
+
+    }
+    public function consultaVouchers()
+    {
+        $fechaini = now()->format('Y-m-d');    
+        $fechafin = $fechaini;    
+
+        $segdetalle = DB::table('vouchercopias as v')
+        ->leftJoin('usuarios as u', 'v.id_usuario', '=', 'u.id_usuario')
+        ->leftJoin('personal as p', 'v.id_personal', '=', 'p.id_personal')
+        ->leftJoin('dependencia as d', 'v.id_dependencia', '=', 'd.id_dependencia')
+        ->select(
+            'v.*',
+            'p.apellido_paterno',
+            'p.apellido_materno',
+            'p.nombres',
+            'u.usuario',
+            'd.descripcion',
+            'd.abreviado'
+        )
+        ->whereBetween('fechahoraregistro', [
+            $fechaini . ' 00:00:00',
+            $fechafin . ' 23:59:59'
+        ])        
+        ->orderBy('idautogen', 'desc') 
+        ->get();
+        return view('mesapartes.consultavouchers',compact('segdetalle'));
+    }
+    public function consultaVouchersdetalle(Request $request)
+    {
+        $fechaini = $request->input('fechaini');    
+        $fechafin = $request->input('fechafin');    
+
+        $segdetalle = DB::table('vouchercopias as v')
+        ->leftJoin('usuarios as u', 'v.id_usuario', '=', 'u.id_usuario')
+        ->leftJoin('personal as p', 'v.id_personal', '=', 'p.id_personal')
+        ->leftJoin('dependencia as d', 'v.id_dependencia', '=', 'd.id_dependencia')
+        ->select(
+            'v.*',
+            'p.apellido_paterno',
+            'p.apellido_materno',
+            'p.nombres',
+            'u.usuario',
+            'd.descripcion',
+            'd.abreviado'
+        )
+        ->whereBetween('fechahoraregistro', [
+            $fechaini . ' 00:00:00',
+            $fechafin . ' 23:59:59'
+        ])        
+        ->orderBy('idautogen', 'desc') 
+        ->get();
+
+        if ($segdetalle->isNotEmpty()) {
+            return response()->json([
+                'success' => true,
+                'registros' => $segdetalle,
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'NO SE ENCONTRARON VOUCHERS REGISTRADOS DEL'. $fechaini .' AL '. $fechafin .' .',
+            ]);
+        }
+
+    }
+    public function consultaVouchersescrito(Request $request)
+    {
+        $codescrito = $request->input('codescrito');    
+
+        $libroescritos = DB::table('libroescritos')
+        ->leftJoin('personal', 'libroescritos.id_fiscal', '=', 'personal.id_personal')
+        ->leftJoin('dependencia', 'libroescritos.id_dependencia', '=', 'dependencia.id_dependencia')
+        ->leftJoin('usuarios', 'libroescritos.id_usuario', '=', 'usuarios.id_usuario')
+        ->select(
+            'libroescritos.codescrito',
+            'libroescritos.tiporecepcion',
+            'dependencia.abreviado',
+            'libroescritos.despacho',
+            'personal.apellido_paterno',
+            'personal.apellido_materno',
+            'personal.nombres',
+            'libroescritos.tipo',
+            'libroescritos.descripcion as descripcionescrito',
+            'libroescritos.dependenciapolicial',
+            'libroescritos.remitente',
+            'libroescritos.carpetafiscal',
+            'libroescritos.folios',
+            'libroescritos.fecharegistro',
+            'usuarios.usuario'
+        )
+        ->where('codescrito', $codescrito)
+        ->first();
+
+        if ($libroescritos) {
+            $codescrito = $libroescritos->codescrito;
+            $tiporecepcion = $libroescritos->tiporecepcion;
+            $abreviado = $libroescritos->abreviado;
+            $despacho = $libroescritos->despacho;
+
+            $apellido_paterno = $libroescritos->apellido_paterno;
+            $apellido_materno = $libroescritos->apellido_materno;
+            $nombres = $libroescritos->nombres;
+
+            $tipo = $libroescritos->tipo;
+            $descripcion = $libroescritos->descripcionescrito;
+            $dependenciapolicial = $libroescritos->dependenciapolicial;
+            $remitente = $libroescritos->remitente;
+            $carpetafiscal = $libroescritos->carpetafiscal;
+            $folios = $libroescritos->folios;
+            $fecharegistro = $libroescritos->fecharegistro;
+            $usuario = $libroescritos->usuario;
+
+            $tipos = [
+                'E' => 'Escrito',
+                'O' => 'Oficio',
+                'S' => 'Solicitud',
+                'C' => 'Carta',
+                'I' => 'Invitación',
+                'F' => 'Informe',
+                'Z' => 'OTROS'
+            ];
+
+            $detescrito = '
+            <div class="border rounded">
+                <div class="row m-0 border-bottom">
+                    <div class="col-md-3 bg-light"><b>Cód. Escrito:</b></div>
+                    <div class="col-md-9">'.$codescrito.'</div>
+                </div>
+                <div class="row m-0 border-bottom">
+                    <div class="col-md-3 bg-light"><b>Fiscal:</b></div>
+                    <div class="col-md-9">'.$apellido_paterno.' '.$apellido_materno.' '.$nombres.'</div>
+                </div>
+                <div class="row m-0 border-bottom">
+                    <div class="col-md-3 bg-light"><b>Tipo:</b></div>
+                    <div class="col-md-9">'.($tipos[$tiporecepcion] ?? '').'</div>
+                </div>
+                <div class="row m-0 border-bottom">
+                    <div class="col-md-3 bg-light"><b>Descripción:</b></div>
+                    <div class="col-md-9">'.$descripcion.'</div>
+                </div>
+                <div class="row m-0 border-bottom">
+                    <div class="col-md-3 bg-light"><b>Dependencia Origen:</b></div>
+                    <div class="col-md-9">'.$dependenciapolicial.'</div>
+                </div>
+                <div class="row m-0 border-bottom">
+                    <div class="col-md-3 bg-light"><b>Remitente:</b></div>
+                    <div class="col-md-9">'.$remitente.'</div>
+                </div>
+                <div class="row m-0 border-bottom">
+                    <div class="col-md-3 bg-light"><b>Carpeta Fiscal:</b></div>
+                    <div class="col-md-9">'.$carpetafiscal.'</div>
+                </div>
+                <div class="row m-0 border-bottom">
+                    <div class="col-md-3 bg-light"><b>Folios:</b></div>
+                    <div class="col-md-9">'.$folios.'</div>
+                </div>
+            </div>';
+            return response()->json([
+                'success' => true,
+                'detescrito' => $detescrito,
+            ]);
+        }
+/*
+        if ($segdetalle->isNotEmpty()) {
+            $detescrito
+
+            return response()->json([
+                'success' => true,
+                'registros' => $segdetalle,
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'NO SE ENCONTRARON VOUCHERS REGISTRADOS DEL'. $fechaini .' AL '. $fechafin .' .',
+            ]);
+        }
+*/
+    }
+
+
+
+
+
+
+
 
     public function consultarEscritos()
     {
@@ -1303,6 +1607,9 @@ function isValidPdf(string $path): bool
 
 
 
+
+
+
     public function store(Request $request)
     {
     $codigo = strtoupper($request->input('codescrito'));
@@ -1355,6 +1662,129 @@ function isValidPdf(string $path): bool
         }        
 
     }
+    public function storerv(Request $request)
+    {
+    $codigo = strtoupper($request->input('codescrito'));
+    $exists = DB::table('libroescritos')
+    ->where('codescrito', $codigo)
+    ->exists();
+    if ($exists) {
+        return back()
+            ->withInput()
+            //->withErrors(['codescrito' => 'CÓDIGO YA SE ENCUENTRA REGISTRADO']);
+            ->withErrors(['error' => '<b>CÓDIGO DE ESCRITO '. $codigo .' YA SE ENCUENTRA REGISTRADO</b>']);
+    }
+    
+        $tipovoucher = strtoupper($request->input('tipovoucher'));
+        $nrovoucher = strtoupper($request->input('nrovoucher'));
+
+        $voucher = DB::table('vouchercopias as v')
+            ->leftJoin('usuarios as u', 'v.id_usuario', '=', 'u.id_usuario')
+            ->leftJoin('personal as p', 'v.id_personal', '=', 'p.id_personal')
+            ->leftJoin('dependencia as d', 'v.id_dependencia', '=', 'd.id_dependencia')
+            ->select(
+                'v.*',
+                'p.apellido_paterno',
+                'p.apellido_materno',
+                'p.nombres',
+                'u.usuario',
+                'd.descripcion'
+            )
+            ->where('v.tpvoucher', $tipovoucher)
+            ->where('v.nrovoucher', $nrovoucher)
+            ->first();        
+        if ($voucher) {
+            $nombreCompleto = trim(
+                ($voucher->apellido_paterno ?? '') . ' ' .
+                ($voucher->apellido_materno ?? '') . ' ' .
+                ($voucher->nombres ?? '')
+            );
+            $mensaje = "
+            <div class='container-fluid'>
+                <div class='row mb-4'>
+                    <div class='col-12'><b>EL VOUCHER ".$nrovoucher." YA FUE REGISTRADO</b></div>
+                </div>
+                <div class='row mb-2'>
+                    <div class='col-md-4 col-lg-2'><b>Registrado por:</b></div>
+                    <div class='col-md-8 col-lg-10'>" . ($nombreCompleto ?: 'N/A') . " ( ". ($voucher->usuario ?? 'N/A') . " )". "</div>
+                </div>
+                <div class='row mb-2'>
+                    <div class='col-md-4 col-lg-2'><b>Dependencia:</b></div>
+                    <div class='col-md-8 col-lg-10'>" . ($voucher->descripcion ?? 'N/A') . "</div>
+                </div>
+                <div class='row mb-2'>
+                    <div class='col-md-4 col-lg-2'><b>Fecha Registro:</b></div>
+                    <div class='col-md-8 col-lg-10'>" . ($voucher->fechahoraregistro ?? 'N/A') . "</div>
+                </div>
+            </div>
+            ";            
+
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'error' => $mensaje
+                ]);
+        }
+
+
+
+
+    
+        try {
+
+            DB::transaction(function () use ($request) {
+                // Insertar el nuevo documento
+                DB::table('libroescritos')->insert([
+                    'codescrito' => strtoupper( $request->input('codescrito') ),
+                    'tiporecepcion' => 'F',
+                    'id_dependencia' => $request->input('id_dependencia'),
+                    'despacho' => $request->input('despacho'),
+                    'id_fiscal' => $request->input('fiscal'),
+                    'tipo' => $request->input('tipo'),
+                    'descripcion' => $request->input('descripcion'),
+                    'dependenciapolicial' => $request->input('deppolicial'),
+                    'remitente' => $request->input('remitente'),
+                    'carpetafiscal' => $request->input('carpetafiscal'),
+                    'folios' => $request->input('folios'),
+                    'fecharegistro' => now(),
+                    'id_personal' => Auth::user()->id_personal,
+                    'id_usuario' => Auth::user()->id_usuario,
+                ]);
+
+                DB::table('vouchercopias')->insert([
+                    'tpvoucher' => $request->input('tipovoucher'),
+                    'nrovoucher' => $request->input('nrovoucher'),
+                    'fechaoperacion' => $request->input('fecoperacion'),
+                    'monto' => $request->input('monto'),
+                    'carpetafiscal' => $request->input('carpetafiscal'),
+                    'dnisolicitante' => $request->input('dni'),
+
+                    'codescrito' => strtoupper( $request->input('codescrito') ),
+
+                    'id_personal' => Auth::user()->id_personal,
+                    'id_usuario' => Auth::user()->id_usuario,
+                    'id_dependencia' => Auth::user()->personal->id_dependencia,
+                    'fechahoraregistro' => now(),
+                ]);
+
+            });
+            return redirect()->route('mesapartes.index')->with('success', 'INFORMACION REGISTRADA DE FORMA SATISFACTORIA.');
+
+        } catch (QueryException $e) {
+            if ($e->getCode() == '23000') { // Código SQLSTATE para violación de restricción (como unique)
+                return back()
+                    ->withInput()
+                    ->withErrors(['codescrito' => 'CÓDIGO YA SE ENCUENTRA REGISTRADO']);
+            }
+
+            // Otro tipo de error
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'ERROR AL REGISTRAR LA INFORMACIÓN.']);
+        }        
+
+    }
+
 
     public function storetpv(Request $request)//grabar escrito por recepcion virtual
     {

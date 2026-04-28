@@ -340,6 +340,35 @@
                       </div>
                     </li>
 
+
+<!--                    
+                    <li class="{{ $submenuActivo ? 'active submenu' : '' }}" >
+                      <a data-bs-toggle="collapse" href="#subnav2">
+                        <span class="sub-item">SOLICITUD DE COPIAS</span>
+                        <span class="caret"></span>
+                      </a>
+                      <div class="collapse {{ $submenuActivo ? 'show' : '' }}" id="subnav2">
+                        <ul class="nav nav-collapse subnav">
+
+                          <li class="{{ request()->is('mesapartes/registrovoucher') ? 'active' : '' }}">
+                            <a href="{{ route('mesapartes.registrovoucher') }}">
+                              <span class="sub-item">Registro de Voucher por copias</span>
+                            </a>
+                          </li>
+                          <li class="{{ request()->is('mesapartes/consultavouchers') ? 'active' : '' }}">
+                            <a href="{{ route('mesapartes.consultavouchers') }}">
+                              <span class="sub-item">Consulta de Vouchers</span>
+                            </a>
+                          </li>
+
+                        </ul>
+                      </div>
+                    </li>
+-->
+
+
+
+
                     <li class="{{ request()->is('mesapartes/creacarpetasf') ? 'active' : '' }}" >
                       <a href="{{ route('mesapartes.registrocarpetasf') }}">
                         <span class="sub-item">Creaci&oacute;n Carpetas Fiscales</span>
@@ -389,6 +418,36 @@
                 </div>
               </li>
     @endif <!--menumesapartes-->
+
+
+    @php
+        $menuvoucher = in_array($perfil, ['Admin','RegistroVoucherBN']);
+        $menuActivo = request()->is('mesapartes/registrovoucher', 'mesapartes/consultavouchers', 'otro');
+    @endphp
+    @if ($menuvoucher)
+              <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
+                <a data-bs-toggle="collapse" href="#vouchers">
+                  <i class="fas fa-file"></i>
+                  <p>VOUCHERS POR COPIAS</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse {{ $menuActivo ? 'show' : '' }}" id="vouchers">
+                  <ul class="nav nav-collapse">
+                    <li class="{{ request()->is('mesapartes/registrovoucher') ? 'active' : '' }}">
+                      <a href="{{ route('mesapartes.registrovoucher') }}">
+                        <span class="sub-item">Registro de Voucher por copias</span>
+                      </a>
+                    </li>
+                    <li class="{{ request()->is('mesapartes/consultavouchers') ? 'active' : '' }}">
+                      <a href="{{ route('mesapartes.consultavouchers') }}">
+                        <span class="sub-item">Consulta de Vouchers</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+    @endif <!--menuvoucher-->
+
 
 
     @php

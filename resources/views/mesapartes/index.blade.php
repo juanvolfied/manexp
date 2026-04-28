@@ -51,8 +51,19 @@ function numeroAOrdinal($numero) {
         <div id="messageErr" class="alert alert-danger" style="display:none;"><b></b></div>
     @endif
 
-    <a href="{{ route('mesapartes.libroescritos') }}" class="btn btn-primary mb-3">+ Nuevo Registro - Recepci&oacute;n F&iacute;sico</a>
-    <a href="{{ route('mesapartes.libroescritosv') }}" class="btn btn-secondary mb-3">+ Nuevo Registro - Recepci&oacute;n Virtual</a>
+    <a href="{{ route('mesapartes.libroescritos') }}" class="btn btn-primary mb-3">+ Nuevo - Recepci&oacute;n F&iacute;sico</a>
+    @php
+        $perfil = optional(Auth::user()->perfil)->descri_perfil;        
+    @endphp
+    @if (in_array($perfil, ['Admin']))
+    @endif
+    <a href="{{ route('mesapartes.libroescritosrv') }}" 
+    class="btn mb-3" 
+    style="background-color:#c8a27a; color:white; border:none;">
+    + Nuevo - F&iacute;sico con Voucher
+    </a>
+
+    <a href="{{ route('mesapartes.libroescritosv') }}" class="btn btn-secondary mb-3">+ Nuevo - Recepci&oacute;n Virtual</a>
     <div class="card">
         <div class="card-header">
         <form action="{{ route('mesapartes.index') }}" method="POST">

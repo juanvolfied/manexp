@@ -94,10 +94,12 @@ Route::post('/validaimprime', [InventarioController::class, 'validaImprime'])->n
 Route::match(['get', 'post'], '/mesapartes', [MesaController::class, 'index'])->name('mesapartes.index');
 
 Route::get('/mesapartes/registrolibros', [MesaController::class, 'nuevoEscrito'])->name('mesapartes.libroescritos');
+Route::get('/mesapartes/registrolibrosrv', [MesaController::class, 'nuevoEscritoRV'])->name('mesapartes.libroescritosrv');
 Route::get('/mesapartes/registrolibrosv', [MesaController::class, 'nuevoEscritoV'])->name('mesapartes.libroescritosv');
 Route::get('/mesapartes/consultafiscal', [MesaController::class, 'consultarFiscal'])->name('mesapartes.consulta');
 Route::post('/mesapartes/consultafiscaldetalle', [MesaController::class, 'consultarFiscaldetalle'])->name('mesapartes.consultadetalle');
 Route::post('/mesapartes/store', [MesaController::class, 'store'])->name('mesapartes.store');
+Route::post('/mesapartes/storerv', [MesaController::class, 'storerv'])->name('mesapartes.storerv');
 Route::post('/mesapartes/storev', [MesaController::class, 'storetpv'])->name('mesapartes.storev');
 Route::get('/mesapartes/consultaintervalofechas', [MesaController::class, 'consultarIntervalo'])->name('mesapartes.consultaintervalo');
 Route::post('/mesapartes/consultaintervalodetalle', [MesaController::class, 'consultarIntervalodetalle'])->name('mesapartes.consultaintervalodetalle');
@@ -144,6 +146,18 @@ Route::get('/mesapartes/upload', [MesaController::class, 'showupload'])->name('m
 Route::post('/mesapartes/uploadchunk', [MesaController::class, 'uploadChunk'])->name('upload.chunk');
 Route::post('/mesapartes/uploadchunkcargos', [MesaController::class, 'uploadChunkCargos'])->name('upload.chunkcargos');
 Route::post('/mesapartes/check-existing', [MesaController::class, 'checkExistingFiles'])->name('upload.checkExisting');
+
+
+Route::get('/mesapartes/registrovoucher', [MesaController::class, 'registroVoucher'])->name('mesapartes.registrovoucher');
+Route::post('/mesapartes/grabavoucher', [MesaController::class, 'grabaVoucher'])->name('mesapartes.grabavoucher');
+
+Route::get('/mesapartes/consultavouchers', [MesaController::class, 'consultaVouchers'])->name('mesapartes.consultavouchers');
+Route::post('/mesapartes/consultavouchersdetalle', [MesaController::class, 'consultaVouchersdetalle'])->name('mesapartes.consultavouchersdetalle');
+Route::post('/mesapartes/consultavouchersescrito', [MesaController::class, 'consultaVouchersescrito'])->name('mesapartes.consultavouchersescrito');
+
+
+
+
 
 
 
