@@ -421,7 +421,7 @@
 
 
     @php
-        $menuvoucher = in_array($perfil, ['Admin','RegistroVoucherBN']);
+        $menuvoucher = in_array($perfil, ['Admin','RegistroVoucherBN','mesapartes','MesaPartesAdmin']);
         $menuActivo = request()->is('mesapartes/registrovoucher', 'mesapartes/consultavouchers', 'otro');
     @endphp
     @if ($menuvoucher)
