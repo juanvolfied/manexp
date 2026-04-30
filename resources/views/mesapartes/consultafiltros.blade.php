@@ -51,6 +51,16 @@ function numeroAOrdinal($numero) {
                     </div>
                 </div>
 
+                <div class="col-md-4">
+                    <label class="form-label"><b>Filtro por Carpeta Fiscal</b></label>
+                    <div class="input-group">
+                        <div class="input-group-text">
+                            <input class="form-check-input mt-0" type="checkbox" id="check5" style="border: 2px solid #007bff; box-shadow: 0 0 3px rgba(0,123,255,0.5);" {{ !empty($carpetafiscal) ? 'checked' : '' }}>
+                        </div>
+                        <input type="text" class="form-control" name="carpetafiscal" id="carpetafiscal" value="{{ $carpetafiscal ?? '' }}" placeholder="Ingrese carpeta" {{ empty($carpetafiscal) ? 'disabled' : '' }}>
+                    </div>
+                </div>
+
             </div>
             <div class="row g-3 align-items-center">
 
@@ -252,6 +262,7 @@ $(document).ready(function() {
         toggleInput('check2', 'descripcion');
         toggleInput('check3', 'remitente');
         toggleInput('check4', 'dependenciapolicial');
+        toggleInput('check5', 'carpetafiscal');
     });
 </script>
 
@@ -288,7 +299,7 @@ function generapdf(event) {
 function mostrarescritos(event) {
     if (event) event.preventDefault(); // Previene recarga
 
-    if (!$('#check1').is(':checked') && !$('#check2').is(':checked') && !$('#check3').is(':checked') && !$('#check4').is(':checked')) {
+    if (!$('#check1').is(':checked') && !$('#check2').is(':checked') && !$('#check3').is(':checked') && !$('#check4').is(':checked') && !$('#check5').is(':checked')) {
         alert("SELECCIONE E INGRESE EL DATO POR EL CUAL CONSULTAR");
         return false;
     }

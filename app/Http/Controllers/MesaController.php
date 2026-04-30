@@ -700,6 +700,9 @@ $mpdf->WriteHTML('</tbody></table>');
         if ($request->filled('descripcion')) {
             $segdetalle->where('libroescritos.descripcion', 'like', '%' . $request->descripcion . '%');
         }
+        if ($request->filled('carpetafiscal')) {
+            $segdetalle->where('libroescritos.carpetafiscal', 'like', '%' . $request->carpetafiscal . '%');
+        }
         if ($request->filled('remitente')) {
             $segdetalle->where('remitente', 'like', '%' . $request->remitente . '%');
         }
@@ -711,6 +714,7 @@ $mpdf->WriteHTML('</tbody></table>');
         ->get();
         $codigo = $request->codigo;
         $descripcion = $request->descripcion;
+        $carpetafiscal = $request->carpetafiscal;
         $remitente = $request->remitente;
         $dependenciapolicial = $request->dependenciapolicial;
             
@@ -727,7 +731,7 @@ $mpdf->WriteHTML('</tbody></table>');
             return $doc;
         });
 
-        return view('mesapartes.consultafiltros',compact('segdetalle', 'codigo', 'descripcion', 'remitente', 'dependenciapolicial'));
+        return view('mesapartes.consultafiltros',compact('segdetalle', 'codigo', 'descripcion','carpetafiscal', 'remitente', 'dependenciapolicial'));
 
     }
 
@@ -1262,14 +1266,55 @@ function isValidPdf(string $path): bool
 
     public function registroVoucher()
     {
-        return view('mesapartes.registrovoucher');
+        $year = now()->year;
+        $fiscales = DB::table('personal')
+        ->leftJoin('dependencia', 'personal.id_dependencia', '=', 'dependencia.id_dependencia')
+        ->select(
+            'personal.id_personal',
+            'personal.apellido_paterno',
+            'personal.apellido_materno',
+            'personal.nombres',
+            'personal.id_dependencia',
+            'personal.despacho',
+            'dependencia.descripcion',
+            'dependencia.abreviado'
+        )
+        ->where('fiscal_asistente', 'F')
+        ->orderBy('apellido_paterno', 'asc') 
+        ->orderBy('apellido_materno', 'asc') 
+        ->orderBy('nombres', 'asc') 
+        ->get();
+
+        $deppoli = DB::table('dependenciapolicial')
+            ->orderBy('descripciondep', 'asc') 
+            ->get();
+
+
+        $consecutivo = DB::table('libroconsecutivos')
+            ->where('tipo', 'MD')
+            ->where('anolibro', $year)
+            ->lockForUpdate()
+            ->first();
+
+        $ultcodescrito = 'MD' .  substr($year, -2) ." 000000";
+        $sigcodescrito = 'MD' .  substr($year, -2) ." 000001";
+        if ($consecutivo) {
+            $nuevoNumero = $consecutivo->ultimo_numero;
+            $ultcodescrito = 'MD' .  substr($year, -2) ." ". str_pad($nuevoNumero, 6, '0', STR_PAD_LEFT);
+            $sigcodescrito = 'MD' .  substr($year, -2) ." ". str_pad($nuevoNumero+1, 6, '0', STR_PAD_LEFT);
+        }
+
+
+        return view('mesapartes.registrovoucher', compact('fiscales','deppoli','ultcodescrito','sigcodescrito'));
     }
     public function grabaVoucher(Request $request)
     {
+        $year = now()->year;
+        $nuevoNumero = null;
+
+
         $tipovoucher = strtoupper($request->input('tipovoucher'));
         $nrovoucher = strtoupper($request->input('nrovoucher'));
-
-
         $voucher = DB::table('vouchercopias as v')
             ->leftJoin('usuarios as u', 'v.id_usuario', '=', 'u.id_usuario')
             ->leftJoin('personal as p', 'v.id_personal', '=', 'p.id_personal')
@@ -1318,12 +1363,57 @@ function isValidPdf(string $path): bool
                 ]);
         }
 
-
-
-
         try {
-            DB::transaction(function () use ($request) {
+            DB::transaction(function () use ($year, &$nuevoNumero, $request) {
+                // Buscar y bloquear la fila del año actual
+                $consecutivo = DB::table('libroconsecutivos')
+                    ->where('tipo', 'MD')
+                    ->where('anolibro', $year)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$consecutivo) {
+                    // Si no existe, insertar nueva fila para el año actual
+                    DB::table('libroconsecutivos')->insert([
+                        'tipo' => 'MD',
+                        'anolibro' => $year,
+                        'ultimo_numero' => 1,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                    $nuevoNumero = 1;
+                } else {
+                    // Si existe, incrementar el último número
+                    $nuevoNumero = $consecutivo->ultimo_numero + 1;
+
+                    DB::table('libroconsecutivos')
+                        ->where('tipo', 'MD')
+                        ->where('anolibro', $year)
+                        ->update([
+                            'ultimo_numero' => $nuevoNumero,
+                            'updated_at' => now(),
+                        ]);
+                }
+
+                $codescrito = 'MD' .  substr($year, -2) ." ". str_pad($nuevoNumero, 6, '0', STR_PAD_LEFT);
+
                 // Insertar el nuevo documento
+                DB::table('libroescritos')->insert([
+                    'codescrito' => $codescrito,
+                    'tiporecepcion' => 'F',
+                    'id_dependencia' => $request->input('id_dependencia'),
+                    'despacho' => $request->input('despacho'),
+                    'id_fiscal' => $request->input('fiscal'),
+                    'tipo' => $request->input('tipo'),
+                    'descripcion' => $request->input('descripcion'),
+                    'dependenciapolicial' => $request->input('deppolicial'),
+                    'remitente' => $request->input('remitente'),
+                    'carpetafiscal' => $request->input('carpetafiscal'),
+                    'folios' => $request->input('folios'),
+                    'fecharegistro' => now(),
+                    'id_personal' => Auth::user()->id_personal,
+                    'id_usuario' => Auth::user()->id_usuario,
+                ]);
                 DB::table('vouchercopias')->insert([
                     'tpvoucher' => $request->input('tipovoucher'),
                     'nrovoucher' => $request->input('nrovoucher'),
@@ -1332,11 +1422,14 @@ function isValidPdf(string $path): bool
                     'carpetafiscal' => $request->input('carpetafiscal'),
                     'dnisolicitante' => $request->input('dni'),
 
+                    'codescrito' => $codescrito,
+
                     'id_personal' => Auth::user()->id_personal,
                     'id_usuario' => Auth::user()->id_usuario,
                     'id_dependencia' => Auth::user()->personal->id_dependencia,
                     'fechahoraregistro' => now(),
                 ]);
+                
             });
             return redirect()->route('mesapartes.registrovoucher')->with('success', 'INFORMACION REGISTRADA DE FORMA SATISFACTORIA.');
 
@@ -1375,9 +1468,21 @@ function isValidPdf(string $path): bool
         ->whereBetween('fechahoraregistro', [
             $fechaini . ' 00:00:00',
             $fechafin . ' 23:59:59'
-        ])        
+        ]);
+
+        $perfil = optional(Auth::user()->perfil)->descri_perfil;        
+        if (in_array($perfil, ['Admin','MesaPartesAdmin'])) {
+        } else {
+            $segdetalle->where('v.id_dependencia', Auth::user()->personal->id_dependencia);
+        }
+        $segdetalle = $segdetalle
         ->orderBy('idautogen', 'desc') 
         ->get();
+
+
+
+
+
         return view('mesapartes.consultavouchers',compact('segdetalle'));
     }
     public function consultaVouchersdetalle(Request $request)
@@ -1401,7 +1506,14 @@ function isValidPdf(string $path): bool
         ->whereBetween('fechahoraregistro', [
             $fechaini . ' 00:00:00',
             $fechafin . ' 23:59:59'
-        ])        
+        ]);
+
+        $perfil = optional(Auth::user()->perfil)->descri_perfil;        
+        if (in_array($perfil, ['Admin','MesaPartesAdmin'])) {
+        } else {
+            $segdetalle->where('v.id_dependencia', Auth::user()->personal->id_dependencia);
+        }
+        $segdetalle = $segdetalle
         ->orderBy('idautogen', 'desc') 
         ->get();
 
