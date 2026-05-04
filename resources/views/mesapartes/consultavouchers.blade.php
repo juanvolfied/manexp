@@ -84,7 +84,7 @@
                             </td>
                                 
                             @if($item->codescrito)
-                            <td style="font-size:11px; padding: 5px 5px !important; background-color: green;">
+                            <td style="font-size:11px; padding: 5px 5px !important; {{ $item->voucherduplicado == 'S' ? 'background-color: red;' : 'background-color: green;' }}">
                                 <b><a href="#" style="color: white; text-decoration: none;" onclick="mostrarEscrito('{{ $item->codescrito }}'); return false;">
                                     {{ $item->nrovoucher ?? '' }}
                                 </a></b>
@@ -112,7 +112,7 @@
 <!--            </div>--><!--table responsive-->
         </div>
     </div>
-    
+
 <!-- Modal -->
 <div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl" role="document">

@@ -290,6 +290,12 @@ class MenuController extends Controller
                 if ($request->filled('newarchivo')) {
                     $data['archivo'] = $request->newarchivo;
                 }
+                if ($request->filled('newpaquete')) {
+                    $data['nro_paquete'] = $request->newpaquete;
+                }
+                if ($request->filled('newserie')) {
+                    $data['serie'] = $request->newserie;
+                }
                 if ($request->filled('newanaquel')) {
                     $data['anaquel'] = $request->newanaquel;
                 }

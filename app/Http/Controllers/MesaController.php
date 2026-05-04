@@ -1330,7 +1330,12 @@ function isValidPdf(string $path): bool
             ->where('v.tpvoucher', $tipovoucher)
             ->where('v.nrovoucher', $nrovoucher)
             ->first();        
+
+        $voucherdup="";
         if ($voucher) {
+            $voucherdup="S";
+        }
+        if ($voucher && !$request->forzar_guardado) {
             $nombreCompleto = trim(
                 ($voucher->apellido_paterno ?? '') . ' ' .
                 ($voucher->apellido_materno ?? '') . ' ' .
@@ -1355,16 +1360,14 @@ function isValidPdf(string $path): bool
                 </div>
             </div>
             ";            
-
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'codescrito' => $mensaje
-                ]);
+            return response()->json([
+                'confirmar' => true,
+                'mensaje' => $mensaje
+            ]);
         }
 
         try {
-            DB::transaction(function () use ($year, &$nuevoNumero, $request) {
+            DB::transaction(function () use ($year, &$nuevoNumero, $voucherdup, $request) {
                 // Buscar y bloquear la fila del año actual
                 $consecutivo = DB::table('libroconsecutivos')
                     ->where('tipo', 'MD')
@@ -1428,22 +1431,28 @@ function isValidPdf(string $path): bool
                     'id_usuario' => Auth::user()->id_usuario,
                     'id_dependencia' => Auth::user()->personal->id_dependencia,
                     'fechahoraregistro' => now(),
+                    'voucherduplicado' => $voucherdup,
                 ]);
                 
             });
-            return redirect()->route('mesapartes.registrovoucher')->with('success', 'INFORMACION REGISTRADA DE FORMA SATISFACTORIA.');
+            return response()->json([
+                'success' => true,
+                'mensaje' => 'INFORMACION REGISTRADA DE FORMA SATISFACTORIA.'
+            ]);
 
         } catch (QueryException $e) {
-            if ($e->getCode() == '23000') { // Código SQLSTATE para violación de restricción (como unique)
-                return back()
-                    ->withInput()
-                    ->withErrors(['codescrito' => 'CÓDIGO YA SE ENCUENTRA REGISTRADO']);
+            if ($e->getCode() == '23000') {
+                return response()->json([
+                    'error' => true,
+                    'tipo' => 'duplicado',
+                    'mensaje' => 'CÓDIGO YA SE ENCUENTRA REGISTRADO'
+                ]);
             }
-
-            // Otro tipo de error
-            return back()
-                ->withInput()
-                ->withErrors(['error' => 'ERROR AL REGISTRAR LA INFORMACIÓN.']);
+            return response()->json([
+                'error' => true,
+                'tipo' => 'general',
+                'mensaje' => 'ERROR AL REGISTRAR LA INFORMACIÓN.'
+            ]);                
         }        
 
     }
@@ -1774,6 +1783,7 @@ function isValidPdf(string $path): bool
         }        
 
     }
+
     public function storerv(Request $request)
     {
     $codigo = strtoupper($request->input('codescrito'));
@@ -1781,15 +1791,19 @@ function isValidPdf(string $path): bool
     ->where('codescrito', $codigo)
     ->exists();
     if ($exists) {
-        return back()
+        return response()->json([
+            'error' => true,
+            'tipo' => 'general',
+            'mensaje' => 'CÓDIGO DE ESCRITO '. $codigo .' YA SE ENCUENTRA REGISTRADO'
+        ]);                
+/*        return back()
             ->withInput()
             //->withErrors(['codescrito' => 'CÓDIGO YA SE ENCUENTRA REGISTRADO']);
-            ->withErrors(['error' => '<b>CÓDIGO DE ESCRITO '. $codigo .' YA SE ENCUENTRA REGISTRADO</b>']);
+            ->withErrors(['error' => '<b>CÓDIGO DE ESCRITO '. $codigo .' YA SE ENCUENTRA REGISTRADO</b>']);*/
     }
     
         $tipovoucher = strtoupper($request->input('tipovoucher'));
         $nrovoucher = strtoupper($request->input('nrovoucher'));
-
         $voucher = DB::table('vouchercopias as v')
             ->leftJoin('usuarios as u', 'v.id_usuario', '=', 'u.id_usuario')
             ->leftJoin('personal as p', 'v.id_personal', '=', 'p.id_personal')
@@ -1805,7 +1819,12 @@ function isValidPdf(string $path): bool
             ->where('v.tpvoucher', $tipovoucher)
             ->where('v.nrovoucher', $nrovoucher)
             ->first();        
+
+        $voucherdup="";
         if ($voucher) {
+            $voucherdup="S";
+        }
+        if ($voucher && !$request->forzar_guardado) {
             $nombreCompleto = trim(
                 ($voucher->apellido_paterno ?? '') . ' ' .
                 ($voucher->apellido_materno ?? '') . ' ' .
@@ -1830,21 +1849,15 @@ function isValidPdf(string $path): bool
                 </div>
             </div>
             ";            
-
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'error' => $mensaje
-                ]);
+            return response()->json([
+                'confirmar' => true,
+                'mensaje' => $mensaje
+            ]);
         }
-
-
-
-
     
         try {
 
-            DB::transaction(function () use ($request) {
+            DB::transaction(function () use ($voucherdup, $request) {
                 // Insertar el nuevo documento
                 DB::table('libroescritos')->insert([
                     'codescrito' => strtoupper( $request->input('codescrito') ),
@@ -1877,24 +1890,28 @@ function isValidPdf(string $path): bool
                     'id_usuario' => Auth::user()->id_usuario,
                     'id_dependencia' => Auth::user()->personal->id_dependencia,
                     'fechahoraregistro' => now(),
+                    'voucherduplicado' => $voucherdup,
                 ]);
-
             });
-            return redirect()->route('mesapartes.index')->with('success', 'INFORMACION REGISTRADA DE FORMA SATISFACTORIA.');
+            return response()->json([
+                'success' => true,
+                'mensaje' => 'INFORMACION REGISTRADA DE FORMA SATISFACTORIA.'
+            ]);
 
         } catch (QueryException $e) {
-            if ($e->getCode() == '23000') { // Código SQLSTATE para violación de restricción (como unique)
-                return back()
-                    ->withInput()
-                    ->withErrors(['codescrito' => 'CÓDIGO YA SE ENCUENTRA REGISTRADO']);
+            if ($e->getCode() == '23000') {
+                return response()->json([
+                    'error' => true,
+                    'tipo' => 'duplicado',
+                    'mensaje' => 'CÓDIGO YA SE ENCUENTRA REGISTRADO'
+                ]);
             }
-
-            // Otro tipo de error
-            return back()
-                ->withInput()
-                ->withErrors(['error' => 'ERROR AL REGISTRAR LA INFORMACIÓN.']);
+            return response()->json([
+                'error' => true,
+                'tipo' => 'general',
+                'mensaje' => 'ERROR AL REGISTRAR LA INFORMACIÓN.'
+            ]);                
         }        
-
     }
 
 

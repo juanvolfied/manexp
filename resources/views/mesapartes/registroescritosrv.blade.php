@@ -24,7 +24,11 @@
     <form id="miFormulario" action="{{ route('mesapartes.storerv') }}" method="POST" autocomplete="off">
         @csrf
         @include('mesapartes.formrv')
-        <button type="submit" class="btn btn-success mt-3">Guardar</button>
+        <!--<button type="submit" class="btn btn-success mt-3">Guardar</button>-->
+        <button type="button" class="btn btn-success mt-3" onclick="validarYEnviar()">
+            Guardar
+        </button>        
+
         <a href="{{ route('mesapartes.index') }}" class="btn btn-secondary mt-3">Cancelar</a>
     </form>
 

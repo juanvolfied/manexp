@@ -172,34 +172,38 @@ function numeroAOrdinal($numero) {
 
 </div>
 
-@if ($errors->has('error'))
-<!-- Modal -->
-<div class="modal fade" id="textoModal" tabindex="-1" aria-labelledby="textoModalLabel" aria-hidden="true">
+<div class="modal fade" id="confirmModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-    
+    <div class="modal-content">      
       <div class="modal-header">
-        <h5 class="modal-title" id="textoModalLabel">ERROR AL GRABAR</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <h5 class="modal-title">Confirmación</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body">{!! $errors->first('error') !!}
-      </div>      
+      <div class="modal-body" id="mensajeConfirmacion"></div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="confirmarGuardar()">Continuar</button>
       </div>
-    
     </div>
   </div>
 </div>
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    var myModal = new bootstrap.Modal(document.getElementById('textoModal'));
-    myModal.show();
-});
-</script>
+
+<div class="modal fade" id="ModalMensaje" tabindex="-1" aria-labelledby="textoModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="textoModalLabel">Mensaje</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body" id="mensaje"></div>      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 
-@endif
 
 <style>
     .selectize-dropdown, .selectize-input, .selectize-input input {
@@ -288,7 +292,120 @@ document.getElementById('carpetafiscal').addEventListener('input', function() {
         }
     }
         
+
     
+
+function validarYEnviar(forzar = 0) {
+    let codescrito = document.getElementById('codescrito').value;
+    let fiscal = document.getElementById('fiscal').value;
+    let tipo = document.getElementById('tipo').value;
+    let carfiscal = document.getElementById('carpetafiscal').value;
+    if (codescrito === '') {
+        alert('INGRESE UN CÓDIGO');
+        document.getElementById('codescrito').focus();
+        return; 
+    }
+    if (fiscal === '') {
+        alert('SELECCIONE UN FISCAL.');
+        document.getElementById('fiscal').focus();
+        return; 
+    }
+    if (tipo === '') {
+        alert('INGRESA EL TIPO DE ESCRITO');
+        document.getElementById('tipo').focus();
+        return; 
+    }
+    if (carfiscal === '') {
+        alert('INGRESA LA CARPETA FISCAL');
+        document.getElementById('carpetafiscal').focus();
+        return; 
+    }
+
+    let tpvoucher = document.getElementById('tipovoucher').value;
+    let nrvoucher = document.getElementById('nrovoucher').value;
+    let fecoperac = document.getElementById('fecoperacion').value;
+    let monto = document.getElementById('monto').value;
+    let dni = document.getElementById('dni').value;
+
+
+    if (tpvoucher === '') {
+        alert('SELECCIONA EL TP DE VOUCHER');
+        document.getElementById('tipovoucher').focus();
+        return; 
+    }
+    if (nrvoucher === '') {
+        alert('INGRESA EL NRO DE VOUCHER');
+        document.getElementById('nrovoucher').focus();
+        return; 
+    }
+    if (fecoperac === '') {
+        alert('INGRESA LA FECHA DE OPERACION');
+        document.getElementById('fecoperacion').focus();
+        return; 
+    }
+    if (monto === '') {
+        alert('INGRESA EL MONTO');
+        document.getElementById('monto').focus();
+        return; 
+    }
+    if (dni === '') {
+        alert('INGRESA DNI DEL SOLICITANTE');
+        document.getElementById('dni').focus();
+        return; 
+    }
+
+    //document.getElementById('miFormulario').submit();
+
+    let form = document.getElementById('miFormulario');
+    let formData = new FormData(form);
+    formData.append('forzar_guardado', forzar);
+    $.ajax({
+        url: form.action,
+        method: 'POST',
+        data: formData,
+        processData: false,   
+        contentType: false,   
+        success: function(response) {
+            if (response.confirmar) {
+                mostrarModalConfirmacion(response.mensaje);
+                return;
+            }
+            if (response.success) {
+                sessionStorage.setItem('mensajeOK', response.mensaje);
+                location.reload();                
+            }
+            if (response.error) {
+                $('#mensaje').html(response.mensaje);
+                new bootstrap.Modal(document.getElementById('ModalMensaje')).show();
+                return;
+            }            
+        },
+        error: function(xhr) {
+            console.error(xhr);
+            alert('Error en el servidor');
+        }
+    });
+
+}
+let modalInstance;
+function mostrarModalConfirmacion(mensaje) {
+    $('#mensajeConfirmacion').html(mensaje);
+    modalInstance = new bootstrap.Modal(document.getElementById('confirmModal'));
+    modalInstance.show();
+}
+function confirmarGuardar() {
+    modalInstance.hide();
+    validarYEnviar(1); 
+}
+document.addEventListener("DOMContentLoaded", function() {
+    let mensaje = sessionStorage.getItem('mensajeOK');
+    if (mensaje) {
+        document.getElementById('mensaje').innerText = mensaje;
+        new bootstrap.Modal(document.getElementById('ModalMensaje')).show();
+        sessionStorage.removeItem('mensajeOK');
+    }
+});
+/*
     document.addEventListener('DOMContentLoaded', function () {
         const codescritoInputs = document.querySelectorAll('input[name="codescrito"]');
 
@@ -382,7 +499,7 @@ document.getElementById('carpetafiscal').addEventListener('input', function() {
             }
         });
     });
-
+*/
 
 
 

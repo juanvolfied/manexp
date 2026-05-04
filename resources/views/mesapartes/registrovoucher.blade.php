@@ -207,37 +207,36 @@
             </div>    
     </form>
 <!--</div>-->
-
-@if ($errors->any())
-<!-- Modal -->
-<div class="modal fade" id="textoModal" tabindex="-1" aria-labelledby="textoModalLabel" aria-hidden="true">
+<div class="modal fade" id="confirmModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-    
+    <div class="modal-content">      
       <div class="modal-header">
-        <h5 class="modal-title" id="textoModalLabel">ERROR AL GRABAR</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <h5 class="modal-title">Confirmación</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body">{!! $errors->first() !!}
-      </div>      
+      <div class="modal-body" id="mensajeConfirmacion"></div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-primary" onclick="confirmarGuardar()">Continuar</button>
       </div>
-    
     </div>
   </div>
 </div>
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    var myModal = new bootstrap.Modal(document.getElementById('textoModal'));
-    myModal.show();
-});
-</script>
 
-    <script>
-//        alert("{{ $errors->first() }}");
-    </script>
-@endif
+<div class="modal fade" id="ModalMensaje" tabindex="-1" aria-labelledby="textoModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="textoModalLabel">Mensaje</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body" id="mensaje"></div>      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <style>
     .selectize-dropdown, .selectize-input, .selectize-input input {
@@ -358,7 +357,7 @@ document.getElementById('carpetafiscal').addEventListener('input', function() {
 </script>
 
 <script>
-function validarYEnviar() {
+function validarYEnviar(forzar = 0) {
     //let codescrito = document.getElementById('codescrito').value;
     let fiscal = document.getElementById('fiscal').value;
     let tipo = document.getElementById('tipo').value;
@@ -417,9 +416,57 @@ function validarYEnviar() {
         return; 
     }
 
-    document.getElementById('miFormulario').submit();
-}
+    //document.getElementById('miFormulario').submit();
 
+    let form = document.getElementById('miFormulario');
+    let formData = new FormData(form);
+    formData.append('forzar_guardado', forzar);
+    $.ajax({
+        url: form.action,
+        method: 'POST',
+        data: formData,
+        processData: false,   
+        contentType: false,   
+        success: function(response) {
+            if (response.confirmar) {
+                mostrarModalConfirmacion(response.mensaje);
+                return;
+            }
+            if (response.success) {
+                sessionStorage.setItem('mensajeOK', response.mensaje);
+                location.reload();                
+            }
+            if (response.error) {
+                $('#mensaje').html(response.mensaje);
+                new bootstrap.Modal(document.getElementById('ModalMensaje')).show();
+                return;
+            }            
+        },
+        error: function(xhr) {
+            console.error(xhr);
+            alert('Error en el servidor');
+        }
+    });
+
+}
+let modalInstance;
+function mostrarModalConfirmacion(mensaje) {
+    $('#mensajeConfirmacion').html(mensaje);
+    modalInstance = new bootstrap.Modal(document.getElementById('confirmModal'));
+    modalInstance.show();
+}
+function confirmarGuardar() {
+    modalInstance.hide();
+    validarYEnviar(1); 
+}
+document.addEventListener("DOMContentLoaded", function() {
+    let mensaje = sessionStorage.getItem('mensajeOK');
+    if (mensaje) {
+        document.getElementById('mensaje').innerText = mensaje;
+        new bootstrap.Modal(document.getElementById('ModalMensaje')).show();
+        sessionStorage.removeItem('mensajeOK');
+    }
+});
 </script>
 
 <script>

@@ -171,10 +171,14 @@
                           </td></tr></table>
                       </div>
                       <div class="col-md-3 col-lg-3">
-                          <table width="100%"><tr><td width="100px;"><b>Nro Paquete:</b></td><td id="datpaqu"></td></tr></table>
+                          <table width="100%"><tr><td width="100px;"><b>Nro Paquete:</b></td><td>
+                          <input type="text" class="form-control form-control-sm" name="datpaqu" id="datpaqu" maxlength="10" style="width: 100px;"/>
+                          </td></tr></table>
                       </div>
                       <div class="col-md-3 col-lg-3">
-                          <table width="100%"><tr><td width="100px;"><b>Serie:</b></td><td id="datseri"></td></tr></table>
+                          <table width="100%"><tr><td width="100px;"><b>Serie:</b></td><td>
+                          <input type="text" class="form-control form-control-sm" name="datseri" id="datseri" maxlength="1" style="width: 100px;" />
+                          </td></tr></table>
                       </div>
                       <!--<div class="col-md-3 col-lg-3">
                           <table width="100%"><tr><td width="100px;"><b>Anaquel:</b></td><td id="datanaq"></td></tr></table>
@@ -337,6 +341,8 @@
 
 	          <input type="hidden" id="newarchivo" name="newarchivo">
 	          <input type="hidden" id="newanaquel" name="newanaquel">
+	          <input type="hidden" id="newpaquete" name="newpaquete">
+	          <input type="hidden" id="newserie" name="newserie">
 
 <!-- Modal -->
 <div class="modal fade" id="textoModal" tabindex="-1" aria-labelledby="textoModalLabel" aria-hidden="true">
@@ -647,8 +653,8 @@ document.getElementById("IniciaScan").addEventListener("click", function(event) 
    
     $('#datinve').text($('#nroinventario').val()); 
     $('#datarch').val($('#archivo option:selected').val());
-    $('#datpaqu').text($('#nropaquete').val());
-    $('#datseri').text($('#serie').val());
+    $('#datpaqu').val($('#nropaquete').val());
+    $('#datseri').val($('#serie').val());
     $('#datanaq').val($('#anaquel').val());
     $('#datdepe').text($('#dependencia option:selected').text());
     $('#datdesp').text($('#despacho option:selected').text());
@@ -694,14 +700,23 @@ document.getElementById("grabarBtn").addEventListener("click", function(event) {
     if (scannedItems.length > 0) {
         event.preventDefault();  // Prevenir el comportamiento por defecto
         document.getElementById('newarchivo').value = "";
+        document.getElementById('newpaquete').value = "";
+        document.getElementById('newserie').value = "";
         document.getElementById('newanaquel').value = "";
         if (document.getElementById('archivo').value != document.getElementById('datarch').value) {
           document.getElementById('newarchivo').value = document.getElementById('datarch').value;
+        }
+        if (document.getElementById('nropaquete').value != document.getElementById('datpaqu').value) {
+          document.getElementById('newpaquete').value = document.getElementById('datpaqu').value;
+        }
+        if (document.getElementById('serie').value != document.getElementById('datseri').value) {
+          document.getElementById('newserie').value = document.getElementById('datseri').value;
         }
         if (document.getElementById('anaquel').value != document.getElementById('datanaq').value) {
           document.getElementById('newanaquel').value = document.getElementById('datanaq').value;
         }
         document.getElementById("miFormulario2").submit();
+
     } else {
         document.getElementById('messageErr').innerHTML = '<b>No puedes inventariar si no hay registros lectoreados</b>';
         var messageErr = document.getElementById('messageErr');
@@ -782,8 +797,8 @@ codigo = codigo.replace("'", "-");
                 
                 $('#datinve').text($('#nroinventario').val()); 
                 $('#datarch').val($('#archivo option:selected').val());
-                $('#datpaqu').text($('#nropaquete').val());
-                $('#datseri').text($('#serie').val());
+                $('#datpaqu').val($('#nropaquete').val());
+                $('#datseri').val($('#serie').val());
                 $('#datanaq').val($('#anaquel').val());
                 $('#datdepe').text($('#dependencia option:selected').text());
                 $('#datdesp').text($('#despacho option:selected').text());
