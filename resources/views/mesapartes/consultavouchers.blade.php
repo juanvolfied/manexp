@@ -84,9 +84,13 @@
                             </td>
                                 
                             @if($item->codescrito)
-                            <td style="font-size:11px; padding: 5px 5px !important; {{ $item->voucherduplicado == 'S' ? 'background-color: red;' : 'background-color: green;' }}">
-                                <b><a href="#" style="color: white; text-decoration: none;" onclick="mostrarEscrito('{{ $item->codescrito }}'); return false;">
-                                    {{ $item->nrovoucher ?? '' }}
+                            <td style="font-size:11px; padding: 5px 5px !important; ">
+                                <b><a href="#" 
+                                class="link-enmarcado"
+                                style="color: white; text-decoration: none;
+                                {{ $item->voucherduplicado == 'S' ? 'background-color: #dd0030bb;' : 'background-color: #00469cc3;' }}"
+                                onclick="mostrarEscrito('{{ $item->codescrito }}'); return false;">
+                                    <div style="padding: 3px;">{{ $item->nrovoucher ?? '' }}</div>
                                 </a></b>
                             </td>
                             @else
@@ -112,6 +116,26 @@
 <!--            </div>--><!--table responsive-->
         </div>
     </div>
+
+<style>
+.link-enmarcado {
+    display: flex;              
+    justify-content: center;
+    align-items: center;
+
+    width: 95%;                 
+    height: 95%;                
+
+    margin: auto;               
+
+    border: 0px solid #333;
+    border-radius: 3px;
+
+    font-size: 11px;
+    text-decoration: none;
+    color: inherit;
+}
+</style>
 
 <!-- Modal -->
 <div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
@@ -270,11 +294,12 @@ function mostrarvouchers(event) {
                     const tipoImagen = tiposImg[registro.tpvoucher] || '';
 
 
-
+                    const color = registro.voucherduplicado === 'S'
+                        ? 'background-color: #dd0030bb;'
+                        : 'background-color: #00469cc3;';
                     const nrovoucher = registro.codescrito
-                        ? `<td style="font-size:11px; padding: 5px 5px !important; background-color: green;"><b><a href="#" style="color: white; text-decoration: none;" onclick="mostrarEscrito('${registro.codescrito}'); return false;">${registro.nrovoucher || ''}</a></b></td>`
+                        ? `<td style="font-size:11px; padding: 5px 5px !important;"><b><a href="#" class="link-enmarcado" style="color: white; text-decoration: none; ${color}" onclick="mostrarEscrito('${registro.codescrito}'); return false;"><div style="padding: 3px;">${registro.nrovoucher || ''}</div></a></b></td>`
                         : `<td style="font-size:11px; padding: 5px 5px !important;">${registro.nrovoucher || ''}</td>`;
-
 
 
 

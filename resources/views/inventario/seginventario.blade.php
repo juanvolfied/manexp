@@ -75,7 +75,13 @@ function numeroAOrdinal($numero) {
     @endif
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->nro_inventario}}</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">
-                        {{ $datos->archivo == 99 ? 'Archivo Gestión' : 'Archivo ' . str_pad($datos->archivo, 3, '0', STR_PAD_LEFT) }}
+{{ [
+    99 => 'Archivo Gestión 1',
+    92 => 'Archivo Gestión 2',
+    93 => 'Archivo Gestión 3',
+    94 => 'Archivo Gestión 4',
+][$datos->archivo] ?? 'Archivo ' . str_pad($datos->archivo, 3, '0', STR_PAD_LEFT) }}
+
                         </td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->anaquel}}</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->nro_paquete}}</td>

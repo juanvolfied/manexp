@@ -73,7 +73,10 @@
 			    <option value="10">Archivo 010</option>
 			    <option value="11">Archivo 011</option>
 			    <option value="12">Archivo 012</option>
-			    <option value="99">Archivo de Gesti&oacute;n</option>
+			    <option value="99">Archivo de Gesti&oacute;n 1</option>
+			    <option value="92">Archivo de Gesti&oacute;n 2</option>
+			    <option value="93">Archivo de Gesti&oacute;n 3</option>
+			    <option value="94">Archivo de Gesti&oacute;n 4</option>
 			  </select>
        
                         </div>

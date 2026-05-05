@@ -299,6 +299,12 @@ class MenuController extends Controller
                 if ($request->filled('newanaquel')) {
                     $data['anaquel'] = $request->newanaquel;
                 }
+                if ($request->filled('newdepe')) {
+                    $data['paq_dependencia'] = $request->newdepe;
+                }
+                if ($request->filled('newdesp')) {
+                    $data['despacho'] = $request->newdesp;
+                }
                 if (!empty($data)) {
                     DB::table('ubicacion_exp')
                         ->where('nro_inventario', $request->nroinventarioobs)

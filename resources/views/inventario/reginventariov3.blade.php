@@ -57,7 +57,10 @@
 			    <option value="10">Archivo 010</option>
 			    <option value="11">Archivo 011</option>
 			    <option value="12">Archivo 012</option>
-			    <option value="99">Archivo de Gesti&oacute;n</option>
+			    <option value="99">Archivo de Gesti&oacute;n 1</option>
+			    <option value="92">Archivo de Gesti&oacute;n 2</option>
+			    <option value="93">Archivo de Gesti&oacute;n 3</option>
+			    <option value="94">Archivo de Gesti&oacute;n 4</option>
 			  </select>
                         </div>
                       </div>
@@ -139,7 +142,6 @@
                   </div>
                   <div class="card-body">
 
-                    <span class="d-none d-md-inline">
 
 
                     <div class="row">
@@ -166,7 +168,10 @@
                               <option value="10">Archivo 010</option>
                               <option value="11">Archivo 011</option>
                               <option value="12">Archivo 012</option>
-                              <option value="99">Archivo de Gesti&oacute;n</option>
+                              <option value="99">Archivo de Gesti&oacute;n 1</option>
+                              <option value="92">Archivo de Gesti&oacute;n 2</option>
+                              <option value="93">Archivo de Gesti&oacute;n 3</option>
+                              <option value="94">Archivo de Gesti&oacute;n 4</option>
                             </select>                          
                           </td></tr></table>
                       </div>
@@ -193,71 +198,41 @@
                     </div>
                     <div class="row">
                       <div class="col-md-6 col-lg-6">
-                          <table width="100%"><tr><td width="100px;"><b>Dependencia:</b></td><td id="datdepe" style="text-align: justify;"></td></tr></table>
+                          <table width="100%"><tr><td width="100px;"><b>Dependencia:</b></td><td>
+
+			  <select name="datdepe" id="datdepe" class="" data-live-search="true">
+			    <option value=""></option>
+                            @foreach ($dependencias as $datos)
+			    <option value="{{ $datos->id_dependencia }}">{{ $datos->descripcion }}</option>			    
+			    @endforeach
+			  </select>
+
+                          </td></tr></table>
                       </div>
                       <div class="col-md-6 col-lg-6">
-                          <table width="100%"><tr><td width="100px;"><b>Despacho:</b></td><td id="datdesp"></td></tr></table>
-                      </div>
-                    </div>
+                          <table width="100%"><tr><td width="100px;"><b>Despacho:</b></td><td>
 
+			  <select name="datdesp" id="datdesp" class="form-select form-control-sm" >
+			    <option value=""></option>
+			    <option value="0">DESPACHO</option>
+			    <option value="1">1er. DESPACHO</option>
+			    <option value="2">2do. DESPACHO</option>
+			    <option value="3">3er. DESPACHO</option>
+			    <option value="4">4to. DESPACHO</option>
+			    <option value="5">5to. DESPACHO</option>
+			    <option value="6">6to. DESPACHO</option>
+			    <option value="7">7mo. DESPACHO</option>
+			    <option value="8">8vo. DESPACHO</option>
+			    <option value="9">9no. DESPACHO</option>
+			    <option value="10">10mo. DESPACHO</option>
+			    <option value="11">11er. DESPACHO</option>
+			  </select>
 
-		                </span>
-                    <span class="d-inline d-md-none">
-
-                    <div class="row">
-                      <div class="col-12 col-md-12 col-lg-12">
-                          <table width="100%"><tr><td><b>Nro Inventario: </b><span id="datinve2"></span></td>
-                          </table>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-12 col-md-12 col-lg-12">
-                          <table width="100%"><tr><td width="100px;"><b>Archivo:</b></td><td>
-                            <select name="datarch2" id="datarch2" class="form-select form-control-sm" >
-                              <option value=""></option>
-                              <option value="1">Archivo 001</option>
-                              <option value="2">Archivo 002</option>
-                              <option value="3">Archivo 003</option>
-                              <option value="4">Archivo 004</option>
-                              <option value="5">Archivo 005</option>
-                              <option value="6">Archivo 006</option>
-                              <option value="7">Archivo 007</option>
-                              <option value="8">Archivo 008</option>
-                              <option value="9">Archivo 009</option>
-                              <option value="10">Archivo 010</option>
-                              <option value="11">Archivo 011</option>
-                              <option value="12">Archivo 012</option>
-                              <option value="99">Archivo de Gesti&oacute;n</option>
-                            </select>                          
                           </td></tr></table>
                       </div>
                     </div>
 
-                    <div class="row">
-                      <div class="col-12 col-md-12 col-lg-12">
-                          <table width="100%"><tr><td><b>Paquete: </b><span id="datpaqu2"></span></td>
-                          <td><b>Serie: </b><span id="datseri2"></span></td>
-                          </tr></table>
-                      </div>
-                      <div class="col-md-3 col-lg-3">
-                        <!--<div class="form-group" style="padding:5px;">-->
-                          <table width="100%"><tr><td width="100px;"><b>Anaquel:</b></td><td>
-                          <input type="text" class="form-control form-control-sm" name="datanaq2" id="datanaq2" maxlength="10" style="width: 100px;" />
-                          </td></tr></table>
-                        <!--</div>-->
-                      </div>
 
-                    </div>
-                    <div class="row">
-                      <div class="col-md-6 col-lg-6">
-                          <table width="100%"><tr><td ><b>Dependencia: </b><span id="datdepe2" style="text-align: justify;"></span></td></tr></table>
-                      </div>
-                      <div class="col-md-6 col-lg-6">
-                          <table width="100%"><tr><td ><b>Despacho: </b><span id="datdesp2"></span></td></tr></table>
-                      </div>
-                    </div>
-
-		                </span>
 
 
 
@@ -343,6 +318,8 @@
 	          <input type="hidden" id="newanaquel" name="newanaquel">
 	          <input type="hidden" id="newpaquete" name="newpaquete">
 	          <input type="hidden" id="newserie" name="newserie">
+	          <input type="hidden" id="newdepe" name="newdepe">
+	          <input type="hidden" id="newdesp" name="newdesp">
 
 <!-- Modal -->
 <div class="modal fade" id="textoModal" tabindex="-1" aria-labelledby="textoModalLabel" aria-hidden="true">
@@ -411,6 +388,11 @@
 @section('scripts')
 <script>
     $('#dependencia').selectize();
+    $('#datdepe').selectize(
+    onFocus: function() {
+        this.setActiveItem(this.getItem(this.getValue()));
+    }      
+    );
 
 
 function sincronizar(origen, destino) {
@@ -656,17 +638,10 @@ document.getElementById("IniciaScan").addEventListener("click", function(event) 
     $('#datpaqu').val($('#nropaquete').val());
     $('#datseri').val($('#serie').val());
     $('#datanaq').val($('#anaquel').val());
-    $('#datdepe').text($('#dependencia option:selected').text());
-    $('#datdesp').text($('#despacho option:selected').text());
-
-    $('#datinve2').text($('#nroinventario').val()); 
-    $('#datarch2').val($('#archivo option:selected').val());
-    $('#datpaqu2').text($('#nropaquete').val());
-    $('#datseri2').text($('#serie').val());
-    $('#datanaq2').val($('#anaquel').val());
-//    $('#datdepe2').text($('#dependencia option:selected').text());
-    $('#datdepe2').text(abreviados[$('#dependencia').val()]);
-    $('#datdesp2').text($('#despacho option:selected').text());
+//    $('#datdepe').text($('#dependencia option:selected').text());
+    $('#datdepe').val($('#dependencia option:selected').val());
+//    $('#datdesp').text($('#despacho option:selected').text());
+    $('#datdesp').val($('#despacho option:selected').val());
 
 
     document.getElementById("datacabe").style.display = "none"; 
@@ -703,6 +678,8 @@ document.getElementById("grabarBtn").addEventListener("click", function(event) {
         document.getElementById('newpaquete').value = "";
         document.getElementById('newserie').value = "";
         document.getElementById('newanaquel').value = "";
+        document.getElementById('newdepe').value = "";
+        document.getElementById('newdesp').value = "";
         if (document.getElementById('archivo').value != document.getElementById('datarch').value) {
           document.getElementById('newarchivo').value = document.getElementById('datarch').value;
         }
@@ -710,10 +687,17 @@ document.getElementById("grabarBtn").addEventListener("click", function(event) {
           document.getElementById('newpaquete').value = document.getElementById('datpaqu').value;
         }
         if (document.getElementById('serie').value != document.getElementById('datseri').value) {
-          document.getElementById('newserie').value = document.getElementById('datseri').value;
+          let datseri = document.getElementById('datseri').value;
+          document.getElementById('newserie').value = datseri === "" ? "0" : datseri;          
         }
         if (document.getElementById('anaquel').value != document.getElementById('datanaq').value) {
           document.getElementById('newanaquel').value = document.getElementById('datanaq').value;
+        }
+        if (document.getElementById('dependencia').value != document.getElementById('datdepe').value) {
+          document.getElementById('newdepe').value = document.getElementById('datdepe').value;
+        }
+        if (document.getElementById('despacho').value != document.getElementById('datdesp').value) {
+          document.getElementById('newdesp').value = document.getElementById('datdesp').value;
         }
         document.getElementById("miFormulario2").submit();
 
@@ -800,17 +784,13 @@ codigo = codigo.replace("'", "-");
                 $('#datpaqu').val($('#nropaquete').val());
                 $('#datseri').val($('#serie').val());
                 $('#datanaq').val($('#anaquel').val());
-                $('#datdepe').text($('#dependencia option:selected').text());
-                $('#datdesp').text($('#despacho option:selected').text());
-
-                $('#datinve2').text($('#nroinventario').val()); 
-                $('#datarch2').val($('#archivo option:selected').val());
-                $('#datpaqu2').text($('#nropaquete').val());
-                $('#datseri2').text($('#serie').val());
-                $('#datanaq2').val($('#anaquel').val());
-                //$('#datdepe2').text($('#dependencia option:selected').text());
-                $('#datdepe2').text(abreviados[response.paq_dependencia]);
-                $('#datdesp2').text($('#despacho option:selected').text());
+                //$('#datdepe').text($('#dependencia option:selected').text());
+                $('#datdepe').val(response.paq_dependencia);
+                                  var $select = $("#datdepe").selectize();
+                                  var selectize = $select[0].selectize;
+                                  selectize.setValue(response.paq_dependencia); 
+                //$('#datdesp').text($('#despacho option:selected').text());
+                $('#datdesp').val($('#despacho option:selected').val());
 
 
             }
