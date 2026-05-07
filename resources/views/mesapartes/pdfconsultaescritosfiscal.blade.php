@@ -86,6 +86,37 @@ function numeroAOrdinal($numero) {
     </tbody>
     </table>
 
+
+@php
+    $conVoucher = collect($segdetalle)
+        ->filter(function ($item) {
+            return !empty($item->tpvoucher) 
+                && strtoupper(trim($item->voucherduplicado)) === 'S';
+        });
+
+    $tiposVoucher = [
+        'BN' => 'Ventanilla BN',
+        'AG' => 'Agente BN',
+        'PA' => 'Pagalo.pe',
+    ];
+@endphp
+
+
+@if ($conVoucher->count() > 0)
+    <br>
+    <div style="font-size:10px;">
+        <b>OBSERVACIONES</b>
+    </div>
+    @foreach ($conVoucher as $item)
+        <div style="font-size:10px; text-align: justify;">
+            El escrito <b>{{ $item->codescrito }}</b> registró un voucher realizado por <b>{{ $tiposVoucher[$item->tpvoucher] ?? $item->tpvoucher }}</b> 
+            con número <b>{{ $item->nrovoucher }}</b>, a fecha <b>{{ $item->fechaoperacion }}</b>, por el monto de <b>S/ {{ $item->monto }}</b>
+            el cual <b>FUE UTILIZADO EN OTRO ESCRITO</b>. 
+        </div>
+    @endforeach
+@endif
+
+
 </div>
 </body>
 </html>

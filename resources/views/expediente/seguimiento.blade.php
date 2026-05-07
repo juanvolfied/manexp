@@ -246,12 +246,19 @@ function mostrardetalle(idexp, event) {
                         datoreg=dependencia+"-"+ano+"-"+nroexpediente+"-"+tipo;
                     }
                     const estiloExtra = index === 0 ? 'font-weight:bold; color:green;' : '';
-                
+const archivos = {
+    99: 'Archivo Gestión 1',
+    92: 'Archivo Gestión 2',
+    93: 'Archivo Gestión 3',
+    94: 'Archivo Gestión 4',
+};
+
+const textoArchivo = archivos[registro.archivo] ?? `Archivo ${String(registro.archivo).padStart(3, '0')}`;                
                     tableBody.append(`
                         <tr>
                             <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">${registro.fecha_movimiento} ${registro.hora_movimiento}</td>
                             <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">${registro.nro_inventario}</td>
-                            <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">${registro.ubicacion=="D" ? "Despacho" : (registro.ubicacion=="A" ? "Archivo" : "")}</td>
+                            <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">${registro.ubicacion=="D" ? "Despacho" : (registro.ubicacion=="A" ? textoArchivo : "")}</td>
                             <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">${registro.tipo_ubicacion=="T" ? "Transito" : (registro.tipo_ubicacion=="I" ? "Inventario" :"")}</td>
                             <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">${registro.motivo_movimiento}</td>
                             <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">${registro.abreviado}</td>

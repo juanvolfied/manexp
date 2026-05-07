@@ -422,7 +422,7 @@
 
     @php
         $menuvoucher = in_array($perfil, ['Admin','RegistroVoucherBN','mesapartes','MesaPartesAdmin']);
-        $menuActivo = request()->is('mesapartes/registrovoucher', 'mesapartes/consultavouchers', 'otro');
+        $menuActivo = request()->is('mesapartes/registrovoucher', 'mesapartes/consultavouchers', 'mesapartes/consultaintervalofechas2', 'otro');
     @endphp
     @if ($menuvoucher)
               <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
@@ -443,6 +443,11 @@
                         <span class="sub-item">Consulta de Vouchers</span>
                       </a>
                     </li>
+                          <li class="{{ request()->is('mesapartes/consultaintervalofechas2') ? 'active' : '' }}">
+                            <a href="{{ route('mesapartes.consultaintervalo2') }}">
+                              <span class="sub-item">Consulta de escritos por intervalo de fechas</span>
+                            </a>
+                          </li>
                   </ul>
                 </div>
               </li>

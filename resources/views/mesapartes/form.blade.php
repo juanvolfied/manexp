@@ -19,10 +19,10 @@ function numeroAOrdinal($numero) {
 ?>
 
 <div class="row">
-    <div class="col-md-4 col-lg-4">
+    <div class="col-md-3 col-lg-3">
         <div class="form-group" style="padding:5px;">
             <label for="codescrito" class="form-label"><b>C&oacute;digo</b></label>
-            <input type="text" id="codescrito" name="codescrito" class="form-control form-control-sm" maxlength="11" style="width:280px;" value="{{ old('codescrito', $libroescritos->codescrito ?? '') }}" @if(isset($libroescritos)) disabled @endif  onkeydown="verificacodbar(event)" onblur="this.value = this.value.toUpperCase()">
+            <input type="text" id="codescrito" name="codescrito" class="form-control form-control-sm" maxlength="11" value="{{ old('codescrito', $libroescritos->codescrito ?? '') }}" @if(isset($libroescritos)) disabled @endif  onkeydown="verificacodbar(event)" onblur="this.value = this.value.toUpperCase()">
             @error('codescrito') <div class="text-danger">{{ $message }}</div> @enderror
         </div>
     </div>
@@ -52,10 +52,10 @@ function numeroAOrdinal($numero) {
     </div>
 </div>
 <div class="row">
-    <div class="col-md-4 col-lg-4">
+    <div class="col-md-3 col-lg-3">
         <div class="form-group" style="padding:5px;">
-            <label for="tipo" class="form-label">Tipo</label>
-            <select name="tipo" class="form-select" style="width:150px;">
+            <label for="tipo" class="form-label"><b>Tipo</b></label>
+            <select name="tipo" class="form-select" >
                 <option value="" {{ (old('tipo', $libroescritos->tipo ?? '') == '') ? 'selected' : '' }}></option>
                 <option value="E" {{ (old('tipo', $libroescritos->tipo ?? '') == 'E') ? 'selected' : '' }}>Escrito</option>
                 <option value="O" {{ (old('tipo', $libroescritos->tipo ?? '') == 'O') ? 'selected' : '' }}>Oficio</option>
@@ -68,10 +68,10 @@ function numeroAOrdinal($numero) {
             @error('tipo') <div class="text-danger">{{ $message }}</div> @enderror
         </div>
     </div>
-    <div class="col-md-4 col-lg-4">
+    <div class="col-md-3 col-lg-3">
         <div class="form-group" style="padding:5px;">
             <label for="descripcion" class="form-label"><b>Descripci&oacute;n</b></label>
-            <input type="text" name="descripcion" class="form-control form-control-sm" maxlength="40" style="width:280px;" value="{{ old('descripcion', $libroescritos->descripcion ?? '') }}">
+            <input type="text" name="descripcion" class="form-control form-control-sm" maxlength="40" value="{{ old('descripcion', $libroescritos->descripcion ?? '') }}">
             @error('descripcion') <div class="text-danger">{{ $message }}</div> @enderror
         </div>
     </div>
@@ -99,25 +99,31 @@ function numeroAOrdinal($numero) {
 
 </div>
 <div class="row">
-    <div class="col-md-4 col-lg-4">
+    <div class="col-md-3 col-lg-3">
         <div class="form-group" style="padding:5px;">
             <label for="remitente" class="form-label"><b>Remitente</b></label>
-            <input type="text" name="remitente" class="form-control form-control-sm" maxlength="30" style="width:280px;" value="{{ old('remitente', $libroescritos->remitente ?? '') }}">
+            <input type="text" name="remitente" class="form-control form-control-sm" maxlength="30" value="{{ old('remitente', $libroescritos->remitente ?? '') }}">
             @error('remitente') <div class="text-danger">{{ $message }}</div> @enderror
         </div>
     </div>
-    <div class="col-md-4 col-lg-4">
+    <div class="col-md-3 col-lg-3">
         <div class="form-group" style="padding:5px;">
-            <label for="carpetafiscal" class="form-label"><b>Carpeta Fiscal (Ejm. 501-2020-12345)</b></label>
-            <input type="text" id="carpetafiscal" name="carpetafiscal" class="form-control form-control-sm" maxlength="25" style="width:250px;" placeholder="000-0000-00000" value="{{ old('carpetafiscal', $libroescritos->carpetafiscal ?? '') }}">
+            <label for="carpetafiscal" class="form-label"><b>Carpeta Fiscal</b></label>
+            <input type="text" id="carpetafiscal" name="carpetafiscal" class="form-control form-control-sm" maxlength="25" placeholder="000-0000-00000" value="{{ old('carpetafiscal', $libroescritos->carpetafiscal ?? '') }}">
             @error('carpetafiscal') <div class="text-danger">{{ $message }}</div> @enderror
         </div>
     </div>
-    <div class="col-md-4 col-lg-4">
+    <div class="col-md-2 col-lg-2">
         <div class="form-group" style="padding:5px;">
             <label for="folios" class="form-label"><b>Folios</b></label>
-            <input type="text" name="folios" class="form-control form-control-sm" maxlength="15" style="width:150px;" value="{{ old('folios', $libroescritos->folios ?? '') }}">
+            <input type="text" name="folios" class="form-control form-control-sm" maxlength="15"  value="{{ old('folios', $libroescritos->folios ?? '') }}">
             @error('folios') <div class="text-danger">{{ $message }}</div> @enderror
+        </div>
+    </div>
+    <div class="col-md-3 d-flex align-items-center">
+        <div class="form-check d-flex align-items-center gap-2 flex-wrap">
+            <input class="form-check-input" style="transform: scale(1.7);" type="checkbox" id="chkcopia" name="chkcopia" value="1" {{ old('chkcopia', ($libroescritos->peticioncopia ?? '') == 'S') ? 'checked' : '' }}>
+            <label class="form-check-label mb-0" for="chkscopia"><b>Pide Copia</b></label>
         </div>
     </div>
 </div>

@@ -268,7 +268,9 @@ class MesaController extends Controller
         ->first();
 
         $segdetalle = DB::table('libroescritos')
-            ->select('*')
+            ->leftJoin('vouchercopias', 'libroescritos.codescrito', '=', 'vouchercopias.codescrito')
+            ->select('libroescritos.*','vouchercopias.tpvoucher','vouchercopias.nrovoucher',
+            'vouchercopias.fechaoperacion','vouchercopias.monto','vouchercopias.voucherduplicado')
             ->where('libroescritos.id_fiscal', $id_fiscal)
             ->whereDate('fecharegistro', '=', $fechareg)
             ->orderBy('fecharegistro', 'desc')
@@ -662,6 +664,10 @@ $mpdf->WriteHTML('</tbody></table>');
         ->header('Content-Disposition', 'inline; filename="consintervalo.pdf"');
 
     }    
+    public function consultarIntervalo2()
+    {
+        return view('mesapartes.consultaintervalofecha');
+    }
 
 
 
@@ -1416,6 +1422,7 @@ function isValidPdf(string $path): bool
                     'fecharegistro' => now(),
                     'id_personal' => Auth::user()->id_personal,
                     'id_usuario' => Auth::user()->id_usuario,
+                    'peticioncopia' => 'S',
                 ]);
                 DB::table('vouchercopias')->insert([
                     'tpvoucher' => $request->input('tipovoucher'),
@@ -1734,6 +1741,7 @@ function isValidPdf(string $path): bool
     public function store(Request $request)
     {
     $codigo = strtoupper($request->input('codescrito'));
+    $checkcopia = $request->has('chkcopia') ? 'S' : '';
 
     // Verificar si ya existe el código
     $exists = DB::table('libroescritos')
@@ -1748,7 +1756,7 @@ function isValidPdf(string $path): bool
     
         try {
 
-            DB::transaction(function () use ($request) {
+            DB::transaction(function () use ($checkcopia, $request) {
                 // Insertar el nuevo documento
                 DB::table('libroescritos')->insert([
                     'codescrito' => strtoupper( $request->input('codescrito') ),
@@ -1765,6 +1773,7 @@ function isValidPdf(string $path): bool
                     'fecharegistro' => now(),
                     'id_personal' => Auth::user()->id_personal,
                     'id_usuario' => Auth::user()->id_usuario,
+                    'peticioncopia' => $checkcopia,
                 ]);
             });
             return redirect()->route('mesapartes.index')->with('success', 'INFORMACION REGISTRADA DE FORMA SATISFACTORIA.');
@@ -1874,6 +1883,7 @@ function isValidPdf(string $path): bool
                     'fecharegistro' => now(),
                     'id_personal' => Auth::user()->id_personal,
                     'id_usuario' => Auth::user()->id_usuario,
+                    'peticioncopia' => 'S',
                 ]);
 
                 DB::table('vouchercopias')->insert([
