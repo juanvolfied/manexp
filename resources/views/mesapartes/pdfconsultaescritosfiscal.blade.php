@@ -88,7 +88,7 @@ function numeroAOrdinal($numero) {
 
 
 @php
-    $conVoucher = collect($segdetalle)
+    $conVoucher = collect($segdetalle2)
         ->filter(function ($item) {
             return !empty($item->tpvoucher) 
                 && strtoupper(trim($item->voucherduplicado)) === 'S';

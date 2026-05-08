@@ -268,6 +268,12 @@ class MesaController extends Controller
         ->first();
 
         $segdetalle = DB::table('libroescritos')
+            ->select('libroescritos.*')
+            ->where('libroescritos.id_fiscal', $id_fiscal)
+            ->whereDate('fecharegistro', '=', $fechareg)
+            ->orderBy('fecharegistro', 'desc')
+            ->get();
+        $segdetalle2 = DB::table('libroescritos')
             ->leftJoin('vouchercopias', 'libroescritos.codescrito', '=', 'vouchercopias.codescrito')
             ->select('libroescritos.*','vouchercopias.tpvoucher','vouchercopias.nrovoucher',
             'vouchercopias.fechaoperacion','vouchercopias.monto','vouchercopias.voucherduplicado')
@@ -386,7 +392,7 @@ class MesaController extends Controller
 
 
 
-        $html = view('mesapartes.pdfconsultaescritosfiscal', compact('segdetalle','datosfiscal', 'fechareg', 'abreviado','despacho', 'barcode'))->render(); // Vista Blade
+        $html = view('mesapartes.pdfconsultaescritosfiscal', compact('segdetalle','segdetalle2','datosfiscal', 'fechareg', 'abreviado','despacho', 'barcode'))->render(); // Vista Blade
 
         $mpdf = new Mpdf([
             'mode' => 'c',

@@ -254,6 +254,16 @@ const archivos = {
 };
 
 const textoArchivo = archivos[registro.archivo] ?? `Archivo ${String(registro.archivo).padStart(3, '0')}`;                
+const archivos2 = {
+    99: 'AG 1',
+    92: 'AG 2',
+    93: 'AG 3',
+    94: 'AG 4',
+};
+
+const textoArchivo2 = archivos2[registro.archivo] ?? `Archivo ${String(registro.archivo).padStart(3, '0')}`;                
+
+
                     tableBody.append(`
                         <tr>
                             <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">${registro.fecha_movimiento} ${registro.hora_movimiento}</td>
@@ -264,7 +274,7 @@ const textoArchivo = archivos[registro.archivo] ?? `Archivo ${String(registro.ar
                             <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">${registro.abreviado}</td>
                             <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">${numeroAOrdinal(registro.despacho)} DESPACHO</td>                        
                             <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">
-                            ${registro.archivo == 99 ? 'AG' : (registro.archivo ?? '')}
+                            ${textoArchivo2}
                             </td>
                             <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">${registro.anaquel ?? ''}</td>
                             <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">${registro.nro_paquete ?? ''}</td>

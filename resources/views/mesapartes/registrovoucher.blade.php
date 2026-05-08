@@ -154,13 +154,54 @@
             </select>
         </div>
     </div>
-    <div class="col-md-4 col-lg-4">
-        <div class="form-group" style="padding:5px;">
-            <label id="labelVoucher" for="nrovoucher" class="form-label"><b>Nro Voucher</b></label>
-            <input type="text" name="nrovoucher" id="nrovoucher" class="form-control" maxlength="12" style="width:200px;" value="{{ old('nrovoucher') }}">
+            </label>
+<div class="col-md-4 col-lg-4">
+    <div class="form-group d-flex gap-2" style="padding:5px;">
+
+        <div class="w-50">
+            <label id="labelVoucher" for="nrovoucher" class="form-label">
+                <b>Nro Voucher</b>
+            </label>
+
+            <input type="text"
+                   name="nrovoucher"
+                   id="nrovoucher"
+                   class="form-control"
+                   maxlength="12"
+                   value="{{ old('nrovoucher') }}">
         </div>
+
+        <div class="w-50">
+            <label for="secuencia1" class="form-label">
+                <b>Secuencia Pago</b>
+            </label>
+
+    <div class="d-flex align-items-center gap-1">
+
+        <input type="text"
+               name="secuencia1"
+               id="secuencia1"
+               class="form-control"
+               maxlength="6"
+               style="width:70px;"
+               value="{{ old('secuencia1') }}">
+
+        <span><b>-</b></span>
+
+        <input type="text"
+               name="secuencia2"
+               id="secuencia2"
+               class="form-control"
+               maxlength="1"
+               style="width:30px;"
+               value="{{ old('secuencia2','0') }}">
+
     </div>
-    <div class="col-md-4 col-lg-4">
+        </div>
+
+    </div>
+</div>    
+<div class="col-md-4 col-lg-4">
         <div class="form-group" style="padding:5px;">
             <label for="fecoperacion" class="form-label"><b>Fecha Operación</b></label>
             <input type="date" name="fecoperacion" id="fecoperacion" class="form-control" style="width:200px;" value="{{ old('fecoperacion') }}">
