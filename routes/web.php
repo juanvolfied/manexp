@@ -357,6 +357,14 @@ Route::get('/transporte/movimiento2', [TransporteController::class, 'controlMovi
 Route::post('/transporte/valida2', [TransporteController::class, 'validaIDPlaca2'])->name('transporte.valida2');
 
 
+
+Route::get('/transporte/programarsalida', [TransporteController::class, 'programarSalida'])->name('transporte.programarsalida');
+Route::post('/transporte/grabasolicitudplaca', [TransporteController::class, 'grabasolicitudplaca'])->name('transporte.grabasolicitudplaca');
+Route::get('/transporte/vehiculosdisponibles', [TransporteController::class, 'vehiculosDisponibles'])->name('transporte.vehiculosdisponibles');
+
+
+
+
 /*
 Route::get('/calendar', function () {
     return view('agenda/calendar');

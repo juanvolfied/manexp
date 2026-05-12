@@ -229,7 +229,7 @@
 
 
     @php
-        $menutransferencia = in_array($perfil, ['Admin','Archivo']);
+        $menutransferencia = in_array($perfil, ['Admin','Archivo','Inventario']);
         $menuActivo = request()->is('expediente/importa', 'otro');
     @endphp
     @if ($menutransferencia)
@@ -572,7 +572,9 @@
 
     @php
         $menutransporte = in_array($perfil, ['Admin','Transporte','Vigilancia']);
-        $menuActivo = request()->is('transporte/registroasistencia', 'transporte/movimiento', 'transporte/movimiento2', 'transporte/consultamov', 'transporte/consultaintervalofechas', 'agendavehicular');
+        $menuActivo = request()->is('transporte/registroasistencia', 'transporte/movimiento', 
+        'transporte/movimiento2', 'transporte/consultamov', 'transporte/consultaintervalofechas', 'agendavehicular',
+        'transporte/programarsalida', 'transporte/vehiculosdisponibles');
     @endphp
     @if ($menutransporte)
               <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
@@ -612,7 +614,21 @@
                         <span class="sub-item">Agenda Vehicular</span>
                       </a>
                     </li>
+
+
+
+                    <li class="{{ request()->is('transporte/programarsalida') ? 'active' : '' }}">
+                      <a href="{{ route('transporte.programarsalida') }}">
+                        <span class="sub-item">Programar Salida (Conductor)</span>
+                      </a>
+                    </li>
+                    <li class="{{ request()->is('transporte/vehiculosdisponibles') ? 'active' : '' }}">
+                      <a href="{{ route('transporte.vehiculosdisponibles') }}">
+                        <span class="sub-item">Veh&iacute;culos Disponibles</span>
+                      </a>
+                    </li>
         @endif
+
 
                   </ul>
                 </div>

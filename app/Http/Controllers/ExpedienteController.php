@@ -314,6 +314,7 @@ class ExpedienteController extends Controller
                         'archivo' => $request->archivo,
                         'anaquel' => $request->anaquel,
                         'nro_paquete' => $request->nropaquete,
+                        'nro_paquete_importa' => $request->nropaqueteo,
                         'serie' => $request->serie,
                         'nro_inventario' => $request->codigo,//codigo de paquete de transferencia
                         'id_expediente' => $idExpediente,

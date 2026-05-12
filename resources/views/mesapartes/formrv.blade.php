@@ -123,52 +123,84 @@ function numeroAOrdinal($numero) {
 </div>
 
 <div style="background-color:#E6E6FA; padding:15px; border-radius:8px;"> <!-- AQUÍ EL FONDO -->
+    <div class="row">
+        <div class="col-md-3 col-lg-3">
+            <div class="form-group" style="padding:5px;">
+                <label for="tipovoucher" class="form-label"><b>Tipo de Voucher</b></label>
+                <select name="tipovoucher" id="tipovoucher" class="form-select" style="width:150px;">
+                    <option value="" ></option>
+                    <option value="BN" {{ old('tipovoucher') == 'BN' ? 'selected' : '' }}>VENTANILLA BN</option>
+                    <option value="AG" {{ old('tipovoucher') == 'AG' ? 'selected' : '' }}>AGENTE BN</option>
+                    <option value="PA" {{ old('tipovoucher') == 'PA' ? 'selected' : '' }}>PAGALO PE</option>
+                </select>
+            </div>
+        </div>
 
-<div class="row">
-    <div class="col-md-3 col-lg-3">
-        <div class="form-group" style="padding:5px;">
-            <label for="tipovoucher" class="form-label"><b>Tipo de Voucher</b></label>
-            <select name="tipovoucher" id="tipovoucher" class="form-select" style="width:150px;">
-                <option value="" ></option>
-                <option value="BN" {{ old('tipovoucher') == 'BN' ? 'selected' : '' }}>VENTANILLA BN</option>
-                <option value="AG" {{ old('tipovoucher') == 'AG' ? 'selected' : '' }}>AGENTE BN</option>
-                <option value="PA" {{ old('tipovoucher') == 'PA' ? 'selected' : '' }}>PAGALO PE</option>
-            </select>
+        <div class="col-md-4 col-lg-4">
+            <div class="form-group d-flex gap-2" style="padding:5px;">
+                <div class="w-50">
+                    <label id="labelVoucher" for="nrovoucher" class="form-label">
+                        <b>Nro Voucher</b>
+                    </label>
+                    <input type="text"
+                        name="nrovoucher"
+                        id="nrovoucher"
+                        class="form-control"
+                        maxlength="12"
+                        value="{{ old('nrovoucher') }}">
+                </div>
+                <div class="w-50" id="divsecuencia" style="display:none;">
+                    <label for="secuencia1" class="form-label">
+                        <b>Secuencia Pago</b>
+                    </label>
+                    <div class="d-flex align-items-center gap-1">
+                        <input type="text"
+                            name="secuencia1"
+                            id="secuencia1"
+                            class="form-control"
+                            maxlength="6"
+                            style="width:80px;"
+                            value="{{ old('secuencia1') }}">
+                        <span><b>-</b></span>
+                        <input type="text"
+                            name="secuencia2"
+                            id="secuencia2"
+                            class="form-control"
+                            maxlength="1"
+                            style="width:45px;"
+                            value="{{ old('secuencia2','0') }}">
+                    </div>
+                </div>
+            </div>
+        </div>    
+
+        <div class="col-md-4 col-lg-4">
+            <div class="form-group" style="padding:5px;">
+                <label for="fecoperacion" class="form-label"><b>Fecha Operación</b></label>
+                <input type="date" name="fecoperacion" id="fecoperacion" class="form-control" style="width:200px;" value="{{ old('fecoperacion') }}">
+            </div>
         </div>
     </div>
-    <div class="col-md-4 col-lg-4">
-        <div class="form-group" style="padding:5px;">
-            <label id="labelVoucher" for="nrovoucher" class="form-label"><b>Nro Voucher</b></label>
-            <input type="text" name="nrovoucher" id="nrovoucher" class="form-control" maxlength="12" style="width:200px;" value="{{ old('nrovoucher') }}">
+    <div class="row">
+        <div class="col-md-3 col-lg-3">
+            <div class="form-group" style="padding:5px;">
+                <label for="monto" class="form-label"><b>Monto</b></label>
+                <input type="text" name="monto" id="monto" class="form-control text-end" maxlength="7" style="width:150px;" value="{{ old('monto') }}">
+            </div>
+        </div>
+        <div class="col-md-5 col-lg-4">
+            <div class="form-group" style="padding:5px;">
+                <label for="carpetafiscal2" class="form-label"><b>Carpeta Fiscal</b></label>
+                <input type="text" name="carpetafiscal2" id="carpetafiscal2" class="form-control" maxlength="25" style="width:250px; background: #ffffff !important; opacity: 1 !important;" value="{{ old('carpetafiscal2') }}" disabled >
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-4">
+            <div class="form-group" style="padding:5px;">
+                <label for="dni" class="form-label"><b>DNI</b></label>
+                <input type="text" name="dni" id="dni" class="form-control" maxlength="8" style="width:150px;" value="{{ old('dni') }}">
+            </div>
         </div>
     </div>
-    <div class="col-md-4 col-lg-4">
-        <div class="form-group" style="padding:5px;">
-            <label for="fecoperacion" class="form-label"><b>Fecha Operación</b></label>
-            <input type="date" name="fecoperacion" id="fecoperacion" class="form-control" style="width:200px;" value="{{ old('fecoperacion') }}">
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-3 col-lg-3">
-        <div class="form-group" style="padding:5px;">
-            <label for="monto" class="form-label"><b>Monto</b></label>
-            <input type="text" name="monto" id="monto" class="form-control text-end" maxlength="7" style="width:150px;" value="{{ old('monto') }}">
-        </div>
-    </div>
-    <div class="col-md-5 col-lg-4">
-        <div class="form-group" style="padding:5px;">
-            <label for="carpetafiscal2" class="form-label"><b>Carpeta Fiscal</b></label>
-            <input type="text" name="carpetafiscal2" id="carpetafiscal2" class="form-control" maxlength="25" style="width:250px; background: #ffffff !important; opacity: 1 !important;" value="{{ old('carpetafiscal2') }}" disabled >
-        </div>
-    </div>
-    <div class="col-md-4 col-lg-4">
-        <div class="form-group" style="padding:5px;">
-            <label for="dni" class="form-label"><b>DNI</b></label>
-            <input type="text" name="dni" id="dni" class="form-control" maxlength="8" style="width:150px;" value="{{ old('dni') }}">
-        </div>
-    </div>
-</div>
 
 </div>
 
@@ -323,6 +355,8 @@ function validarYEnviar(forzar = 0) {
 
     let tpvoucher = document.getElementById('tipovoucher').value;
     let nrvoucher = document.getElementById('nrovoucher').value;
+    let secuencia1 = document.getElementById('secuencia1').value;
+    let secuencia2 = document.getElementById('secuencia2').value;
     let fecoperac = document.getElementById('fecoperacion').value;
     let monto = document.getElementById('monto').value;
     let dni = document.getElementById('dni').value;
@@ -337,6 +371,18 @@ function validarYEnviar(forzar = 0) {
         alert('INGRESA EL NRO DE VOUCHER');
         document.getElementById('nrovoucher').focus();
         return; 
+    }
+    if (tpvoucher=="PA") {
+        if (secuencia1=="") {
+            alert('INGRESA SECUENCIA DE PAGO');
+            document.getElementById('secuencia1').focus();
+            return;             
+        }
+        if (secuencia2=="") {
+            alert('COMPLETA SECUANCIA DE PAGO');
+            document.getElementById('secuencia2').focus();
+            return;             
+        }
     }
     if (fecoperac === '') {
         alert('INGRESA LA FECHA DE OPERACION');
@@ -405,103 +451,6 @@ document.addEventListener("DOMContentLoaded", function() {
         sessionStorage.removeItem('mensajeOK');
     }
 });
-/*
-    document.addEventListener('DOMContentLoaded', function () {
-        const codescritoInputs = document.querySelectorAll('input[name="codescrito"]');
-
-        codescritoInputs.forEach(function (input) {
-            // Al perder foco, convierte a mayúsculas
-            input.addEventListener('blur', function () {
-                this.value = this.value.toUpperCase();
-            });
-
-            // Encuentra el formulario más cercano y añade validación local
-            const form = input.closest('form');
-            if (form) {
-                form.addEventListener('submit', function (e) {
-                    const fiscalSelect = form.querySelector('select[name="fiscal"]');
-                    const fiscalValue = fiscalSelect ? fiscalSelect.value.trim() : '';
-
-                    if (!input.value.trim()) {
-                        alert('INGRESE UN CÓDIGO.');
-                        input.focus();
-                        e.preventDefault(); // Evita envío
-                        return;
-                    }
-
-                    if (!fiscalValue) {
-                        alert('SELECCIONE UN FISCAL.');
-                        if (fiscalSelect.selectize) {
-                            fiscalSelect.selectize.focus(); // Enfoca el selectize
-                        } else {
-                            fiscalSelect.focus();
-                        }
-                        e.preventDefault();
-                        return; 
-                    }
-                    let tipo = document.getElementById('tipo').value;
-                    if (tipo === '') {
-                        alert('INGRESA EL TIPO DE ESCRITO');
-                        document.getElementById('tipo').focus();
-                        e.preventDefault(); // Evita envío
-                        return; 
-                    }
-
-                    let carfiscal = document.getElementById('carpetafiscal').value;
-                    if (carfiscal === '') {
-                        alert('INGRESA LA CARPETA FISCAL');
-                        document.getElementById('carpetafiscal').focus();
-                        e.preventDefault(); // Evita envío
-                        return; 
-                    }
-
-                    let tpvoucher = document.getElementById('tipovoucher').value;
-                    let nrvoucher = document.getElementById('nrovoucher').value;
-                    let fecoperac = document.getElementById('fecoperacion').value;
-                    let monto = document.getElementById('monto').value;
-                    let dni = document.getElementById('dni').value;
-
-                    if (tpvoucher === '') {
-                        alert('SELECCIONA EL TP DE VOUCHER');
-                        document.getElementById('tipovoucher').focus();
-                        e.preventDefault(); // Evita envío
-                        return; 
-                    }
-                    if (nrvoucher === '') {
-                        alert('INGRESA EL NRO DE VOUCHER');
-                        document.getElementById('nrovoucher').focus();
-                        e.preventDefault(); // Evita envío
-                        return; 
-                    }
-                    if (fecoperac === '') {
-                        alert('INGRESA LA FECHA DE OPERACION');
-                        document.getElementById('fecoperacion').focus();
-                        e.preventDefault(); // Evita envío
-                        return; 
-                    }
-                    if (monto === '') {
-                        alert('INGRESA EL MONTO');
-                        document.getElementById('monto').focus();
-                        e.preventDefault(); // Evita envío
-                        return; 
-                    }
-                    if (dni === '') {
-                        alert('INGRESA DNI DEL SOLICITANTE');
-                        document.getElementById('dni').focus();
-                        e.preventDefault(); // Evita envío
-                        return; 
-                    }
-
-
-
-
-                });
-            }
-        });
-    });
-*/
-
-
 
 //var element = document.getElementById('carpetafiscal');
 //var maskOptions = {
@@ -563,15 +512,17 @@ const nro = document.getElementById('nrovoucher');
 const label = document.getElementById('labelVoucher');
 
 tipo.addEventListener('change', function () {
+    document.getElementById("divsecuencia").style.display = "none";
     if (this.value === 'BN') {
         nro.maxLength = 7;
-        label.innerHTML = '<b>Nro Voucher (máx. 7 dígitos)</b>';
+        label.innerHTML = '<b>Nro Voucher (máx. 7)</b>';
     } else if (this.value === 'AG') {
         nro.maxLength = 12;
-        label.innerHTML = '<b>Nro Voucher (máx. 12 dígitos)</b>';
+        label.innerHTML = '<b>Nro Voucher (máx. 12)</b>';
     } else if (this.value === 'PA') {
         nro.maxLength = 12;
-        label.innerHTML = '<b>Nro Voucher (máx. 12 dígitos)</b>';
+        label.innerHTML = '<b>Nro Voucher (máx. 12)</b>';
+        document.getElementById("divsecuencia").style.display = "block";
     } else {
         nro.maxLength = 12;
         label.innerHTML = '<b>Nro Voucher</b>';

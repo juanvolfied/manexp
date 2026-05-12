@@ -1327,6 +1327,10 @@ function isValidPdf(string $path): bool
 
         $tipovoucher = strtoupper($request->input('tipovoucher'));
         $nrovoucher = strtoupper($request->input('nrovoucher'));
+        $secuencia1 = strtoupper($request->input('secuencia1'));
+        $secuencia2 = strtoupper($request->input('secuencia2'));
+        $secuenciapago="";
+
         $voucher = DB::table('vouchercopias as v')
             ->leftJoin('usuarios as u', 'v.id_usuario', '=', 'u.id_usuario')
             ->leftJoin('personal as p', 'v.id_personal', '=', 'p.id_personal')
@@ -1340,8 +1344,12 @@ function isValidPdf(string $path): bool
                 'd.descripcion'
             )
             ->where('v.tpvoucher', $tipovoucher)
-            ->where('v.nrovoucher', $nrovoucher)
-            ->first();        
+            ->where('v.nrovoucher', $nrovoucher);
+        if ($tipovoucher == 'PA') {
+            $voucher->where('v.secuenciapago', $secuencia1 . '-' . $secuencia2);
+            $secuenciapago=$secuencia1 . '-' . $secuencia2;
+        }
+        $voucher = $voucher->first();
 
         $voucherdup="";
         if ($voucher) {
@@ -1379,7 +1387,7 @@ function isValidPdf(string $path): bool
         }
 
         try {
-            DB::transaction(function () use ($year, &$nuevoNumero, $voucherdup, $request) {
+            DB::transaction(function () use ($year, &$nuevoNumero, $voucherdup, $secuenciapago, $request) {
                 // Buscar y bloquear la fila del año actual
                 $consecutivo = DB::table('libroconsecutivos')
                     ->where('tipo', 'MD')
@@ -1433,6 +1441,7 @@ function isValidPdf(string $path): bool
                 DB::table('vouchercopias')->insert([
                     'tpvoucher' => $request->input('tipovoucher'),
                     'nrovoucher' => $request->input('nrovoucher'),
+                    'secuenciapago' => $secuenciapago,
                     'fechaoperacion' => $request->input('fecoperacion'),
                     'monto' => $request->input('monto'),
                     'carpetafiscal' => $request->input('carpetafiscal'),
@@ -1819,6 +1828,10 @@ function isValidPdf(string $path): bool
     
         $tipovoucher = strtoupper($request->input('tipovoucher'));
         $nrovoucher = strtoupper($request->input('nrovoucher'));
+        $secuencia1 = strtoupper($request->input('secuencia1'));
+        $secuencia2 = strtoupper($request->input('secuencia2'));
+        $secuenciapago="";
+
         $voucher = DB::table('vouchercopias as v')
             ->leftJoin('usuarios as u', 'v.id_usuario', '=', 'u.id_usuario')
             ->leftJoin('personal as p', 'v.id_personal', '=', 'p.id_personal')
@@ -1832,8 +1845,13 @@ function isValidPdf(string $path): bool
                 'd.descripcion'
             )
             ->where('v.tpvoucher', $tipovoucher)
-            ->where('v.nrovoucher', $nrovoucher)
-            ->first();        
+            ->where('v.nrovoucher', $nrovoucher);
+        if ($tipovoucher == 'PA') {
+            $voucher->where('v.secuenciapago', $secuencia1 . '-' . $secuencia2);
+            $secuenciapago=$secuencia1 . '-' . $secuencia2;
+        }
+        $voucher = $voucher->first();
+
 
         $voucherdup="";
         if ($voucher) {
@@ -1872,7 +1890,7 @@ function isValidPdf(string $path): bool
     
         try {
 
-            DB::transaction(function () use ($voucherdup, $request) {
+            DB::transaction(function () use ($voucherdup, $secuenciapago, $request) {
                 // Insertar el nuevo documento
                 DB::table('libroescritos')->insert([
                     'codescrito' => strtoupper( $request->input('codescrito') ),
@@ -1895,6 +1913,7 @@ function isValidPdf(string $path): bool
                 DB::table('vouchercopias')->insert([
                     'tpvoucher' => $request->input('tipovoucher'),
                     'nrovoucher' => $request->input('nrovoucher'),
+                    'secuenciapago' => $secuenciapago,
                     'fechaoperacion' => $request->input('fecoperacion'),
                     'monto' => $request->input('monto'),
                     'carpetafiscal' => $request->input('carpetafiscal'),

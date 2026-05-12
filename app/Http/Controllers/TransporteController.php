@@ -619,6 +619,72 @@ class TransporteController extends Controller
 
 
 
+
+    public function programarSalida()
+    {
+        return view('transporte.programarsalida');            
+    }
+    public function grabasolicitudplaca(Request $request)
+    {
+        try {
+            DB::beginTransaction(); // ← INICIA LA TRANSACCIÓN
+            $fechaHoraActualFormateada = now()->format('Y-m-d H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
+            DB::table('tra_controlvehiculos')
+            ->insert([
+                'fechahora_registro' => $fechaHoraActualFormateada,
+                'tipo_mov' => $request->input('tipo'),
+                'id_conductor' => $request->input('idco'),
+                'placa' => $request->input('plac'),
+                'kilometraje' => $request->input('kilo'),
+                'observacion' => $request->input('obse'),
+                'id_personal' => Auth::user()->id_personal,
+            ]);
+            DB::table('tra_conductores')
+            ->where('id_conductor', $request->input('idco'))
+            ->update([
+                'ensede' => $request->input('tipo')=="I" ? "S" : "N"  ,
+                'fechahora_ultimomov' => $fechaHoraActualFormateada,
+            ]);
+            DB::table('tra_vehiculos')
+            ->where('nroplaca', $request->input('plac'))
+            ->update([
+                'ensede' => $request->input('tipo')=="I" ? "S" : "N"  ,
+                'fechahora_ultimomov' => $fechaHoraActualFormateada,
+            ]);        
+            DB::commit(); // ← GUARDA TODO
+            return response()->json([
+                'success' => true,
+                'message' => "EL MOVIMIENTO FUE GUARDADO DE FORMA SATISFACTORIA",
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack(); // ← DESHACE TODO
+            return response()->json([
+                'success' => false,
+                'message' => "OCURRIO UN ERROR AL GUARDAR. INTENTE NUEVAMENTE.",
+                'error'   => $e->getMessage(), // ← opcional, quitar en producción
+            ]);
+        }
+    }
+    public function vehiculosDisponibles()
+    {
+        $fecha = now()->format('Y-m-d');   
+        $vehiculossede = DB::table('tra_vehiculos')
+            ->where('ensede', 'S')
+            ->orderBy('nroplaca', 'asc')
+            ->get();
+        $vehiculosdili = DB::table('tra_vehiculos')
+            ->where('ensede', 'N')
+            ->orderBy('nroplaca', 'asc')
+            ->get();
+
+        return view('transporte.vehiculosdisponibles', compact('vehiculossede', 'vehiculosdili'));            
+    }
+
+
+
+
+
+
     public function consultarIntervalo()
     {
         return view('transporte.consultaintervalofecha');

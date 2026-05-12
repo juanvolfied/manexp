@@ -85,6 +85,7 @@
                         <div class="form-group" style="padding:5px;">
                           <label for="nropaquete"><b>Nro Paquete:</b></label>
                           <input type="text" class="form-control form-control-sm" name="nropaquete" id="nropaquete" maxlength="5" style="width: 100px;"/>
+                          <input type="hidden" name="nropaqueteo" id="nropaqueteo"/>
                         </div>
                       </div>
                       <div class="col-4 col-md-2 col-lg-2" id="verocultar6" style="display:none;">
@@ -256,6 +257,7 @@ function mostrarcarpetas(event) {
     selectizeInstance.setValue(coddep);     
     document.getElementById("despacho").value=despac;
     document.getElementById("nropaquete").value=nropaq;
+    document.getElementById("nropaqueteo").value=nropaq;
 
 
                     var registros = response.registros;
