@@ -361,6 +361,9 @@ Route::post('/transporte/valida2', [TransporteController::class, 'validaIDPlaca2
 Route::get('/transporte/programarsalida', [TransporteController::class, 'programarSalida'])->name('transporte.programarsalida');
 Route::post('/transporte/grabasolicitudplaca', [TransporteController::class, 'grabasolicitudplaca'])->name('transporte.grabasolicitudplaca');
 Route::get('/transporte/vehiculosdisponibles', [TransporteController::class, 'vehiculosDisponibles'])->name('transporte.vehiculosdisponibles');
+Route::get('/transporte/movimiento3', [TransporteController::class, 'controlMovimiento3'])->name('transporte.movimiento3');
+Route::post('/transporte/grabamovimiento3', [TransporteController::class, 'grabaMovimiento3'])->name('transporte.grabamovimiento3');
+Route::post('/transporte/eliminarprogramacion', [TransporteController::class, 'eliminarProgramacion'])->name('transporte.eliminarprogramacion');
 
 
 

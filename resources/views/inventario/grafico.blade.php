@@ -10,7 +10,6 @@
                   </div>
                   <div class="card-body table-responsive">
 
-
     {{-- Formulario para seleccionar filtros --}}
     <form id="form-filtros" class="row g-3">
         <div class="row">
@@ -23,14 +22,25 @@
         </div>
         </div>
         <div class="row">
+@php
+    $perfil = optional(Auth::user()->perfil)->descri_perfil;
+@endphp
         <div class="col-md-4">
             <label for="id_usuario" class="form-label">Nombre del personal >>> Usuario</label>
+    @if(strtolower($perfil) == 'inventario')
+        <input type="hidden" id="id_usuario" name="id_usuario" value="{{ Auth::user()->id_usuario }}">
+        
+        <input type="text" class="form-control"
+               value="{{ optional(Auth::user()->personal)->apellido_paterno }} {{ optional(Auth::user()->personal)->apellido_materno }} {{ optional(Auth::user()->personal)->nombres }} >>> {{ Auth::user()->usuario }}"
+               readonly>
+    @else
             <select id="id_usuario" class="form-select" name="id_usuario" required>
                 <option value="">-- Seleccione --</option>
                 @foreach($usuarios as $p)
                     <option value="{{ $p->id_usuario }}">{{ $p->apellido_paterno }} {{ $p->apellido_materno }}, {{ $p->nombres }} >>> {{ $p->usuario }}</option>
                 @endforeach
             </select>
+    @endif
         </div>
 
         <div class="col-md-3">

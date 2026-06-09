@@ -226,15 +226,16 @@ function mostrarcarpetas(event) {
 
     //document.getElementById('nroexpediente').innerHTML="";
 
-    let codtra = document.getElementById("codigo").value;
-    codtra = codtra.replace(/^[^A-Za-z0-9-]+|[^A-Za-z0-9-]+$/g, '');
-    codtra = codtra.trim();
-    document.getElementById("codigo").value=codtra;
 
     //if (event) event.preventDefault(); // Previene recarga
     //const codtra = document.getElementById('codigo').value;
 
     if (event.keyCode === 13) {    
+        let codtra = document.getElementById("codigo").value;
+        codtra = codtra.replace(/^[^A-Za-z0-9-]+|[^A-Za-z0-9-]+$/g, '');
+        codtra = codtra.trim();
+        document.getElementById("codigo").value=codtra;
+
         if ( codtra=="" ) {
             alert ("EL CODIGO NO ESTA INGRESADO CORRECTAMENTE");
             return false;

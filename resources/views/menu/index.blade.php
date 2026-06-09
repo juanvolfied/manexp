@@ -120,12 +120,12 @@
                         <span class="sub-item">Seguimiento</span>
                       </a>
                     </li>
-      @if($puedeVerGrafico)
                     <li class="{{ request()->is('grafico') ? 'active' : '' }}" >
                       <a href="{{ route('grafico') }}">
                         <span class="sub-item">Gr&aacute;fico de Avance</span>
                       </a>
                     </li>
+      @if($puedeVerGrafico)
                     <li class="{{ request()->is('graficopie') ? 'active' : '' }}" >
                       <a href="{{ route('graficopie') }}">
                         <span class="sub-item">Gr&aacute;fico por Dependencia</span>
@@ -574,7 +574,7 @@
         $menutransporte = in_array($perfil, ['Admin','Transporte','Vigilancia']);
         $menuActivo = request()->is('transporte/registroasistencia', 'transporte/movimiento', 
         'transporte/movimiento2', 'transporte/consultamov', 'transporte/consultaintervalofechas', 'agendavehicular',
-        'transporte/programarsalida', 'transporte/vehiculosdisponibles');
+        'transporte/programarsalida', 'transporte/movimiento3', 'transporte/vehiculosdisponibles');
     @endphp
     @if ($menutransporte)
               <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
@@ -590,7 +590,7 @@
                         <span class="sub-item">Registro de Asistencia</span>
                       </a>
                     </li>
-
+<!--
                     <li class="{{ request()->is('transporte/movimiento') ? 'active' : '' }}">
                       <a href="{{ route('transporte.movimiento') }}">
                         <span class="sub-item">Ingreso/Salida Veh&iacute;culos</span>
@@ -601,6 +601,20 @@
                         <span class="sub-item">Ingreso/Salida Veh&iacute;culos CONTROL</span>
                       </a>
                     </li>
+-->
+                    <li class="{{ request()->is('transporte/programarsalida') ? 'active' : '' }}">
+                      <a href="{{ route('transporte.programarsalida') }}">
+                        <span class="sub-item">Programar Salida (Conductor)</span>
+                      </a>
+                    </li>
+                    <li class="{{ request()->is('transporte/movimiento3') ? 'active' : '' }}">
+                      <a href="{{ route('transporte.movimiento3') }}">
+                        <span class="sub-item">Ingreso/Salida Veh&iacute;culos</span>
+                      </a>
+                    </li>
+
+                    
+
         @if(in_array($perfil, ['Admin','Transporte']))
 
                     <li class="{{ request()->is('transporte/consultaintervalofechas') ? 'active' : '' }}">
@@ -617,16 +631,12 @@
 
 
 
-                    <li class="{{ request()->is('transporte/programarsalida') ? 'active' : '' }}">
-                      <a href="{{ route('transporte.programarsalida') }}">
-                        <span class="sub-item">Programar Salida (Conductor)</span>
-                      </a>
-                    </li>
+                    <!--
                     <li class="{{ request()->is('transporte/vehiculosdisponibles') ? 'active' : '' }}">
                       <a href="{{ route('transporte.vehiculosdisponibles') }}">
                         <span class="sub-item">Veh&iacute;culos Disponibles</span>
                       </a>
-                    </li>
+                    </li>-->
         @endif
 
 

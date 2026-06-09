@@ -123,7 +123,7 @@ function numeroAOrdinal($numero) {
     <div class="col-md-3 d-flex align-items-center">
         <div class="form-check d-flex align-items-center gap-2 flex-wrap">
             <input class="form-check-input" style="transform: scale(1.7);" type="checkbox" id="chkcopia" name="chkcopia" value="1" {{ old('chkcopia', ($libroescritos->peticioncopia ?? '') == 'S') ? 'checked' : '' }}>
-            <label class="form-check-label mb-0" for="chkscopia"><b>Pide Copia</b></label>
+            <label class="form-check-label mb-0" for="chkcopia"><b>Copia Física/Digital</b></label>
         </div>
     </div>
 </div>
