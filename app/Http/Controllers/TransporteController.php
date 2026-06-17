@@ -625,6 +625,8 @@ class TransporteController extends Controller
         $movsvehiculos = DB::table('tra_controlvehiculos')
         ->leftJoin('tra_conductores', 'tra_controlvehiculos.id_conductor', '=', 'tra_conductores.id_conductor')
         ->leftJoin('tra_vehiculos', 'tra_controlvehiculos.placa', '=', 'tra_vehiculos.nroplaca')
+        ->leftJoin('personal', 'tra_controlvehiculos.solicitante', '=', 'personal.id_personal')
+        ->leftJoin('dependencia', 'tra_controlvehiculos.dependenciasoli', '=', 'dependencia.id_dependencia')
             ->select(
                 'tra_controlvehiculos.*',
                 'tra_conductores.apellido_paterno',
@@ -633,6 +635,11 @@ class TransporteController extends Controller
                 'tra_vehiculos.marca',
                 'tra_vehiculos.modelo',
                 'tra_vehiculos.color',
+                'personal.apellido_paterno as apepatper',
+                'personal.apellido_materno as apematper',
+                'personal.nombres as nombreper',
+                'dependencia.descripcion',
+                'dependencia.abreviado'
             )
             ->where('progconductor', 'S')
             ->orderBy('id_movimiento', 'desc')
@@ -644,8 +651,24 @@ class TransporteController extends Controller
         $conductores = DB::table('tra_conductores')
             ->where('activo', 'S')
             ->get();
+        $personal = DB::table('personal')
+        ->leftJoin('dependencia', 'personal.id_dependencia', '=', 'dependencia.id_dependencia')
+        ->select(
+            'personal.id_personal',
+            'personal.apellido_paterno',
+            'personal.apellido_materno',
+            'personal.nombres',
+            'personal.id_dependencia',
+            'personal.despacho',
+            'dependencia.descripcion',
+            'dependencia.abreviado'
+        )
+        ->orderBy('apellido_paterno', 'asc') 
+        ->orderBy('apellido_materno', 'asc') 
+        ->orderBy('nombres', 'asc') 
+        ->get();
 
-        return view('transporte.programarsalida', compact('movsvehiculos','vehiculossede','conductores'));            
+        return view('transporte.programarsalida', compact('movsvehiculos','vehiculossede','conductores','personal'));            
     }
     public function grabasolicitudplaca(Request $request)
     {
@@ -730,6 +753,7 @@ class TransporteController extends Controller
         $vehiculosprog = DB::table('tra_controlvehiculos')
         ->leftJoin('tra_conductores', 'tra_controlvehiculos.id_conductor', '=', 'tra_conductores.id_conductor')
         ->leftJoin('tra_vehiculos', 'tra_controlvehiculos.placa', '=', 'tra_vehiculos.nroplaca')
+        ->leftJoin('personal', 'tra_controlvehiculos.solicitante', '=', 'personal.id_personal')
             ->select(
                 'tra_controlvehiculos.*',
                 'tra_conductores.apellido_paterno',
@@ -739,11 +763,14 @@ class TransporteController extends Controller
                 'tra_vehiculos.modelo',
                 'tra_vehiculos.color',
                 'tra_vehiculos.ensede',
+                'personal.apellido_paterno as apepatper',
+                'personal.apellido_materno as apematper',
+                'personal.nombres as nombreper',
             )
             ->where('progconductor', 'S')
             ->orderBy('id_movimiento', 'asc')
             ->get();
-      
+
         $conductoressede = DB::table('tra_conductores')
             ->select(
                 'tra_conductores.*'
@@ -763,7 +790,26 @@ class TransporteController extends Controller
             ->where('activo', 'S')
             ->get();
 
-        return view('transporte.movimiento3', compact('vehiculossede', 'vehiculosprog','conductoressede','conductores'));            
+        $personal = DB::table('personal')
+        ->leftJoin('dependencia', 'personal.id_dependencia', '=', 'dependencia.id_dependencia')
+        ->select(
+            'personal.id_personal',
+            'personal.apellido_paterno',
+            'personal.apellido_materno',
+            'personal.nombres',
+            'personal.id_dependencia',
+            'personal.despacho',
+            'dependencia.descripcion',
+            'dependencia.abreviado'
+        )
+        ->orderBy('apellido_paterno', 'asc') 
+        ->orderBy('apellido_materno', 'asc') 
+        ->orderBy('nombres', 'asc') 
+        ->get();
+
+
+
+        return view('transporte.movimiento3', compact('vehiculossede', 'vehiculosprog','conductoressede','conductores','personal'));            
     }
     public function grabaMovimiento3(Request $request)
     {
@@ -870,6 +916,9 @@ class TransporteController extends Controller
                     'progconductor' => "S",
                     'fechahora_programado' => $fechaHoraActualFormateada,
                     'estado' => "P",
+                    'solicitante' => $request->input('personalsoli'),
+                    'dependenciasoli' => $request->input('iddepen'),
+                    'despachosoli' => $request->input('despacho'),
                 ]);
                 DB::table('tra_vehiculos')
                 ->where('nroplaca', $request->input('plac'))
@@ -905,6 +954,9 @@ class TransporteController extends Controller
                     'kilometraje' => $request->input('kilometraje'),
                     'observacion' => $request->input('ruta'),
                     'id_personal' => Auth::user()->id_personal,
+                    'solicitante' => $request->input('personalsoli'),
+                    'dependenciasoli' => $request->input('iddepen'),
+                    'despachosoli' => $request->input('despacho'),
                 ]);
                 DB::commit(); // ← GUARDA TODO
                 return response()->json([

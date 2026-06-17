@@ -41,7 +41,8 @@
                                 '{{ $p->kilometraje ?? '' }}',
                                 '{{ $p->fechahora_programado ?? '' }}',
                                 '{{ $p->id_conductor }}',
-                                '{{ $p->id_movimiento }}'
+                                '{{ $p->id_movimiento }}',
+                                '{{ $p->apepatper }} {{ $p->apematper }} {{ $p->nombreper }}'
                             )">
                                 <div class="contenedor-imagen" style="background: #fff5f5;" >
                                     <img style="padding-top: 15px; width:80px;"
@@ -242,7 +243,7 @@
 }    
 </style>    
 <script>
-function seleccionarVehiculo(placa, vehiculo, conductor, ruta, kilometraje, fecha, id_conductor, id_movimiento) {
+function seleccionarVehiculo(placa, vehiculo, conductor, ruta, kilometraje, fecha, id_conductor, id_movimiento, solicitante="") {
     document.getElementById('placavalida').innerHTML = placa;
     document.getElementById('vehiculovalida').innerHTML = vehiculo;
     document.getElementById('conductorvalida').innerHTML = conductor;
@@ -250,6 +251,7 @@ function seleccionarVehiculo(placa, vehiculo, conductor, ruta, kilometraje, fech
     document.getElementById('kilometrajevalida').innerHTML = kilometraje;
     document.getElementById('fechavalida').innerHTML = fecha;
     document.getElementById('id_movimiento').value = id_movimiento;
+    document.getElementById('personalsolicita').innerHTML = solicitante;
 
     const myModal = new bootstrap.Modal(
         document.getElementById('modalvalidarsalida')
@@ -276,6 +278,15 @@ function seleccionarVehiculoIngreso(placa, vehiculo, conductor, ruta, kilometraj
 function seleccionarVehiculoPrograma(placa, vehiculo) {
     document.getElementById('placapro').innerHTML = placa;
     document.getElementById('vehiculopro').innerHTML = vehiculo;
+    
+    document.getElementById('id_conductorpro').value = "";
+    document.getElementById('kilometrajepro').value = "";
+    document.getElementById('rutapro').value = "";
+
+    document.getElementById('descdependenciapro').innerHTML = "";
+    document.getElementById('personalsolicitapro').value = "";
+    $('#personalsolicitapro')[0].selectize.setValue("");
+
 //    const myModal = new bootstrap.Modal(
 //        document.getElementById('modalprograma')
 //    );
@@ -305,7 +316,8 @@ function seleccionarVehiculoPrograma(placa, vehiculo) {
         <b>👤Conductor : </b><span id="conductorvalida"></span><br>
         <b>🗺️Ruta programada : </b><span id="rutavalida"></span><br>
         <b>⛽Kilometraje salida : </b><span id="kilometrajevalida"></span><br>
-        <b>Fecha programación : </b><span id="fechavalida"></span><br><br>
+        <b>Fecha programación : </b><span id="fechavalida"></span><br>
+        <b>Solicitante de Vehículo : </b><span id="personalsolicita"></span><br><br>
         ⚠️ Al confirmar, se registrará fecha/hora de salida y el vehículo pasará a estado "EN DILIGENCIA".
         <input type="hidden" id="id_movimiento">
       </div>      
@@ -402,6 +414,25 @@ function seleccionarVehiculoPrograma(placa, vehiculo) {
             <b>🗺️Ruta programada : </b><input type="text" name="rutapro" id="rutapro" class="form-control" maxlength="100" style="width: 500px;" value="">
         </div>
 
+        <div class="d-flex align-items-center gap-2 mb-2">
+                <b>Solicitante de Vehículo : </b>
+                <select name="personalsolicitapro" id="personalsolicitapro" class="" style="width: 400px;">
+                        <option value="">-- Seleccione --</option>
+                        @foreach($personal as $p)
+                            <option value="{{ $p->id_personal }}" >
+                                {{ $p->apellido_paterno ." ". $p->apellido_materno ." ". $p->nombres }} 
+                            </option>
+                        @endforeach
+                            </select>
+        </div>
+        <div class="d-flex align-items-center gap-2 mb-2">
+                <b>Dependencia: </b>
+            <b><div style="padding:5px;font-size:12px; color:blue;" id="descdependenciapro">
+            </div></b>
+            <input type="hidden" id="id_dependenciapro" name="id_dependenciapro" value="">
+            <input type="hidden" id="despachopro" name="despachopro" value="">
+        </div>
+
         ⚠️ Al presionar programar salida, el vehículo estará en lista de vehículos programados.
         <input type="hidden" id="id_movimientopro">
       </div>      
@@ -415,7 +446,10 @@ function seleccionarVehiculoPrograma(placa, vehiculo) {
         document.getElementById('placapro').textContent,
         document.getElementById('id_conductorpro').value,
         document.getElementById('kilometrajepro').value,
-        document.getElementById('rutapro').value
+        document.getElementById('rutapro').value,
+        document.getElementById('personalsolicitapro').value,
+        document.getElementById('id_dependenciapro').value,
+        document.getElementById('despachopro').value
         )">
         Programar Salida
         </button>
@@ -493,6 +527,57 @@ var maskIdConductorpro = IMask(
   { mask: '00000000' } 
 );
 
+
+  const iddependencia = @json($personal->pluck('id_dependencia', 'id_personal'));
+  const descdependencia = @json($personal->pluck('descripcion', 'id_personal'));
+  const despacho = @json($personal->pluck('despacho', 'id_personal'));
+
+    $('#personalsolicitapro').selectize({
+        onChange: function(value) {
+            // Solo ejecuta la función si hay un valor seleccionado
+            if (value) {
+                muestradatopro(value);
+            }
+        },
+        onInitialize: function() {
+            let input = this.$control_input;
+            input.on('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault(); // Evita submit
+                }
+            });
+        }
+    });
+
+    function muestradatopro(id) {
+        $('#descdependenciapro').text(numeroAOrdinal(despacho[id]) + " DESPACHO - " + descdependencia[id]);
+        //$('#despacho').text(numeroAOrdinal(despacho[id]) + " DESPACHO");
+        $('#id_dependenciapro').val(iddependencia[id]);
+        $('#despachopro').val(despacho[id]);
+    }
+    function numeroAOrdinal(numero) {
+        const ordinales = {
+            1: '1er',
+            2: '2do',
+            3: '3er',
+            4: '4to',
+            5: '5to',
+            6: '6to',
+            7: '7mo',
+            8: '8vo',
+            9: '9no',
+            10: '10mo',
+            11: '11er'
+        };
+        if (numero==0){
+            return ' ';
+        } else {
+            return ordinales[numero] || numero + ' ';
+        }
+    }      
+
+
+
     const conductores = @json($conductores);
     const inputConductor = document.getElementById('id_conductorpro');
     const msgCon = document.getElementById('msgcon');
@@ -567,7 +652,7 @@ maskIdConductoring.on('accept', function () {
 });  
 
 
-    function grabarmov(tp, idmov,nroplaca,idconductor="",kilometraje="",ruta="") {
+    function grabarmov(tp, idmov,nroplaca,idconductor="",kilometraje="",ruta="",personalsolicita="",iddepen=0,despacho=0) {
         if (tp=="I" || tp=="P") {
             if (idconductor=="") {
                 alert("Ingrese el ID del CONDUCTOR");
@@ -581,6 +666,12 @@ maskIdConductoring.on('accept', function () {
                 alert("Ingrese la RUTA");
                 return;
             }
+        }
+        if (tp=="P") {
+            if (personalsolicita=="") {
+                alert("Seleccione al Personal que solicita el vehículo");
+                return;
+            }            
         }
 
         if (tp=="I") {
@@ -604,6 +695,9 @@ maskIdConductoring.on('accept', function () {
                 idconductor:idconductor,
                 kilometraje:kilometraje,
                 ruta:ruta,
+                personalsoli:personalsolicita,
+                iddepen:iddepen,
+                despacho:despacho,
             },
             success: function(response) {
                 let mensaje = response.message || 'Respuesta sin mensaje';

@@ -121,6 +121,16 @@
 function seleccionarVehiculoPrograma(placa, vehiculo) {
     document.getElementById('placapro').innerHTML = placa;
     document.getElementById('vehiculopro').innerHTML = vehiculo;
+    
+    document.getElementById('id_conductorpro').value = "";
+    document.getElementById('kilometrajepro').value = "";
+    document.getElementById('rutapro').value = "";
+
+    document.getElementById('descdependenciapro').innerHTML = "";
+    document.getElementById('personalsolicitapro').value = "";
+    $('#personalsolicitapro')[0].selectize.setValue("");
+
+
 //    const myModal = new bootstrap.Modal(
 //        document.getElementById('modalprograma')
 //    );
@@ -177,6 +187,26 @@ function seleccionarVehiculoPrograma(placa, vehiculo) {
             <b>🗺️Ruta programada : </b><input type="text" name="rutapro" id="rutapro" class="form-control" maxlength="100" style="width: 500px;" value="">
         </div>
 
+        <div class="d-flex align-items-center gap-2 mb-2">
+                <b>Solicitante de Vehículo : </b>
+                <select name="personalsolicitapro" id="personalsolicitapro" class="" style="width: 400px;">
+                        <option value="">-- Seleccione --</option>
+                        @foreach($personal as $p)
+                            <option value="{{ $p->id_personal }}" >
+                                {{ $p->apellido_paterno ." ". $p->apellido_materno ." ". $p->nombres }} 
+                            </option>
+                        @endforeach
+                            </select>
+        </div>
+        <div class="d-flex align-items-center gap-2 mb-2">
+                <b>Dependencia: </b>
+            <b><div style="padding:5px;font-size:12px; color:blue;" id="descdependenciapro">
+            </div></b>
+            <input type="hidden" id="id_dependenciapro" name="id_dependenciapro" value="">
+            <input type="hidden" id="despachopro" name="despachopro" value="">
+        </div>
+
+
         ⚠️ Al presionar programar salida, el vehículo estará en lista de vehículos programados.
         <input type="hidden" id="id_movimientopro">
       </div>      
@@ -190,7 +220,10 @@ function seleccionarVehiculoPrograma(placa, vehiculo) {
         document.getElementById('placapro').textContent,
         document.getElementById('id_conductorpro').value,
         document.getElementById('kilometrajepro').value,
-        document.getElementById('rutapro').value
+        document.getElementById('rutapro').value,
+        document.getElementById('personalsolicitapro').value,
+        document.getElementById('id_dependenciapro').value,
+        document.getElementById('despachopro').value
         )">
         Programar Salida
         </button>
@@ -241,6 +274,9 @@ function seleccionarVehiculoPrograma(placa, vehiculo) {
         <div class="d-flex align-items-center gap-2 mb-2">
             <b>🗺️Ruta programada : </b><span id="rutaeli"></span>
         </div>
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <b>Solicitante de Vehículo : </b><span id="personalsolicitaeli"></span>
+        </div>
 
         ⚠️ Al presionar Eliminar Registro, el vehículo pasará a SEDE y estará disponible para volver a ser programado.
         <input type="hidden" id="id_movimientoeli">
@@ -286,6 +322,24 @@ function seleccionarVehiculoPrograma(placa, vehiculo) {
         <div class="d-flex align-items-center gap-2 mb-2">
             <b>🗺️Ruta programada : </b><input type="text" name="rutamod" id="rutamod" class="form-control" maxlength="100" style="width: 500px;" value="">
         </div>
+        <div class="d-flex align-items-center gap-2 mb-2">
+                <b>Solicitante de Vehículo : </b>
+                <select name="personalsolicitamod" id="personalsolicitamod" class="" style="width: 400px;">
+                        <option value="">-- Seleccione --</option>
+                        @foreach($personal as $p)
+                            <option value="{{ $p->id_personal }}" >
+                                {{ $p->apellido_paterno ." ". $p->apellido_materno ." ". $p->nombres }} 
+                            </option>
+                        @endforeach
+                            </select>
+        </div>
+        <div class="d-flex align-items-center gap-2 mb-2">
+                <b>Dependencia: </b>
+            <b><div style="padding:5px;font-size:12px; color:blue;" id="descdependenciamod">
+            </div></b>
+            <input type="hidden" id="id_dependenciamod" name="id_dependenciamod" value="">
+            <input type="hidden" id="despachomod" name="despachomod" value="">
+        </div>
 
         ⚠️ Al confirmar, se actualizará los cambios realizados a la programación del vehículo.
         <input type="hidden" id="id_movimientomod">
@@ -300,7 +354,10 @@ function seleccionarVehiculoPrograma(placa, vehiculo) {
         document.getElementById('placamod').textContent,
         document.getElementById('id_conductormod').value,
         document.getElementById('kilometrajemod').value,
-        document.getElementById('rutamod').value
+        document.getElementById('rutamod').value,
+        document.getElementById('personalsolicitamod').value,
+        document.getElementById('id_dependenciamod').value,
+        document.getElementById('despachomod').value
         )">
         Grabar Cambios
         </button>
@@ -325,6 +382,7 @@ function seleccionarVehiculoPrograma(placa, vehiculo) {
                                 <th style="padding: 5px 5px!important; font-size: 12px !important; text-transform:none;">Conductor</th>
                                 <th style="padding: 5px 5px!important; font-size: 12px !important; text-transform:none;">Km</th>
                                 <th style="padding: 5px 5px!important; font-size: 12px !important; text-transform:none;">Ruta</th>
+                                <th style="padding: 5px 5px!important; font-size: 12px !important; text-transform:none;">Solicitante</th>
                                 <th style="padding: 5px 5px!important; font-size: 12px !important; text-transform:none;">Fecha</th>
                                 <th style="padding: 5px 5px!important; font-size: 12px !important; text-transform:none;">Estado</th>
                                 <th style="padding: 5px 5px!important; font-size: 12px !important; text-transform:none;" colspan=2>Acción</th>
@@ -338,6 +396,7 @@ function seleccionarVehiculoPrograma(placa, vehiculo) {
                                 <td style="padding: 5px 5px!important; font-size: 12px !important; text-transform:none;">{{ $p->id_conductor }}<br>{{ $p->apellido_paterno }} {{ $p->apellido_materno }} {{ $p->nombres }}</td>
                                 <td style="padding: 5px 5px!important; font-size: 12px !important; text-transform:none;">{{ $p->kilometraje }}</td>
                                 <td style="padding: 5px 5px!important; font-size: 12px !important; text-transform:none;">{{ $p->observacion }}</td>
+                                <td style="padding: 5px 5px!important; font-size: 12px !important; text-transform:none;">{{ $p->apepatper }} {{ $p->apematper }} {{ $p->nombreper }} <br> {{ $p->abreviado }} (D{{ $p->despachosoli }})</td>
                                 <td style="padding: 5px 5px!important; font-size: 10px !important; text-transform:none;">
                                     {!! $p->estado == 'P' ? '🕑'. $p->fechahora_programado : '🕑'. $p->fechahora_programado .'<br>'. '✅'. $p->fechahora_registro !!}
                                 </td>
@@ -357,7 +416,8 @@ function seleccionarVehiculoPrograma(placa, vehiculo) {
                                     '{{ $p->placa }}','{{ $p->marca }} {{ $p->modelo }} {{ $p->color }}',
                                     '{{ $p->id_conductor }} - {{ $p->apellido_paterno }} {{ $p->apellido_materno }} {{ $p->nombres }}',
                                     '{{ $p->kilometraje }}',
-                                    '{{ $p->observacion }}'
+                                    '{{ $p->observacion }}',
+                                    '{{ $p->apepatper }} {{ $p->apematper }} {{ $p->nombreper }}'
                                     )" 
                                             style="border: none; background: transparent; cursor: pointer;">
                                         <i class="fas fa-trash-alt fa-lg" style="color: red;"></i>
@@ -378,7 +438,8 @@ function seleccionarVehiculoPrograma(placa, vehiculo) {
                                     '{{ $p->kilometraje ?? '' }}',
                                     '{{ $p->fechahora_programado ?? '' }}',
                                     '{{ $p->id_conductor }}',
-                                    '{{ $p->id_movimiento }}'
+                                    '{{ $p->id_movimiento }}',
+                                    '{{ $p->solicitante }}'
                                     )" 
                                             style="border: none; background: transparent; cursor: pointer;">
                                         <i class="fas fa-edit fa-lg text-primary" ></i>
@@ -420,6 +481,79 @@ var maskIdConductormod = IMask(
 );
 
 
+  const iddependencia = @json($personal->pluck('id_dependencia', 'id_personal'));
+  const descdependencia = @json($personal->pluck('descripcion', 'id_personal'));
+  const despacho = @json($personal->pluck('despacho', 'id_personal'));
+
+    $('#personalsolicitapro').selectize({
+        onChange: function(value) {
+            // Solo ejecuta la función si hay un valor seleccionado
+            if (value) {
+                muestradatopro(value);
+            }
+        },
+        onInitialize: function() {
+            let input = this.$control_input;
+            input.on('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault(); // Evita submit
+                }
+            });
+        }
+    });
+    $('#personalsolicitamod').selectize({
+        onChange: function(value) {
+            // Solo ejecuta la función si hay un valor seleccionado
+            if (value) {
+                muestradatomod(value);
+            }
+        },
+        onInitialize: function() {
+            let input = this.$control_input;
+            input.on('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault(); // Evita submit
+                }
+            });
+        }
+    });
+
+    function muestradatopro(id) {
+        $('#descdependenciapro').text(numeroAOrdinal(despacho[id]) + " DESPACHO - " + descdependencia[id]);
+        //$('#despacho').text(numeroAOrdinal(despacho[id]) + " DESPACHO");
+        $('#id_dependenciapro').val(iddependencia[id]);
+        $('#despachopro').val(despacho[id]);
+    }
+    function muestradatomod(id) {
+        $('#descdependenciamod').text(numeroAOrdinal(despacho[id]) + " DESPACHO - " + descdependencia[id]);
+        //$('#despacho').text(numeroAOrdinal(despacho[id]) + " DESPACHO");
+        $('#id_dependenciamod').val(iddependencia[id]);
+        $('#despachomod').val(despacho[id]);
+    }
+    function numeroAOrdinal(numero) {
+        const ordinales = {
+            1: '1er',
+            2: '2do',
+            3: '3er',
+            4: '4to',
+            5: '5to',
+            6: '6to',
+            7: '7mo',
+            8: '8vo',
+            9: '9no',
+            10: '10mo',
+            11: '11er'
+        };
+        if (numero==0){
+            return ' ';
+        } else {
+            return ordinales[numero] || numero + ' ';
+        }
+    }      
+
+
+
+
     const conductores = @json($conductores);
     const inputConductor = document.getElementById('id_conductorpro');
     const msgCon = document.getElementById('msgcon');
@@ -457,7 +591,7 @@ maskIdConductor.on('accept', function () {
     }
 });    
 
-function seleccionarmodifica(placa, vehiculo, conductor, ruta, kilometraje, fecha, id_conductor, id_movimiento) {
+function seleccionarmodifica(placa, vehiculo, conductor, ruta, kilometraje, fecha, id_conductor, id_movimiento, solicitante) {
     document.getElementById('placamod').innerHTML = placa;
     document.getElementById('vehiculomod').innerHTML = vehiculo;
     //document.getElementById('id_conductormod').value = id_conductor;
@@ -467,18 +601,25 @@ function seleccionarmodifica(placa, vehiculo, conductor, ruta, kilometraje, fech
     document.getElementById('kilometrajemod').value = kilometraje;
     //document.getElementById('fechavalida').innerHTML = fecha;
     document.getElementById('id_movimientomod').value = id_movimiento;
+
+    document.getElementById('descdependenciamod').innerHTML = "";
+    document.getElementById('personalsolicitamod').value = solicitante;
+    $('#personalsolicitamod')[0].selectize.setValue(solicitante);
+    
     const myModal = new bootstrap.Modal(
         document.getElementById('modalmodifica')
     );
     myModal.show();
 }
-    function modaleliminarregistro(idmov,nroplaca,vehiculo,idconductor="",kilometraje="",ruta="") {        
+    function modaleliminarregistro(idmov,nroplaca,vehiculo,idconductor="",kilometraje="",ruta="",solicitante="") {        
         document.getElementById('placaeli').innerHTML = nroplaca;
         document.getElementById('vehiculoeli').innerHTML = vehiculo;
         document.getElementById('conductoreli').innerHTML = idconductor;
         document.getElementById('kilometrajeeli').innerHTML = kilometraje;
         document.getElementById('rutaeli').innerHTML = ruta;
         document.getElementById('id_movimientoeli').value = idmov;
+        document.getElementById('personalsolicitaeli').innerHTML = solicitante;
+
         const myModal = new bootstrap.Modal(
             document.getElementById('modalelimina')
         );
@@ -529,7 +670,7 @@ function seleccionarmodifica(placa, vehiculo, conductor, ruta, kilometraje, fech
 
     }
 
-    function grabarmov(tp, idmov,nroplaca,idconductor="",kilometraje="",ruta="") {
+    function grabarmov(tp, idmov,nroplaca,idconductor="",kilometraje="",ruta="",personalsolicita="",iddepen=0,despacho=0) {
         if (tp=="P" || tp=="E") {
             if (idconductor=="") {
                 alert("Ingrese el ID del CONDUCTOR");
@@ -541,6 +682,10 @@ function seleccionarmodifica(placa, vehiculo, conductor, ruta, kilometraje, fech
             }
             if (ruta=="") {
                 alert("Ingrese la RUTA");
+                return;
+            }
+            if (personalsolicita=="") {
+                alert("Seleccione al Personal que solicita el vehículo");
                 return;
             }
         }
@@ -555,6 +700,9 @@ function seleccionarmodifica(placa, vehiculo, conductor, ruta, kilometraje, fech
                 idconductor:idconductor,
                 kilometraje:kilometraje,
                 ruta:ruta,
+                personalsoli:personalsolicita,
+                iddepen:iddepen,
+                despacho:despacho,
             },
             success: function(response) {
                 let mensaje = response.message || 'Respuesta sin mensaje';
