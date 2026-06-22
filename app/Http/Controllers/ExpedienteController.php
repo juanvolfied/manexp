@@ -26,11 +26,6 @@ class ExpedienteController extends Controller
     }
     public function index()
     {
-/*            $expediente = DB::table('expediente')
-            ->leftJoin('delito', 'expediente.delito', '=', 'delito.id_delito')
-            ->select('expediente.*', 'delito.desc_delito')
-            ->orderBy('codbarras', 'asc') 
-            ->get();*/
 
             $expediente = DB::table('expediente')
             ->leftJoin('delito', 'expediente.delito', '=', 'delito.id_delito')
@@ -413,7 +408,8 @@ class ExpedienteController extends Controller
         $segdetalle = DB::table('ubicacion_exp')
             ->where('ubicacion_exp.id_expediente', $id_expediente)
             ->leftJoin('dependencia', 'ubicacion_exp.paq_dependencia', '=', 'dependencia.id_dependencia')
-            ->select('ubicacion_exp.*','dependencia.abreviado')
+            ->leftJoin('personal', 'ubicacion_exp.fiscalprestamo', '=', 'personal.id_personal')
+            ->select('ubicacion_exp.*','dependencia.abreviado','personal.apellido_paterno','personal.apellido_materno','personal.nombres')
             ->orderBy('fecha_movimiento', 'desc') 
             ->orderBy('hora_movimiento', 'desc') 
             ->get();

@@ -161,7 +161,8 @@
         $puedeRegistrarx=false;
         $puedeGenerarGuiax=false;
         $puedeRecepcionarx=false;
-        $menuActivo = request()->is('expediente', 'internamiento-lista', 'internamiento-recep', 'solicitud', 'solicitud/atencion', 'devolucion', 'devolucion/atencion');
+        $menuActivo = request()->is('expediente', 'internamiento-lista', 'internamiento-recep', 'solicitud',
+         'solicitud/atencion', 'devolucion', 'devolucion/atencion', 'prestamo', 'devolucionarc');
     @endphp
     @if ($menuexpedientes)
               <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
@@ -220,7 +221,20 @@
                         <span class="sub-item">Atenci&oacute;n de Devoluciones</span>
                       </a>
                     </li>
+
+                    <li class="{{ request()->is('prestamo') ? 'active' : '' }}" >
+                      <a href="{{ route('prestamo') }}">
+                        <span class="sub-item">Prestamo de Carpetas</span>
+                      </a>
+                    </li>
+                    <li class="{{ request()->is('devolucionarc') ? 'active' : '' }}" >
+                      <a href="{{ route('devolucionarc') }}">
+                        <span class="sub-item">Recepción de Carpetas Prestadas</span>
+                      </a>
+                    </li>
       @endif
+
+
 
                   </ul>
                 </div>

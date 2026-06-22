@@ -125,7 +125,7 @@ class SolicitudCarpetasController extends Controller
 
             if ($existe) {
                 $estado = $existe->estado; 
-                if ($estado=="I") {
+                if ($estado=="I" || $estado=="A") {
                     $existe2 = DB::table('movimiento_exp_det')
                     ->where('id_expediente', $existe->id_expediente)
                     ->where('tipo_mov', "SO")
@@ -178,7 +178,9 @@ class SolicitudCarpetasController extends Controller
                 //$query->where('expediente.nro_expediente', 'like', "%{$nro_expediente}%");
                 $query->where('expediente.nro_expediente', 'like', "{$nro_expediente}");
             }
-            $query->where('expediente.estado', 'I');
+            //$query->where('expediente.estado', 'I');
+            $query->whereIn('expediente.estado', ['I', 'A']);
+
             $segdetalle = $query
                 ->orderBy('codbarras', 'asc')
                 ->get();
@@ -774,7 +776,7 @@ class SolicitudCarpetasController extends Controller
                 DB::table('expediente')
                 ->where('id_expediente', $registro->id_expediente)
                 ->update([
-                    'estado' => 'P'//PRESTADO
+                    'estado' => 'T'//TRANSITO
                 ]);
 
                 $reg_exp_tomo = DB::table('ubicacion_exp')
@@ -853,6 +855,406 @@ class SolicitudCarpetasController extends Controller
         }
 
     }
+
+
+
+
+    public function prestamo()
+    {
+        $personal = DB::table('personal')
+            ->leftJoin('dependencia', 'personal.id_dependencia', '=', 'dependencia.id_dependencia')
+            ->select('personal.*','dependencia.descripcion','dependencia.abreviado')
+            ->where('fiscal_asistente','F')
+            ->where('personal.activo','S')            
+            ->orderBy('apellido_paterno', 'asc') 
+            ->orderBy('apellido_materno', 'asc') 
+            ->orderBy('nombres', 'asc') 
+            ->get();
+        return view('expediente_movs.prestamo', compact('personal'));
+    }
+    public function grabaPrestamo(Request $request)
+    {
+        $request->validate([
+            'codfiscal' => 'required|string',
+            'scannedItems' => 'required|json',
+        ]);
+
+        $fechaHoraActualFormateada = now()->format('Y-m-d H:i:s');
+        $fechaActual = now()->format('Y-m-d');
+        $horaActual = now()->format('H:i:s');
+        $anoActual = substr($fechaActual, 0, 4);
+
+        $scannedItems = json_decode($request->scannedItems, true);
+        $itemsCount = count($scannedItems);
+
+        DB::beginTransaction();
+        try {
+
+            $ultimoRegistro = DB::table('movimiento_exp_cab')
+                ->where('ano_mov', $anoActual)
+                ->where('tipo_mov', 'SO')
+                ->orderBy('ano_mov', 'desc')
+                ->orderBy('nro_mov', 'desc')
+                ->first();
+
+            $nromov = $ultimoRegistro ? $ultimoRegistro->nro_mov + 1 : 1;
+
+            DB::table('movimiento_exp_cab')->insert([
+                'nro_mov'                => $nromov,
+                'ano_mov'                => $anoActual,
+                'tipo_mov'               => 'SO',
+                'id_usuario'             => Auth::user()->id_usuario,
+                'fiscal'                 => $request->codfiscal,
+                'fechahora_movimiento'   => $fechaHoraActualFormateada,
+                'estado_mov'             => 'R', //'G',
+                'fechahora_recepcion'    => $fechaHoraActualFormateada,
+                'activo'                 => 'S',
+                'cantidad_exp'           => $itemsCount,
+                'id_dependencia'         => $request->coddependencia,
+                'despacho'               => $request->coddespacho,
+            ]);
+
+
+            $ultimoRegistro = DB::table('ubicacion_exp')
+                ->where('ano_movimiento', $anoActual)
+                ->orderBy('ano_movimiento', 'desc')
+                ->orderBy('nro_movimiento', 'desc')
+                ->first();
+            $nromovubi=0;
+            if ($ultimoRegistro) {
+                $nromovubi = $ultimoRegistro->nro_movimiento;
+            }
+
+            foreach ($scannedItems as $item) {
+                $codbar = $item['codbarras'];
+                $dep_exp = (int) substr($codbar, 0, 11);
+                $ano_exp = substr($codbar, 11, 4);
+                $nro_exp = substr($codbar, 15, 6);
+                $tip_exp = substr($codbar, 21, 4);
+                $id_exp = $item['id_expediente'];
+
+                DB::table('expediente')
+                ->where('id_expediente', $id_exp)
+                ->update([
+                    'estado' => 'T'//TRANSITO
+                ]);
+                DB::table('movimiento_exp_det')->insert([
+                    'nro_mov'         => $nromov,
+                    'ano_mov'         => $anoActual,
+                    'tipo_mov'        => 'SO',
+                    'id_expediente'   => $id_exp,
+                    'nro_expediente'  => $nro_exp,
+                    'ano_expediente'  => $ano_exp,
+                    'id_dependencia'  => $dep_exp,
+                    'id_tipo'         => $tip_exp,
+                    'observacion'     => '',
+                    'estado_mov'      => 'R',
+                ]);
+
+                
+                $reg_exp_tomo = DB::table('ubicacion_exp')
+                ->where('id_expediente', $id_exp)
+                ->where('activo', "S")
+                ->select('tomo','archivo','anaquel','nro_paquete','nro_inventario','serie','acompanados','cuadernos')
+                ->distinct()
+                ->get();
+                foreach ($reg_exp_tomo as $regtomo) {
+
+                    DB::table('ubicacion_exp')
+                    ->where('id_expediente', $id_exp)
+                    ->where('tomo', $regtomo->tomo)
+                    ->where('activo', "S")
+                    ->update([
+                        'activo' => 'N',
+                    ]);
+                    $nromovubi++;
+                    DB::table('ubicacion_exp')->insert([
+                        'nro_movimiento' => $nromovubi,
+                        'ano_movimiento' => $anoActual,
+                        'id_personal'    => Auth::user()->id_personal,
+                        'id_usuario'     => Auth::user()->id_usuario,
+                        'archivo'        => $regtomo->archivo,
+                        'anaquel'        => $regtomo->anaquel,
+                        'nro_paquete'    => $regtomo->nro_paquete,
+                        'nro_inventario' => $regtomo->nro_inventario,
+                        'id_expediente'  => $id_exp,
+                        'nro_expediente' => $nro_exp,
+                        'ano_expediente' => $ano_exp,
+                        'id_dependencia' => $dep_exp,
+                        'id_tipo'        => $tip_exp,
+                        'tomo'           => $regtomo->tomo,
+                        'serie'          => $regtomo->serie,
+                        'acompanados'    => $regtomo->acompanados,
+                        'cuadernos'      => $regtomo->cuadernos,                    
+                        'ubicacion'      => 'D',             // A=Archivo D=Despacho
+                        'tipo_ubicacion' => 'T',        // I=Inventario T=Transito
+                        'fecha_movimiento' => $fechaActual,
+                        'hora_movimiento' => $horaActual,
+                        'motivo_movimiento' => 'Prestamo',
+                        'paq_dependencia' => $request->coddependencia,
+                        'despacho'       => $request->coddespacho,
+                        'activo'         => 'S',
+                        'estado'         => 'P',//PRESTADO
+                        'fiscalprestamo' => $request->codfiscal,                    
+                    ]);
+                }//filtro tomo
+
+            }
+
+
+            DB::commit();
+
+            return redirect()->route('prestamo')->with('messageOK', 'PRESTAMO REALIZADO DE FORMA SATISFACTORIA.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // Opcional: loguear el error
+            //Log::error('Error al grabar solicitud: ' . $e->getMessage());
+
+            return redirect()->back()->with('messageErr', 'OCURRIÓ UN ERROR AL GUARDAR PRESTAMO. INTENTA NUEVAMENTE.');
+        }
+    }
+    public function devolucionarc()
+    {
+        /*
+        $personal = DB::table('personal')
+            ->where('fiscal_asistente','F')
+            //->where('id_dependencia',Auth::user()->personal->id_dependencia)
+            //->where('despacho',Auth::user()->personal->despacho)
+            ->where('activo','S')            
+            ->orderBy('apellido_paterno', 'asc') 
+            ->orderBy('apellido_materno', 'asc') 
+            ->orderBy('nombres', 'asc') 
+            ->get();
+        $dependencia = DB::table('dependencia')
+            ->where('id_dependencia', Auth::user()->personal->id_dependencia)
+            ->first();
+        */
+
+        $datos = DB::table('expediente')
+        ->select('expediente.*',
+        'delito.*',
+        'personal.apellido_paterno',
+        'personal.apellido_materno',
+        'personal.nombres',
+        'dependencia.descripcion',
+        'dependencia.abreviado',
+        'ubicacion_exp.fiscalprestamo')
+        ->join('ubicacion_exp', 'expediente.id_expediente', '=', 'ubicacion_exp.id_expediente')
+        ->leftJoin('delito', 'expediente.delito', '=', 'delito.id_delito')
+
+        ->leftJoin('personal', 'ubicacion_exp.fiscalprestamo', '=', 'personal.id_personal')
+        ->leftJoin('dependencia', 'ubicacion_exp.paq_dependencia', '=', 'dependencia.id_dependencia')
+
+        ->where('ubicacion_exp.ubicacion', 'D')
+//        ->where('ubicacion_exp.paq_dependencia', Auth::user()->personal->id_dependencia)
+//        ->where('ubicacion_exp.despacho', Auth::user()->personal->despacho)
+        ->where('ubicacion_exp.activo', 'S')
+        ->get();
+
+        if ($datos->isNotEmpty()) {
+            $numeroRegistros = $datos->count();
+            $datos->transform(function ($doc) {
+                $existe2 = DB::table('movimiento_exp_det')
+                ->where('id_expediente', $doc->id_expediente)
+                ->where('tipo_mov', "DE")
+                ->where(function($query) {
+                    $query->where('estado_mov', 'G')
+                        ->orWhere('estado_mov', 'E');
+                })
+                ->exists(); //  Cambia 'first()' por 'exists()'
+                $doc->otrasolicitud = $existe2; // true o false
+                return $doc;
+            });
+        }
+
+        //return view('expediente_movs.devolucionarc', compact('personal','dependencia','datos'));
+        return view('expediente_movs.devolucionarc', compact('datos'));
+
+    }
+    public function grabaDevolucionarc(Request $request)
+    {
+        $request->validate([
+//            'codfiscal' => 'required|string',
+            'scannedItems' => 'required|json', // Validamos que sea un JSON
+        ]);
+        $fechaHoraActualFormateada = now()->format('Y-m-d H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $fechaActual = now()->format('Y-m-d');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $horaActual = now()->format('H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $anoActual = substr($fechaActual,0,4);
+
+        // Convertir el JSON a un array
+        $scannedItems = json_decode($request->scannedItems, true);
+        $itemsCount = count($scannedItems);
+
+        DB::beginTransaction();
+        try {        
+            $ultimoRegistro = DB::table('movimiento_exp_cab')
+            ->where('ano_mov', $anoActual)
+            ->where('tipo_mov', 'DE')
+            ->orderBy('ano_mov', 'desc')
+                ->orderBy('nro_mov', 'desc')
+                ->first();
+            $nromov=0;
+            if ($ultimoRegistro) {
+                $nromov = $ultimoRegistro->nro_mov;
+            }
+
+            $ultimoRegistro = DB::table('ubicacion_exp')
+                ->where('ano_movimiento', $anoActual)
+                ->orderBy('ano_movimiento', 'desc')
+                ->orderBy('nro_movimiento', 'desc')
+                ->first();
+            $nromovubi=0;
+            if ($ultimoRegistro) {
+                $nromovubi = $ultimoRegistro->nro_movimiento;
+            }
+
+
+            foreach ($scannedItems as $item) {
+                $codbar = $item['codbarras'];
+                $dep_exp=substr($codbar,0,11);
+                $ano_exp=substr($codbar,11,4);
+                $nro_exp=substr($codbar,15,6);
+                $tip_exp=substr($codbar,21,4);
+                $dep_exp = (int) $dep_exp; 
+                $id_exp = $item['id_expediente'];
+                $fispres = $item['fiscalprestamo'];
+
+                DB::table('expediente')
+                ->where('id_expediente', $id_exp)
+                ->update([
+                    'estado' => 'I'
+                ]);
+
+                
+                $nromov++;
+                DB::table('movimiento_exp_cab')->insert([
+                    'nro_mov'                => $nromov,
+                    'ano_mov'                => $anoActual,
+                    'tipo_mov'               => 'DE',
+                    'id_usuario'             => Auth::user()->id_usuario,
+                    'fiscal'                 => $fispres,
+                    'fechahora_movimiento'   => $fechaHoraActualFormateada,
+                    'estado_mov'             => 'D',//'G',
+                    'activo'                 => 'S',
+                    'cantidad_exp'           => $itemsCount,
+                    'id_dependencia'         => Auth::user()->personal->id_dependencia,
+                    'despacho'               => Auth::user()->personal->despacho,
+
+                    'fechahora_recepcion'    => $fechaHoraActualFormateada,
+                    'cantidad_exp_recep'     => 1
+                ]);
+
+
+
+                DB::table('movimiento_exp_det')->insert([
+                    'nro_mov'         => $nromov,
+                    'ano_mov'         => $anoActual,
+                    'tipo_mov'        => 'DE',
+                    'id_expediente'   => $id_exp,
+                    'nro_expediente'  => $nro_exp,
+                    'ano_expediente'  => $ano_exp,
+                    'id_dependencia'  => $dep_exp,
+                    'id_tipo'         => $tip_exp,
+                    'observacion'     => '',
+                    'estado_mov'      => 'D',
+                ]);            
+
+
+
+                $reg_exp_tomo = DB::table('ubicacion_exp')
+                ->where('id_expediente', $id_exp)
+                ->where('activo', "S")
+                ->select('tomo','archivo','anaquel','nro_paquete','nro_inventario','serie','acompanados','cuadernos')
+                ->distinct()
+                ->get();
+                foreach ($reg_exp_tomo as $regtomo) {
+
+                    $datos_dep_des = DB::table('ubicacion_exp')
+                    ->where('id_expediente', $id_exp)
+                    ->where('tomo', $regtomo->tomo)
+                    ->where('ubicacion', "A")
+                    ->select('paq_dependencia','despacho')
+                    ->orderBy('ano_movimiento', 'desc')
+                    ->orderBy('nro_movimiento', 'desc')
+                    ->first();
+                    $paq_dependencia = null;
+                    $despacho = null;
+                    if ($datos_dep_des) {
+                        $paq_dependencia = $datos_dep_des->paq_dependencia;
+                        $despacho = $datos_dep_des->despacho;
+                    }
+
+                    DB::table('ubicacion_exp')
+                    ->where('id_expediente', $id_exp)
+                    ->where('tomo', $regtomo->tomo)
+                    ->where('activo', "S")
+                    ->update([
+                        'activo' => 'N',
+                    ]);
+                    $nromovubi++;
+                    DB::table('ubicacion_exp')->insert([
+                        'nro_movimiento' => $nromovubi,
+                        'ano_movimiento' => $anoActual,
+                        'id_personal' => Auth::user()->id_personal,
+                        'id_usuario' => Auth::user()->id_usuario,
+                        'archivo' => $regtomo->archivo,
+                        'anaquel' => $regtomo->anaquel,
+                        'nro_paquete' => $regtomo->nro_paquete,
+                        'nro_inventario' => $regtomo->nro_inventario,
+                        'id_expediente' => $id_exp,
+                        'nro_expediente' => $nro_exp,
+                        'ano_expediente' => $ano_exp,
+                        'id_dependencia' => $dep_exp,
+                        'id_tipo' => $tip_exp,
+                        'tomo' => $regtomo->tomo,
+                        'serie' => $regtomo->serie,
+                        'acompanados' => $regtomo->acompanados,
+                        'cuadernos' => $regtomo->cuadernos,                    
+                        'ubicacion' => 'A',             // A=Archivo D=Despacho
+                        'tipo_ubicacion' => 'I',        // I=Inventario T=Transito
+                        'fecha_movimiento' => $fechaActual,
+                        'hora_movimiento' => $horaActual,
+                        'motivo_movimiento' => 'Devolución',
+                        'paq_dependencia' => $paq_dependencia,
+                        'despacho' => $despacho,
+                        'activo' => 'S',
+                        'estado' => 'I',
+                        'fiscalprestamo' => $fispres,
+                    ]);
+                }//filtro tomo
+
+            }
+        
+            DB::commit();
+        
+            return redirect()->route('devolucionarc')->with('messageOK', 'DEVOLUCION GUARDADA DE FORMA SATISFACTORIA.');
+        } catch (\Exception $e) {
+            // Revertir en caso de error
+            DB::rollBack();
+            // Opcional: log de error
+            // Log::error('Error en grabaDevolucion: ' . $e->getMessage());
+
+            return redirect()->back()->with('messageErr', 'OCURRIÓ UN ERROR AL GUARDAR LA DEVOLUCION. INTENTA NUEVAMENTE.');
+
+        }
+
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1043,7 +1445,7 @@ class SolicitudCarpetasController extends Controller
                 //$query->where('expediente.nro_expediente', 'like', "%{$nro_expediente}%");
                 $query->where('expediente.nro_expediente', 'like', "{$nro_expediente}");
             }
-            $query->where('expediente.estado', 'P');
+            $query->where('expediente.estado', 'T');
             $segdetalle = $query
                 ->orderBy('codbarras', 'asc')
                 ->get();

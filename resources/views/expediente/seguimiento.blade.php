@@ -171,7 +171,7 @@ function mostrarcarpetas(event) {
                 
                     tableBody.append(`
                         <tr>
-                            <td style="font-size:12px; padding: 5px 10px !important;">${registro.codbarras}</td>
+                            <td style="font-size:12px; padding: 5px 10px !important;" class="fw-bold">${registro.codbarras}</td>
                             <td style="font-size:12px; padding: 5px 10px !important;">${registro.id_dependencia}</td>
                             <td style="font-size:12px; padding: 5px 10px !important;">${registro.ano_expediente}</td>
                             <td style="font-size:12px; padding: 5px 10px !important;">${registro.nro_expediente}</td>
@@ -271,7 +271,9 @@ const textoArchivo2 = archivos2[registro.archivo] ?? `Archivo ${String(registro.
                             <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">${registro.ubicacion=="D" ? "Despacho" : (registro.ubicacion=="A" ? textoArchivo : "")}</td>
                             <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">${registro.tipo_ubicacion=="T" ? "Transito" : (registro.tipo_ubicacion=="I" ? "Inventario" :"")}</td>
                             <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">${registro.motivo_movimiento}</td>
-                            <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">${registro.abreviado}</td>
+                            <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">
+                            ${registro.abreviado} ${(registro.estado === 'P' && registro.fiscalprestamo) ? `<br>${registro.apellido_paterno} ${registro.apellido_materno} ${registro.nombres}` : ''}
+                            </td>
                             <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">${numeroAOrdinal(registro.despacho)} DESPACHO</td>                        
                             <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">
                             ${textoArchivo2}
