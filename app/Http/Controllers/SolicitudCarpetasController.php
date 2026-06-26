@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 use Mpdf\Mpdf;
 use App\Services\BarcodeGenerator;
@@ -912,6 +913,7 @@ class SolicitudCarpetasController extends Controller
                 'cantidad_exp'           => $itemsCount,
                 'id_dependencia'         => $request->coddependencia,
                 'despacho'               => $request->coddespacho,
+                'oficioprestamo'         => $request->oficio,
             ]);
 
 
@@ -995,7 +997,11 @@ class SolicitudCarpetasController extends Controller
                         'despacho'       => $request->coddespacho,
                         'activo'         => 'S',
                         'estado'         => 'P',//PRESTADO
-                        'fiscalprestamo' => $request->codfiscal,                    
+                        'fiscalprestamo' => $request->codfiscal,    
+                        'oficioprestamo' => $request->oficio,    
+                        'nro_mov'         => $nromov,
+                        'ano_mov'         => $anoActual,
+                        'tipo_mov'        => 'SO',
                     ]);
                 }//filtro tomo
 
@@ -1003,6 +1009,21 @@ class SolicitudCarpetasController extends Controller
 
 
             DB::commit();
+
+            if ($request->hasFile('archivo')) {
+                $archivo = $request->file('archivo');
+                $nroMovFormateado = str_pad($nromov, 5, '0', STR_PAD_LEFT);
+                $nombreArchivo = $nroMovFormateado . '-' . $anoActual . '-SO.pdf';
+                $rutaDestino = public_path('oficioprestamo');
+                if (!File::exists($rutaDestino)) {
+                    File::makeDirectory($rutaDestino, 0755, true);
+                }
+                $archivo->move($rutaDestino, $nombreArchivo);
+            }
+
+
+
+
 
             return redirect()->route('prestamo')->with('messageOK', 'PRESTAMO REALIZADO DE FORMA SATISFACTORIA.');
 
@@ -1039,7 +1060,13 @@ class SolicitudCarpetasController extends Controller
         'personal.nombres',
         'dependencia.descripcion',
         'dependencia.abreviado',
-        'ubicacion_exp.fiscalprestamo')
+        'ubicacion_exp.fiscalprestamo',
+        'ubicacion_exp.oficioprestamo',
+        'ubicacion_exp.nro_mov',
+        'ubicacion_exp.ano_mov',
+        'ubicacion_exp.tipo_mov',
+        'ubicacion_exp.fecha_movimiento',
+        'ubicacion_exp.hora_movimiento')
         ->join('ubicacion_exp', 'expediente.id_expediente', '=', 'ubicacion_exp.id_expediente')
         ->leftJoin('delito', 'expediente.delito', '=', 'delito.id_delito')
 
@@ -1064,6 +1091,18 @@ class SolicitudCarpetasController extends Controller
                 })
                 ->exists(); //  Cambia 'first()' por 'exists()'
                 $doc->otrasolicitud = $existe2; // true o false
+
+                if (!empty($doc->nro_mov) && !empty($doc->ano_mov)) {
+                    $nroMovFormateado = str_pad($doc->nro_mov, 5, '0', STR_PAD_LEFT);
+                    $nombreArchivo = $nroMovFormateado . '-' . $doc->ano_mov . '-SO.pdf';
+                    $ruta = public_path("oficioprestamo/" . $nombreArchivo);
+                    $doc->existepdf = file_exists($ruta);
+                    $doc->nombrearchivo = $nombreArchivo;
+                } else {
+                    $doc->existepdf = false;
+                    $doc->nombrearchivo = null;
+                }
+
                 return $doc;
             });
         }
@@ -1197,31 +1236,34 @@ class SolicitudCarpetasController extends Controller
                     DB::table('ubicacion_exp')->insert([
                         'nro_movimiento' => $nromovubi,
                         'ano_movimiento' => $anoActual,
-                        'id_personal' => Auth::user()->id_personal,
-                        'id_usuario' => Auth::user()->id_usuario,
-                        'archivo' => $regtomo->archivo,
-                        'anaquel' => $regtomo->anaquel,
-                        'nro_paquete' => $regtomo->nro_paquete,
+                        'id_personal'    => Auth::user()->id_personal,
+                        'id_usuario'     => Auth::user()->id_usuario,
+                        'archivo'        => $regtomo->archivo,
+                        'anaquel'        => $regtomo->anaquel,
+                        'nro_paquete'    => $regtomo->nro_paquete,
                         'nro_inventario' => $regtomo->nro_inventario,
-                        'id_expediente' => $id_exp,
+                        'id_expediente'  => $id_exp,
                         'nro_expediente' => $nro_exp,
                         'ano_expediente' => $ano_exp,
                         'id_dependencia' => $dep_exp,
-                        'id_tipo' => $tip_exp,
-                        'tomo' => $regtomo->tomo,
-                        'serie' => $regtomo->serie,
-                        'acompanados' => $regtomo->acompanados,
-                        'cuadernos' => $regtomo->cuadernos,                    
-                        'ubicacion' => 'A',             // A=Archivo D=Despacho
+                        'id_tipo'        => $tip_exp,
+                        'tomo'           => $regtomo->tomo,
+                        'serie'          => $regtomo->serie,
+                        'acompanados'    => $regtomo->acompanados,
+                        'cuadernos'      => $regtomo->cuadernos,                    
+                        'ubicacion'      => 'A',             // A=Archivo D=Despacho
                         'tipo_ubicacion' => 'I',        // I=Inventario T=Transito
                         'fecha_movimiento' => $fechaActual,
                         'hora_movimiento' => $horaActual,
                         'motivo_movimiento' => 'Devolución',
                         'paq_dependencia' => $paq_dependencia,
-                        'despacho' => $despacho,
-                        'activo' => 'S',
-                        'estado' => 'I',
+                        'despacho'       => $despacho,
+                        'activo'         => 'S',
+                        'estado'         => 'I',
                         'fiscalprestamo' => $fispres,
+                        'nro_mov'        => $nromov,
+                        'ano_mov'        => $anoActual,
+                        'tipo_mov'       => 'DE',
                     ]);
                 }//filtro tomo
 

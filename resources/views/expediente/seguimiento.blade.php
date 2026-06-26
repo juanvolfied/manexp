@@ -97,6 +97,7 @@
                     <th style="padding: 5px 5px!important; font-size:12px !important; text-transform:none;">Ubicacion</th>
                     <th style="padding: 5px 5px!important; font-size:12px !important; text-transform:none;">Tipo<br>Ubicacion</th>
                     <th style="padding: 5px 5px!important; font-size:12px !important; text-transform:none;">Motivo</th>
+                    <th style="padding: 5px 5px!important; font-size:12px !important; text-transform:none;">Oficio</th>
                     <th style="padding: 5px 5px!important; font-size:12px !important; text-transform:none;">Dependencia</th>			      
                     <th style="padding: 5px 5px!important; font-size:12px !important; text-transform:none;">Despacho</th>
                     <th style="padding: 5px 5px!important; font-size:12px !important; text-transform:none;">Archivo</th>
@@ -120,6 +121,24 @@
     </div>
   </div>
 </div>
+
+
+<div class="modal fade" id="modalPdf" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Visualizar PDF</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0" style="height:80vh;">
+        <iframe id="framePdf"
+                style="width:100%; height:100%; border:none;">
+        </iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
 <style>
   .custom-modal-height {
     height: 60vh; /* 60% del alto de la pantalla */
@@ -272,6 +291,13 @@ const textoArchivo2 = archivos2[registro.archivo] ?? `Archivo ${String(registro.
                             <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">${registro.tipo_ubicacion=="T" ? "Transito" : (registro.tipo_ubicacion=="I" ? "Inventario" :"")}</td>
                             <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">${registro.motivo_movimiento}</td>
                             <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">
+                            ${registro.oficioprestamo ? registro.oficioprestamo : ''} ${registro.existepdf ? `<br>
+                            <a href="#" class="btn btn-outline-danger btn-sm py-0 px-2" title="Ver PDF"
+                            onclick="verPdf('${registro.nombrearchivo}')">
+                            <i class="fa fa-file-pdf"></i> Ver
+                            </a>` : ''}
+                            </td>
+                            <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">
                             ${registro.abreviado} ${(registro.estado === 'P' && registro.fiscalprestamo) ? `<br>${registro.apellido_paterno} ${registro.apellido_materno} ${registro.nombres}` : ''}
                             </td>
                             <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">${numeroAOrdinal(registro.despacho)} DESPACHO</td>                        
@@ -312,6 +338,11 @@ const textoArchivo2 = archivos2[registro.archivo] ?? `Archivo ${String(registro.
         }        
     });
 
+}
+function verPdf(file) {
+    const url = `/manexp/public/oficioprestamo/${file}?t=${Date.now()}`;
+    document.getElementById('framePdf').src = url;
+    $('#modalPdf').modal('show');
 }
 function numeroAOrdinal(numero) {
     const ordinales = {

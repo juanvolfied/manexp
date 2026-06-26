@@ -37,13 +37,15 @@ function numeroAOrdinal($numero) {
             <table id="carpetas" class="table table-striped table-sm">
                 <thead class="thead-dark">
                   <tr>
+                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Fecha</th>
                   <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Nro Expediente</th>
                   <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Imputado</th>
                   <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Agraviado</th>
                   <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Delito</th>
                   <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Folios</th>
                   <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Fiscal Prestamo</th>
-                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Dependencia Prestamo</th>
+                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Oficio</th>
+                  <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Ver</th>
                   <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Marca para<br>Devoluci&oacute;n</th>
                   </tr>
                 </thead>
@@ -51,13 +53,31 @@ function numeroAOrdinal($numero) {
                     @foreach($datos as $index => $p)
                         @if($p->otrasolicitud == false)
                         <tr>
-                            <td style="padding: 5px 10px!important; font-size: 12px !important;" class="fw-bold">{{ $p->id_dependencia }}-{{ $p->ano_expediente }}-{{ $p->nro_expediente }}-{{ $p->id_tipo }}</td>
+                            <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fecha_movimiento }}<br>{{ $p->hora_movimiento }}</td>
+                            <td style="padding: 5px 10px!important; font-size: 12px !important;" class="fw-bold text-primary">{{ $p->id_dependencia }}-{{ $p->ano_expediente }}-{{ $p->nro_expediente }}-{{ $p->id_tipo }}</td>
                             <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->imputado }}</td>
                             <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->agraviado }}</td>
                             <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->desc_delito }}</td>
                             <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->nro_folios }}</td>
-                            <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->apellido_paterno }} {{ $p->apellido_materno }} {{ $p->nombres }}</td>
-                            <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->abreviado }}</td>
+                            <td style="padding: 5px 10px!important; font-size: 12px !important;">
+                                {{ $p->apellido_paterno }} {{ $p->apellido_materno }} {{ $p->nombres }}<br>
+                                {{ $p->abreviado }}
+                            </td>
+
+                            <td style="padding: 5px 10px!important; font-size: 12px !important;">
+                                {{ $p->oficioprestamo ?? '' }}
+                            </td>
+                            <td style="padding: 5px 10px!important; font-size: 12px !important;">
+                                @if($p->existepdf)
+                                    <a href="#"
+                                        class="btn  btn-sm py-0 px-2" title="Ver PDF"
+                                        onclick="verPdf('{{ $p->nombrearchivo }}')">
+                                        <i class="fa fa-file-pdf fa-2x"></i>
+                                    </a>
+                                @endif                                
+                            </td>
+
+
                             <td style="padding: 5px 10px!important; font-size: 12px !important;">
                                 <input type="checkbox" 
                                     value="{{ $p->id_expediente }}" 
@@ -85,7 +105,7 @@ function numeroAOrdinal($numero) {
         
                   <div class="card-action">
                     <button type="button" class="btn btn-primary" onclick="prepararYMostrarModal()">
-                            Devolver Carpeta(s)
+                            Recepcionar Carpeta(s)
                     </button>
                   </div>
 
@@ -109,11 +129,11 @@ function numeroAOrdinal($numero) {
     <div class="modal-content">
     
       <div class="modal-header">
-        <h5 class="modal-title" id="textoModalLabel">CONFIRMAR DEVOLUCIÓN</h5>
+        <h5 class="modal-title" id="textoModalLabel">CONFIRMAR RECEPCIÓN</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body">
-        LAS CARPETAS SELECCIONADAS SERÁN DEVUELTAS A ARCHIVO, CONFIRMA LA DEVOLUCIÓN ?
+        LAS CARPETAS SELECCIONADAS SERÁN DEVUELTAS A ARCHIVO, CONFIRMA LA RECEPCIÓN ?
       </div>      
       <div class="modal-footer">
         <button type="button" id="grabarBtn" class="btn btn-primary">Continuar y Grabar</button>
@@ -124,7 +144,21 @@ function numeroAOrdinal($numero) {
   </div>
 </div>
 
-
+<div class="modal fade" id="modalPdf" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Visualizar PDF</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0" style="height:80vh;">
+        <iframe id="framePdf"
+                style="width:100%; height:100%; border:none;">
+        </iframe>
+      </div>
+    </div>
+  </div>
+</div>
 
 
 
@@ -155,13 +189,13 @@ function numeroAOrdinal($numero) {
 $(document).ready(function() {
     $('#carpetas').DataTable({
   "columnDefs": [
-    { "orderable": false, "targets": [7] }  // Evitar orden en columnas de acción si no es necesario
+    { "orderable": false, "targets": [8,9] }  // Evitar orden en columnas de acción si no es necesario
   ],
         "pageLength": 20,  // Número de filas por página
         "lengthMenu": [10, 25, 50, 100],  // Opciones de paginación
         "searching": true,  // Habilitar búsqueda
         "ordering": true,   // Habilitar ordenación
-//    order: [[2, 'asc']], 
+    order: [[0, 'desc']], 
         "info": true,       // Mostrar información de la tabla
         "autoWidth": false,  // Ajustar automáticamente el ancho de las columnas
         "lengthChange": false,
@@ -185,7 +219,11 @@ $(document).ready(function() {
     });
 });
 
-
+function verPdf(file) {
+    const url = `/manexp/public/oficioprestamo/${file}?t=${Date.now()}`;
+    document.getElementById('framePdf').src = url;
+    $('#modalPdf').modal('show');
+}
 
 
 document.getElementById("miFormulario").addEventListener("keydown", function(event) {
@@ -237,7 +275,7 @@ function prepararYMostrarModal() {
       const myModal = new bootstrap.Modal(document.getElementById('textoModal'));
       myModal.show();
   } else {
-      document.getElementById('messageErr').innerHTML = '<b>SELECCIONA LAS CARPETAS A DEVOLVER</b>';
+      document.getElementById('messageErr').innerHTML = '<b>SELECCIONA LAS CARPETAS A RECEPCIONAR</b>';
       var messageErr = document.getElementById('messageErr');
       messageErr.style.opacity = '1';
       messageErr.style.display = 'block';
@@ -257,7 +295,7 @@ document.getElementById("grabarBtn").addEventListener("click", function(event) {
         event.preventDefault();  // Prevenir el comportamiento por defecto
         document.getElementById("miFormulario2").submit();
     } else {
-        document.getElementById('messageErr').innerHTML = '<b>SELECCIONA LAS CARPETAS A DEVOLVER</b>';
+        document.getElementById('messageErr').innerHTML = '<b>SELECCIONA LAS CARPETAS A RECEPCIONAR</b>';
         var messageErr = document.getElementById('messageErr');
         messageErr.style.opacity = '1';
         messageErr.style.display = 'block';

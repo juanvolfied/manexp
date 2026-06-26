@@ -415,6 +415,22 @@ class ExpedienteController extends Controller
             ->get();
 
         if ($segdetalle->isNotEmpty()) {
+
+            $segdetalle->transform(function ($doc) {
+                if (!empty($doc->nro_mov) && !empty($doc->ano_mov)) {
+                    $nroMovFormateado = str_pad($doc->nro_mov, 5, '0', STR_PAD_LEFT);
+                    $nombreArchivo = $nroMovFormateado . '-' . $doc->ano_mov . '-SO.pdf';
+                    $ruta = public_path("oficioprestamo/" . $nombreArchivo);
+                    $doc->existepdf = file_exists($ruta);
+                    $doc->nombrearchivo = $nombreArchivo;
+                } else {
+                    $doc->existepdf = false;
+                    $doc->nombrearchivo = null;
+                }
+
+                return $doc;
+            });
+
             return response()->json([
                 'success' => true,
                 'registros' => $segdetalle,

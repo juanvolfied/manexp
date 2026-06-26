@@ -8,7 +8,8 @@ function numeroAOrdinal($numero) {
 }
 ?>
     <!-- Mostrar el mensaje de �xito o error -->
-    <form id="miFormulario" autocomplete="off">
+    <form action="{{ route('prestamo.grabaprestamo') }}"
+      method="POST" id="miFormulario2" enctype="multipart/form-data" autocomplete="off">
 
     @if(session('messageErr'))
         <div id="messageErr" class="alert alert-danger text-danger" style="transition: opacity 0.5s ease;"><b>{{ session('messageErr') }}</b></div>
@@ -32,16 +33,37 @@ function numeroAOrdinal($numero) {
                   </div>
                   <div class="card-body">
 
-                    @if(isset($obsmovimiento))
                     <div class="row">
-                      <div class="col-md-12 col-lg-12" >
-                        <div class="form-group" style="padding:5px; color:red;" >
-                            <b>OBSERVACION DE RECHAZO :  {{ $obsmovimiento->observacion }}</b>
+                      <div class="col-4 col-md-2 col-lg-2" >
+                        <div class="form-group" style="padding:5px;">
+                          <label for="oficio"><b>Oficio:</b></label>
+                          <input type="text" class="form-control" name="oficio" id="oficio" maxlength="10" autofocus/>
                         </div>
                       </div>
-                    </div>
-                    @endif    
+                      <div class="col-8 col-md-10 col-lg-10" >
+<div class="mb-0" style="padding:5px;">
+    <label class="form-label">
+        <i class="fa fa-paperclip"></i> <b>Adjuntar pdf (opcional)</b>
+    </label>
+    <br>
+    <input type="file" id="archivo" name="archivo" class="d-none" accept=".pdf">
+    <button type="button" class="btn btn-outline-primary btn-sm"
+            onclick="document.getElementById('archivo').click();">
+        <i class="fa fa-upload"></i> Seleccionar archivo
+    </button>
+    <span id="nombreArchivo" class="ms-2 text-success"></span>
+</div>
 
+<script>
+document.getElementById('archivo').addEventListener('change', function () {
+    document.getElementById('nombreArchivo').innerHTML =
+        this.files.length
+            ? `<i class="fa fa-file"></i> ${this.files[0].name}`
+            : '';
+});
+</script>
+                      </div>
+                    </div>
 
                     <div class="row">
                       <div class="col-md-6 col-lg-6" >
@@ -155,11 +177,11 @@ function numeroAOrdinal($numero) {
               </div>
             </div>
             
-    </form>
+<!--    </form>
     <form action="{{ route('prestamo.grabaprestamo') }}"
       method="POST" id="miFormulario2" autocomplete="off">
-
     @csrf  
+-->
     <input type="hidden" id="scannedItemsInput" name="scannedItems">
 	          <input type="hidden" id="codfiscal" name="codfiscal">
 	          <input type="hidden" id="coddependencia" name="coddependencia">
@@ -295,7 +317,7 @@ function numeroAOrdinal($numero) {
 
 
 <script>
-document.getElementById("miFormulario").addEventListener("keydown", function(event) {
+document.getElementById("miFormulario2").addEventListener("keydown", function(event) {
     if (event.key === "Enter") {
         event.preventDefault(); // Esto previene que el formulario se env�e cuando se presiona Enter
     }
@@ -335,11 +357,15 @@ function verificarEnter(event) {
               return false;
             }
 
-        var formData = $('#miFormulario').serialize();
+//            var formData = $('#miFormulario').serialize();
         $.ajax({
             url: '{{ route("solicitud.buscacarpeta") }}',
             method: 'POST',
-            data: formData,
+//            data: formData,
+            data: {
+                _token: '{{ csrf_token() }}',
+                codbarras: codbarras
+            },     
             success: function(response) {
                 let mensaje = response.message || 'Respuesta sin mensaje';
                 let id_expediente = response.id_expediente;
@@ -408,7 +434,7 @@ function verificarEnter(event) {
                                 <td style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">${registro.desc_delito || ''}</td>
                                 <td style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">${registro.nro_folios || ''}</td>
                                 <td style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">
-                                <button class="btn btn-primary btn-sm seleccionar-registro" 
+                                <button type="button" class="btn btn-primary btn-sm seleccionar-registro" 
                                 data-codbarras="${registro.codbarras}" 
                                 data-dependencia="${registro.id_dependencia}" 
                                 data-ano="${registro.ano_expediente}"
@@ -516,6 +542,10 @@ function updateScannedList() {
     
 function prepararYMostrarModal() {
   if (event) event.preventDefault(); // Previene recarga
+  if (document.getElementById('oficio').value=="") {
+    alert("INGRESE NUMERO DE OFICIO");
+    return false;
+  }
   if (document.getElementById('fiscal').value=="") {
     alert("SELECCIONE FISCAL");
     return false;
