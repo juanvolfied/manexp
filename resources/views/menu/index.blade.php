@@ -223,7 +223,7 @@
                     </li>
 
                     <li class="{{ request()->is('prestamo') ? 'active' : '' }}" >
-                      <a href="{{ route('prestamo') }}">
+                      <a href="{{ route('prestamo.create') }}">
                         <span class="sub-item">Prestamo de Carpetas</span>
                       </a>
                     </li>

@@ -281,8 +281,11 @@ Route::post('/solicitud/atenciongraba', [SolicitudCarpetasController::class, 'gr
 Route::post('/solicitud/recepcion/det', [SolicitudCarpetasController::class, 'detalleRecepcionSolicitud'])->name('solicitud.recepcion');
 Route::post('/solicitud/recepciongraba', [SolicitudCarpetasController::class, 'grabaRecepcionCarpetasSolicitud'])->name('solicitud.grabarecepcion');
 
-Route::get('/prestamo', [SolicitudCarpetasController::class, 'prestamo'])->name('prestamo');
+Route::get('/prestamo', [SolicitudCarpetasController::class, 'indexPrestamo'])->name('prestamo');
+Route::get('/prestamo/create', [SolicitudCarpetasController::class, 'prestamo'])->name('prestamo.create');
 Route::post('/prestamo/graba', [SolicitudCarpetasController::class, 'grabaPrestamo'])->name('prestamo.grabaprestamo');
+Route::get('/prestamo/doc', [SolicitudCarpetasController::class, 'prestamodoc'])->name('prestamo.doc');
+
 Route::get('/devolucionarc', [SolicitudCarpetasController::class, 'devolucionarc'])->name('devolucionarc');
 Route::post('/devolucionarc/graba', [SolicitudCarpetasController::class, 'grabaDevolucionarc'])->name('devolucionarc.grabadevolucionarc');
 

@@ -7,7 +7,7 @@
 
 function numeroAOrdinal($numero) {
     $ordinales = [0 => '',1 => '1er',2 => '2do',3 => '3er',4 => '4to',5 => '5to',6 => '6to',7 => '7mo',8 => '8vo',9 => '9no',10 => '10mo',11 => '11er',];
-    return $ordinales[$numero] ?? $numero . 'º';
+    return $ordinales[$numero] ?? $numero . '';
 }
 @endphp
 <form id="miFormulario" autocomplete="off">
@@ -22,10 +22,10 @@ function numeroAOrdinal($numero) {
         <div id="messageOK" class="alert alert-success" style="display:none;"></div>
     @endif
 
-    <a href="{{ route('solicitud.create') }}" class="btn btn-primary mb-3">+ Nueva Solicitud de Carpetas</a>
+    <a href="{{ route('solicitud.create') }}" class="btn btn-primary mb-3">+ Nueva Préstamo</a>
     <div class="card">
         <div class="card-header">
-        <div class="card-title">Solicitudes de Carpetas Generadas</div>
+        <div class="card-title">Prestamos de Carpetas</div>
         </div>
         <div class="card-body table-responsive">
 
@@ -39,10 +39,11 @@ function numeroAOrdinal($numero) {
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Cant<br>Exp</th>
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Estado</th>
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha<br>Generada</th>
-                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha<br>Solicitud</th>
+<!--                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha<br>Solicitud</th>
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha<br>Envio&nbsp;CF</th>
+-->                
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha<br>Recepci&oacute;n</th>
-                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none; text-align:center;" colspan=4>Acciones</th>
+                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none; text-align:center;" colspan=2>Acciones</th>
             </tr>
           </thead>
         <tbody style="font-size:12px;">
@@ -55,35 +56,15 @@ function numeroAOrdinal($numero) {
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->cantidad_exp }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important; {{ $p->estado_mov == 'E' ? 'color:blue;' : ($p->estado_mov == 'R' ? 'color:green;' : ($p->estado_mov == 'Z' ? 'color:red;' : '')) }}"><b>{{ $estados[$p->estado_mov] ?? $p->estado_mov }}</b></td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_movimiento }}</td>
-                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_solicitud }}</td>
+<!--                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_solicitud }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_envio }}</td>
+-->                
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_recepcion }}</td>
                     <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
-                    @if($p->estado_mov == 'G' || $p->estado_mov == 'Z')
-                      <a href="{{ route('solicitud.edit', ['tipo_mov' => $p->tipo_mov, 'ano_mov' => $p->ano_mov, 'nro_mov' => $p->nro_mov]) }}" data-bs-toggle="tooltip" title="Editar Gu&iacute;a de Internamiento"><i class="fas fa-edit fa-lg"></i><br>Editar</a>
-                    @else
-                      <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-edit fa-lg text-muted"></i><br>Editar</a>
-                    @endif 
-                    </td>
-                    <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
-                    @if($p->estado_mov == 'G' || $p->estado_mov == 'Z')
-                        <a href="#" data-bs-toggle="tooltip" title="Enviar Gu&iacute;a para Archivo" onclick="prepararYMostrarModal('{{ $p->tipo_mov }}',{{ $p->ano_mov }},{{ $p->nro_mov }},event)" style="color: green;"><i class="fas fa-hand-paper fa-lg"></i><br>Solicitar</a>
-                    @else
-                        <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-hand-paper fa-lg text-muted" ></i><br>Solicitar</a>
-                    @endif 
-                    </td>
-                    <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
-                    @if($p->estado_mov == 'E')
-                        <!--<a href="#" data-bs-toggle="tooltip" title="Recibir Carpetas Fiscales" onclick="prepararYMostrarModal('{{ $p->tipo_mov }}',{{ $p->ano_mov }},{{ $p->nro_mov }},event)" style="color: green;"><i class="fas fa-download fa-lg"></i><br>Recibir</a>-->
-                        <a href="#" onclick="mostrardetalle('{{ $p->tipo_mov }}',{{ $p->ano_mov }},{{ $p->nro_mov }}, event)" title="Ver detalle" style="color: green;"><i class="fas fa-download fa-lg" ></i><br>Recibir</a>                        
-
-                    @else
-                        <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-download fa-lg text-muted" ></i><br>Recibir</a>
-                    @endif 
-<!--
-                        <a href="#" data-bs-toggle="tooltip" title="Imprime Solicitud de Carpetas" onclick="generapdf('{{ route("internamiento.pdf", ["tipo_mov" => $p->tipo_mov, "ano_mov" => $p->ano_mov, "nro_mov" => $p->nro_mov]) }}', event)" style="color: purple;">
-                            <i class="fas fa-print fa-lg"></i><br>Imprimir
-                        </a>-->
+                        <a href="#" data-bs-toggle="tooltip" title="Genera Oficio de Prestamo" 
+                        onclick="generadoc({{ $p->ano_mov }},{{ $p->nro_mov }}, event)" style="color: purple;">
+                            <i class="fas fa-file-word fa-lg"></i><br>Oficio
+                        </a>
                     </td>
                     <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
                         <a href="#" onclick="mostrardetalle2('{{ $p->tipo_mov }}',{{ $p->ano_mov }},{{ $p->nro_mov }}, event)" title="Ver detalle" style="color: green;"><i class="fas fa-search fa-lg" ></i><br>Detalle</a>                        
@@ -321,6 +302,16 @@ function enviarsolicitud(event) {
         }
     });
 }
+
+function generadoc(ano,nro,event) {
+    if (event) event.preventDefault(); // Previene recarga
+    window.location.href = '{{ route("prestamo.doc") }}'
+        + '?anomov=' + encodeURIComponent(ano)
+        + '&nromov=' + encodeURIComponent(nro);
+
+
+}
+
 </script>
 
 <script>

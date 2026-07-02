@@ -248,14 +248,6 @@ function enviarinternamiento(event) {
         }
     });
 </script>
-    // Inicializar todos los tooltips al cargar la página
-    document.addEventListener('DOMContentLoaded', function () {
-        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        })
-    });
-</script>
 
 <script>
 window.onload = function() {

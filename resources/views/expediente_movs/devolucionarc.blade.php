@@ -65,7 +65,7 @@ function numeroAOrdinal($numero) {
                             </td>
 
                             <td style="padding: 5px 10px!important; font-size: 12px !important;">
-                                {{ $p->oficioprestamo ?? '' }}
+                                {{ $p->oficiosolicitud ?? '' }}
                             </td>
                             <td style="padding: 5px 10px!important; font-size: 12px !important;">
                                 @if($p->existepdf)

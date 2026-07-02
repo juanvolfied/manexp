@@ -34,13 +34,13 @@ function numeroAOrdinal($numero) {
                   <div class="card-body">
 
                     <div class="row">
-                      <div class="col-4 col-md-2 col-lg-2" >
+                      <div class="col-5 col-md-4 col-lg-4" >
                         <div class="form-group" style="padding:5px;">
                           <label for="oficio"><b>Oficio:</b></label>
-                          <input type="text" class="form-control" name="oficio" id="oficio" maxlength="10" autofocus/>
+                          <input type="text" class="form-control" name="oficio" id="oficio" maxlength="40" autofocus/>
                         </div>
                       </div>
-                      <div class="col-8 col-md-10 col-lg-10" >
+                      <div class="col-7 col-md-8 col-lg-8" >
 <div class="mb-0" style="padding:5px;">
     <label class="form-label">
         <i class="fa fa-paperclip"></i> <b>Adjuntar pdf (opcional)</b>

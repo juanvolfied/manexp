@@ -291,7 +291,7 @@ const textoArchivo2 = archivos2[registro.archivo] ?? `Archivo ${String(registro.
                             <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">${registro.tipo_ubicacion=="T" ? "Transito" : (registro.tipo_ubicacion=="I" ? "Inventario" :"")}</td>
                             <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">${registro.motivo_movimiento}</td>
                             <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">
-                            ${registro.oficioprestamo ? registro.oficioprestamo : ''} ${registro.existepdf ? `<br>
+                            ${registro.oficiosolicitud ? registro.oficiosolicitud : ''} ${registro.existepdf ? `<br>
                             <a href="#" class="btn btn-outline-danger btn-sm py-0 px-2" title="Ver PDF"
                             onclick="verPdf('${registro.nombrearchivo}')">
                             <i class="fa fa-file-pdf"></i> Ver

@@ -6,6 +6,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
+
+use PhpOffice\PhpWord\TemplateProcessor;
+use PhpOffice\PhpWord\Element\PreserveText;
+
+use Carbon\Carbon;
+
 
 use Mpdf\Mpdf;
 use App\Services\BarcodeGenerator;
@@ -859,6 +866,123 @@ class SolicitudCarpetasController extends Controller
 
 
 
+    public function indexPrestamo()
+    {
+        $guiacab = DB::table('movimiento_exp_cab')
+        ->leftJoin('personal', 'movimiento_exp_cab.fiscal', '=', 'personal.id_personal')
+        ->leftJoin('dependencia', 'movimiento_exp_cab.id_dependencia', '=', 'dependencia.id_dependencia')
+        ->where('tipo_mov','SO')
+        ->select('movimiento_exp_cab.*', 'personal.apellido_paterno','personal.apellido_materno','personal.nombres','dependencia.abreviado') 
+        ->orderBy('fechahora_movimiento', 'desc') 
+        ->orderBy('ano_mov', 'desc') 
+        ->orderBy('nro_mov', 'desc') 
+        ->get();
+        return view('expediente_movs.indexprestamo',compact('guiacab'));
+    }
+    public function prestamodoc(Request $request)
+    {
+        $fechaHoraActualFormateada = now()->format('Y-m-d H:i:s');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $fechaActual = now()->format('Y-m-d');  // Formato 'YYYY-MM-DD HH:mm:ss'
+        $tipo_mov = "SO";    
+        $ano_mov = $request->input('anomov');    
+        $nro_mov = $request->input('nromov');    
+
+        $guiacab = DB::table('movimiento_exp_cab')
+        ->leftJoin('personal', 'movimiento_exp_cab.fiscal', '=', 'personal.id_personal')
+        ->leftJoin('dependencia', 'movimiento_exp_cab.id_dependencia', '=', 'dependencia.id_dependencia')
+        ->where('tipo_mov', $tipo_mov)
+        ->where('ano_mov', $ano_mov)
+        ->where('nro_mov', $nro_mov)
+        ->select(
+            'movimiento_exp_cab.*', 
+            'personal.apellido_paterno',
+            'personal.apellido_materno',
+            'personal.nombres',
+            'personal.cargo',
+            'dependencia.descripcion'
+            )
+        ->first();
+
+        $oficio = str_pad($guiacab->nrooficio, 4, '0', STR_PAD_LEFT) ."-". $guiacab->anooficio;
+        $fecha = $guiacab->fechahora_recepcion;
+        $fiscal = $guiacab->fiscal;
+        $dependencia = $guiacab->descripcion;
+        $despacho = $guiacab->despacho;
+
+        $apellidoPaterno = $guiacab->apellido_paterno;
+        $apellidoMaterno = $guiacab->apellido_materno;
+        $nombres = $guiacab->nombres;
+        $cargo = $guiacab->cargo;
+        $oficiosolicitud = $guiacab->oficiosolicitud;
+
+        $fechaActualLetras = Carbon::parse($fecha)
+            ->locale('es')
+            ->translatedFormat('d \d\e F \d\e Y');
+
+
+        $segdetalle = DB::table('movimiento_exp_det')
+            ->where('movimiento_exp_det.tipo_mov', $tipo_mov)
+            ->where('movimiento_exp_det.ano_mov', $ano_mov)
+            ->where('movimiento_exp_det.nro_mov', $nro_mov)
+            ->leftJoin('expediente', 'movimiento_exp_det.id_expediente', '=', 'expediente.id_expediente')
+            ->leftJoin('delito', 'expediente.delito', '=', 'delito.id_delito')
+            ->select(
+                'movimiento_exp_det.*',
+                'expediente.codbarras',
+                'expediente.imputado',
+                'expediente.agraviado',
+                'delito.desc_delito',
+                'expediente.nro_folios',
+            )
+            ->orderBy('id_movimiento', 'asc') 
+            ->get();
+/*        $detalleCarpetas = '';
+        foreach ($segdetalle as $i => $detalle) {
+            $detalleCarpetas .= ($i + 1) . '.- ' . $detalle->codbarras . PHP_EOL;
+        }*/
+
+
+        $template = new TemplateProcessor(
+            //storage_path('app/plantillas/oficio.docx')
+            public_path('oficioprestamo/plantilla1.docx')
+        );
+
+        $template->setValue('fecha',$fechaActualLetras);
+        $template->setValue('oficio',$oficio);
+        $template->setValue('fiscal', $apellidoPaterno ." ". $apellidoMaterno ." ". $nombres);
+
+        $cargoDependencia = $cargo . " de la " . $dependencia;
+        if (!empty($despacho) && $despacho != 0) {
+            $cargoDependencia .= " " . $despacho . " DESPACHO";
+        }
+        $template->setValue('cargodependenciadespacho', $cargoDependencia);        
+        $template->setValue('oficiosolicitud',$oficiosolicitud);
+
+
+        $values = [];
+        foreach ($segdetalle as $i => $detalle) {
+            $values[] = [
+                'item' => ($i + 1) . '.- ' . $detalle->codbarras
+            ];
+        }
+        $template->cloneBlock('block_detalle', 0, true, false, $values);        
+        //$template->setValue('detallecarpetas', $detalleCarpetas);         
+
+        $nomfis = ucwords(Str::slug($apellidoPaterno . ' ' . $apellidoMaterno, '_'));
+        $nombre=$oficio.'_'.$nomfis.'.docx';
+//        $template->saveAs(
+            //storage_path('app/'.$nombre)
+//            public_path('oficioprestamo/'.$nombre)
+//        );
+        // Archivo temporal del sistema
+        $rutaTemporal = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $nombre;
+        // Guardar el Word temporalmente
+        $template->saveAs($rutaTemporal);
+        // Enviar al navegador para descargar
+        return response()->download($rutaTemporal, $nombre)->deleteFileAfterSend(true);
+
+
+    }
 
     public function prestamo()
     {
@@ -913,7 +1037,7 @@ class SolicitudCarpetasController extends Controller
                 'cantidad_exp'           => $itemsCount,
                 'id_dependencia'         => $request->coddependencia,
                 'despacho'               => $request->coddespacho,
-                'oficioprestamo'         => $request->oficio,
+                'oficiosolicitud'        => $request->oficio,
             ]);
 
 
@@ -998,7 +1122,7 @@ class SolicitudCarpetasController extends Controller
                         'activo'         => 'S',
                         'estado'         => 'P',//PRESTADO
                         'fiscalprestamo' => $request->codfiscal,    
-                        'oficioprestamo' => $request->oficio,    
+                        'oficiosolicitud' => $request->oficio,    
                         'nro_mov'         => $nromov,
                         'ano_mov'         => $anoActual,
                         'tipo_mov'        => 'SO',
@@ -1021,11 +1145,7 @@ class SolicitudCarpetasController extends Controller
                 $archivo->move($rutaDestino, $nombreArchivo);
             }
 
-
-
-
-
-            return redirect()->route('prestamo')->with('messageOK', 'PRESTAMO REALIZADO DE FORMA SATISFACTORIA.');
+            return redirect()->route('prestamo.create')->with('messageOK', 'PRESTAMO REALIZADO DE FORMA SATISFACTORIA.');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -1061,7 +1181,7 @@ class SolicitudCarpetasController extends Controller
         'dependencia.descripcion',
         'dependencia.abreviado',
         'ubicacion_exp.fiscalprestamo',
-        'ubicacion_exp.oficioprestamo',
+        'ubicacion_exp.oficiosolicitud',
         'ubicacion_exp.nro_mov',
         'ubicacion_exp.ano_mov',
         'ubicacion_exp.tipo_mov',
