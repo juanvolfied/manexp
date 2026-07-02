@@ -36,7 +36,7 @@ function numeroAOrdinal($numero) {
                     <div class="row">
                       <div class="col-5 col-md-4 col-lg-4" >
                         <div class="form-group" style="padding:5px;">
-                          <label for="oficio"><b>Oficio:</b></label>
+                          <label for="oficio"><b>Oficio solicitante:</b></label>
                           <input type="text" class="form-control" name="oficio" id="oficio" maxlength="40" autofocus/>
                         </div>
                       </div>
@@ -92,6 +92,40 @@ document.getElementById('archivo').addEventListener('change', function () {
                         </div>
                       </div>
                     </div>
+
+
+
+                    <div class="row mb-3" >
+                      <div class="col-md-6 col-lg-6">
+                        <div class="form-group " style="padding:5px;">
+                        <p class="text-muted small mb-1"><b>Oficio a Generar</b></p>
+        <div class="row">
+        <div class="col-3 col-md-3 col-lg-3">
+          <!--<label for="nroexp" class="form-label"><b>Nro Expediente</b></label>-->
+          <input type="text" id="nrooficio" name="nrooficio" class="form-control text-center" maxlength="6" placeholder="Número" style="width:100px;" required>
+        </div>
+        <div class="col-2 col-md-2 col-lg-2">
+          <!--<label for="ano" class="form-label"><b>A&ntilde;o</b></label>-->
+          <input type="text" id="anooficio" name="anooficio" class="form-control text-center" maxlength="4" placeholder="A&ntilde;o" style="width:70px;" value="{{ now()->year }}">
+        </div>
+        </div>
+                        </div>
+                      </div>
+
+                      <div class="col-md-6 col-lg-6">
+          <label for="nroexp" class="form-label"><b>Observación</b></label>
+          <textarea id="observaciones" name="observaciones" rows="3" cols="50" class="form-control" ></textarea>
+                      </div>
+
+
+                    </div>
+
+
+
+
+
+
+
 
                     <div class="row" >
                       <div class="col-md-6 col-lg-6">
@@ -171,6 +205,7 @@ document.getElementById('archivo').addEventListener('change', function () {
         	    <button type="button" class="btn btn-primary" onclick="prepararYMostrarModal()">
                         Prestar Carpetas
                 </button>
+                <a href="{{ route('prestamo') }}" class="btn btn-secondary">Regresar al Listado de Prestamos</a>
 
             </div>
                 </div>
@@ -319,7 +354,7 @@ document.getElementById('archivo').addEventListener('change', function () {
 <script>
 document.getElementById("miFormulario2").addEventListener("keydown", function(event) {
     if (event.key === "Enter") {
-        event.preventDefault(); // Esto previene que el formulario se env�e cuando se presiona Enter
+       // event.preventDefault(); // Esto previene que el formulario se env�e cuando se presiona Enter
     }
 });
     
@@ -543,11 +578,23 @@ function updateScannedList() {
 function prepararYMostrarModal() {
   if (event) event.preventDefault(); // Previene recarga
   if (document.getElementById('oficio').value=="") {
-    alert("INGRESE NUMERO DE OFICIO");
+    alert("INGRESE OFICIO DEL SOLICITANTE");
+    document.getElementById('oficio').focus();
     return false;
   }
   if (document.getElementById('fiscal').value=="") {
     alert("SELECCIONE FISCAL");
+    document.getElementById('fiscal').focus();
+    return false;
+  }
+  if (document.getElementById('nrooficio').value=="") {
+    alert("INGRESE NUMERO DEL OFICIO A GENERAR");
+    document.getElementById('nrooficio').focus();
+    return false;
+  }
+  if (document.getElementById('anooficio').value=="") {
+    alert("INGRESE AÑO DEL OFICIO A GENERAR");
+    document.getElementById('anooficio').focus();
     return false;
   }
   document.getElementById('codfiscal').value=document.getElementById('fiscal').value;

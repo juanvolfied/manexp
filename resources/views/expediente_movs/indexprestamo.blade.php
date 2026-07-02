@@ -22,7 +22,7 @@ function numeroAOrdinal($numero) {
         <div id="messageOK" class="alert alert-success" style="display:none;"></div>
     @endif
 
-    <a href="{{ route('solicitud.create') }}" class="btn btn-primary mb-3">+ Nueva Préstamo</a>
+    <a href="{{ route('prestamo.create') }}" class="btn btn-primary mb-3">+ Nueva Préstamo</a>
     <div class="card">
         <div class="card-header">
         <div class="card-title">Prestamos de Carpetas</div>
@@ -32,39 +32,48 @@ function numeroAOrdinal($numero) {
     <table id="tablaexpedientes" class="table table-striped table-bordered">
         <thead class="thead-dark">
             <tr>
-                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Movimiento</th>
-                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fiscal</th>
-                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Dependencia</th>
-                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Despacho</th>
-                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Cant<br>Exp</th>
-                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Estado</th>
-                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha<br>Generada</th>
+                <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Movimiento</th>
+                <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Fiscal</th>
+                <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Dependencia<br>Despacho</th>
+                <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Oficio solicitante</th>
+                <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Cant<br>Exp</th>
+                <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Estado</th>
+                <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Fecha Generada<br>Fecha Prestamo</th>
 <!--                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha<br>Solicitud</th>
                 <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha<br>Envio&nbsp;CF</th>
 -->                
-                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;">Fecha<br>Recepci&oacute;n</th>
-                <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none; text-align:center;" colspan=2>Acciones</th>
+                <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none;">Oficio Prestamo</th>
+                <th style="padding: 5px 5px!important; font-size: 11px !important; text-transform:none; text-align:center;" colspan=2>Acciones</th>
             </tr>
           </thead>
-        <tbody style="font-size:12px;">
+        <tbody style="font-size:11px;">
             @foreach($guiacab as $p)
                 <tr>
-                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ str_pad($p->nro_mov, 5, '0', STR_PAD_LEFT) }}-{{ $p->ano_mov }}-{{ $p->tipo_mov == 'GI' ? 'I' : $p->tipo_mov }} </td>
-                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->apellido_paterno }} {{ $p->apellido_materno }} {{ $p->nombres }}</td>
-                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->abreviado }}</td>
-                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ numeroAOrdinal($p->despacho) }} DESPACHO</td>
-                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->cantidad_exp }}</td>
-                    <td style="padding: 5px 10px!important; font-size: 12px !important; {{ $p->estado_mov == 'E' ? 'color:blue;' : ($p->estado_mov == 'R' ? 'color:green;' : ($p->estado_mov == 'Z' ? 'color:red;' : '')) }}"><b>{{ $estados[$p->estado_mov] ?? $p->estado_mov }}</b></td>
-                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_movimiento }}</td>
+                    <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ str_pad($p->nro_mov, 5, '0', STR_PAD_LEFT) }}-{{ $p->ano_mov }}-{{ $p->tipo_mov == 'GI' ? 'I' : $p->tipo_mov }} </td>
+                    <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->apellido_paterno }} {{ $p->apellido_materno }} {{ $p->nombres }}</td>
+                    <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->abreviado }}<br>{{ numeroAOrdinal($p->despacho) }} DESPACHO</td>
+                    <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->oficiosolicitud }}</td>
+                    <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->cantidad_exp }}</td>
+                    <td style="padding: 5px 5px!important; font-size: 11px !important; {{ $p->estado_mov == 'E' ? 'color:blue;' : ($p->estado_mov == 'R' ? 'color:green;' : ($p->estado_mov == 'Z' ? 'color:red;' : '')) }}"><b>{{ $estados[$p->estado_mov] ?? $p->estado_mov }}</b></td>
+                    <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->fechahora_movimiento }}<br>{{ $p->fechahora_recepcion }}</td>
 <!--                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_solicitud }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_envio }}</td>
 -->                
-                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_recepcion }}</td>
+                    <td style="padding: 5px 5px!important; font-size: 12px !important;">
+                        @if(!empty($p->nrooficio) || !empty($p->anooficio))
+                            {{ $p->nrooficio }}-{{ $p->anooficio }}
+                        @endif
+                    </td>
                     <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
-                        <a href="#" data-bs-toggle="tooltip" title="Genera Oficio de Prestamo" 
-                        onclick="generadoc({{ $p->ano_mov }},{{ $p->nro_mov }}, event)" style="color: purple;">
-                            <i class="fas fa-file-word fa-lg"></i><br>Oficio
-                        </a>
+                        @if(!empty($p->nrooficio) || !empty($p->anooficio))
+                            <a href="#" data-bs-toggle="tooltip" title="Genera Oficio de Prestamo" 
+                            onclick="generadoc({{ $p->ano_mov }},{{ $p->nro_mov }}, event)" style="color: purple;">
+                                <i class="fas fa-file-word fa-lg"></i><br>Oficio
+                            </a>
+                        @else
+                            <a href="#" style="opacity: 0.5; cursor: not-allowed;"><i class="fas fa-file-word fa-lg text-muted"></i><br>Oficio</a>
+                        @endif 
+
                     </td>
                     <td style="padding: 5px 5px!important; font-size: 12px !important; text-align:center;">
                         <a href="#" onclick="mostrardetalle2('{{ $p->tipo_mov }}',{{ $p->ano_mov }},{{ $p->nro_mov }}, event)" title="Ver detalle" style="color: green;"><i class="fas fa-search fa-lg" ></i><br>Detalle</a>                        

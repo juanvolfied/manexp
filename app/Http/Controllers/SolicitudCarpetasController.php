@@ -914,6 +914,7 @@ class SolicitudCarpetasController extends Controller
         $nombres = $guiacab->nombres;
         $cargo = $guiacab->cargo;
         $oficiosolicitud = $guiacab->oficiosolicitud;
+        $observaciones = $guiacab->observaciones;
 
         $fechaActualLetras = Carbon::parse($fecha)
             ->locale('es')
@@ -944,7 +945,8 @@ class SolicitudCarpetasController extends Controller
 
         $template = new TemplateProcessor(
             //storage_path('app/plantillas/oficio.docx')
-            public_path('oficioprestamo/plantilla1.docx')
+            //public_path('oficioprestamo/plantilla1.docx')
+            resource_path('templates/oficioarchivoprestamo.docx')
         );
 
         $template->setValue('fecha',$fechaActualLetras);
@@ -953,19 +955,48 @@ class SolicitudCarpetasController extends Controller
 
         $cargoDependencia = $cargo . " de la " . $dependencia;
         if (!empty($despacho) && $despacho != 0) {
-            $cargoDependencia .= " " . $despacho . " DESPACHO";
+    $ordinales = [0 => '',1 => '1er',2 => '2do',3 => '3er',4 => '4to',5 => '5to',6 => '6to',7 => '7mo',8 => '8vo',9 => '9no',10 => '10mo',11 => '11er',];
+            $cargoDependencia .= " " . $ordinales[$despacho] . " DESPACHO";
         }
         $template->setValue('cargodependenciadespacho', $cargoDependencia);        
         $template->setValue('oficiosolicitud',$oficiosolicitud);
 
+        if ($segdetalle->count()==1) {
+            $lasgtecarfis="la siguiente Carpeta Fiscal";
+        } else {
+            $lasgtecarfis="las siguientes Carpetas Fiscales";
+        }
+        $template->setValue('lasiguienteCarpetaFiscal',$lasgtecarfis);
+        
 
         $values = [];
         foreach ($segdetalle as $i => $detalle) {
             $values[] = [
-                'item' => ($i + 1) . '.- ' . $detalle->codbarras
+                'nroitem' => ($i + 1),
+                'item' => $detalle->id_dependencia .'-'. $detalle->ano_expediente .'-'. $detalle->nro_expediente .'-'. $detalle->id_tipo
             ];
         }
         $template->cloneBlock('block_detalle', 0, true, false, $values);        
+
+        $values2 = [];
+        if ($observaciones!="") {
+            $values2[] = [
+                'item2' => ' '
+            ];
+            $array_lineas = explode("\n", $observaciones);
+            foreach ($array_lineas as $num_linea => $linea) {
+                $values2[] = [
+                    'item2' => trim($linea)
+                ];
+            }
+/*            $values[] = [
+                'item' => ' '
+            ];
+            $values[] = [
+                'item' => $observaciones
+            ];         */               
+        }
+        $template->cloneBlock('block_detalle2', 0, true, false, $values2);        
         //$template->setValue('detallecarpetas', $detalleCarpetas);         
 
         $nomfis = ucwords(Str::slug($apellidoPaterno . ' ' . $apellidoMaterno, '_'));
@@ -1038,6 +1069,9 @@ class SolicitudCarpetasController extends Controller
                 'id_dependencia'         => $request->coddependencia,
                 'despacho'               => $request->coddespacho,
                 'oficiosolicitud'        => $request->oficio,
+                'nrooficio'        => $request->nrooficio,
+                'anooficio'        => $request->anooficio,
+                'observaciones'        => $request->observaciones,
             ]);
 
 
@@ -1053,11 +1087,22 @@ class SolicitudCarpetasController extends Controller
 
             foreach ($scannedItems as $item) {
                 $codbar = $item['codbarras'];
+                /*
                 $dep_exp = (int) substr($codbar, 0, 11);
                 $ano_exp = substr($codbar, 11, 4);
                 $nro_exp = substr($codbar, 15, 6);
                 $tip_exp = substr($codbar, 21, 4);
+                */
                 $id_exp = $item['id_expediente'];
+
+
+                $datoscarp = DB::table('expediente')
+                    ->where('id_expediente', $id_exp)
+                    ->first();
+                $dep_exp = $datoscarp->id_dependencia;
+                $ano_exp = $datoscarp->ano_expediente;
+                $nro_exp = $datoscarp->nro_expediente;
+                $tip_exp = $datoscarp->id_tipo;
 
                 DB::table('expediente')
                 ->where('id_expediente', $id_exp)
@@ -1145,7 +1190,7 @@ class SolicitudCarpetasController extends Controller
                 $archivo->move($rutaDestino, $nombreArchivo);
             }
 
-            return redirect()->route('prestamo.create')->with('messageOK', 'PRESTAMO REALIZADO DE FORMA SATISFACTORIA.');
+            return redirect()->route('prestamo')->with('messageOK', 'PRESTAMO REALIZADO DE FORMA SATISFACTORIA.');
 
         } catch (\Exception $e) {
             DB::rollBack();
