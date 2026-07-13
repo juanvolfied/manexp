@@ -645,9 +645,24 @@ class TransporteController extends Controller
             ->orderBy('id_movimiento', 'desc')
             ->get();
 
-        $vehiculossede = DB::table('tra_vehiculos')
-            ->where('ensede', 'S')
+        //$vehiculossede = DB::table('tra_vehiculos')
+        //    ->where('ensede', 'S')
+        //    ->get();
+        $vehiculossede = DB::table('tra_vehiculos as v')
+            ->where('v.ensede', 'S')
+            ->select(
+                'v.*',
+                DB::raw("(
+                    SELECT kilometraje
+                    FROM tra_controlvehiculos tc
+                    WHERE tc.placa = v.nroplaca
+                    AND tc.tipo_mov = 'I'
+                    ORDER BY tc.id_movimiento DESC
+                    LIMIT 1
+                ) AS kilometraje")
+            )
             ->get();
+
         $conductores = DB::table('tra_conductores')
             ->where('activo', 'S')
             ->get();
@@ -746,10 +761,24 @@ class TransporteController extends Controller
     }
     public function controlMovimiento3()
     {
-        $vehiculossede = DB::table('tra_vehiculos')
-            ->where('ensede', 'S')
-            ->get();        
-
+        //$vehiculossede = DB::table('tra_vehiculos')
+        //    ->where('ensede', 'S')
+        //    ->get();        
+        $vehiculossede = DB::table('tra_vehiculos as v')
+            ->where('v.ensede', 'S')
+            ->select(
+                'v.*',
+                DB::raw("(
+                    SELECT kilometraje
+                    FROM tra_controlvehiculos tc
+                    WHERE tc.placa = v.nroplaca
+                    AND tc.tipo_mov = 'I'
+                    ORDER BY tc.id_movimiento DESC
+                    LIMIT 1
+                ) AS kilometraje")
+            )
+            ->get();
+            
         $vehiculosprog = DB::table('tra_controlvehiculos')
         ->leftJoin('tra_conductores', 'tra_controlvehiculos.id_conductor', '=', 'tra_conductores.id_conductor')
         ->leftJoin('tra_vehiculos', 'tra_controlvehiculos.placa', '=', 'tra_vehiculos.nroplaca')

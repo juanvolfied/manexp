@@ -36,7 +36,8 @@
                             <div class="card vehiculo-card" style="cursor:pointer; border: 2px solid #eab308 !important;"
                             onclick="seleccionarVehiculoPrograma(
                                 '{{ $p->nroplaca }}',
-                                '{{ $p->marca }} {{ $p->modelo }} {{ $p->color }}'
+                                '{{ $p->marca }} {{ $p->modelo }} {{ $p->color }}',
+                                '{{ $p->kilometraje ?? '' }}'
                             )">
                                 <div class="contenedor-imagen" style="background: #f0fdf4;" >
                                     <img style="padding-top: 15px; width:70px;"
@@ -118,12 +119,14 @@
 }    
 </style>    
 <script>
-function seleccionarVehiculoPrograma(placa, vehiculo) {
+function seleccionarVehiculoPrograma(placa, vehiculo, kilometraje) {
     document.getElementById('placapro').innerHTML = placa;
     document.getElementById('vehiculopro').innerHTML = vehiculo;
     
     document.getElementById('id_conductorpro').value = "";
-    document.getElementById('kilometrajepro').value = "";
+    document.getElementById('kilometrajeproantes').innerHTML = kilometraje;
+    //document.getElementById('kilometrajepro').value = kilometraje;
+    maskKilometrajepro.value = kilometraje;    
     document.getElementById('rutapro').value = "";
 
     document.getElementById('descdependenciapro').innerHTML = "";
@@ -180,8 +183,12 @@ function seleccionarVehiculoPrograma(placa, vehiculo) {
             <b>👤ID Conductor : </b><input type="text" name="id_conductorpro" id="id_conductorpro" class="form-control" maxlength="8" style="width: 100px;" value="" placeholder="00000000" >
             <small id="msgcon" class="form-text text-muted text-danger">Ingrese DNI registrado</small>
         </div>
+        <div class="d-flex align-items-center gap-2 mb-2 text-danger">
+            <b>&nbsp;<i class="fas fa-gas-pump text-primary"></i> Último kilometraje registrado : [<span id="kilometrajeproantes"></span>]</b>
+        </div>        
         <div class="d-flex align-items-center gap-2 mb-2">
-            <b>⛽Kilometraje : </b><input type="text" name="kilometrajepro" id="kilometrajepro" class="form-control" maxlength="6" style="width: 100px;" value="" placeholder="000000">
+            <b>⛽Kilometraje de Salida: </b><input type="text" name="kilometrajepro" id="kilometrajepro" class="form-control" maxlength="6" style="width: 100px;" value="" placeholder="000000">
+            <small id="msgkilopro" class="form-text text-muted text-danger">Dato no válido</small>
         </div>
         <div class="d-flex align-items-center gap-2 mb-2">
             <b>🗺️Ruta programada : </b><input type="text" name="rutapro" id="rutapro" class="form-control" maxlength="100" style="width: 500px;" value="">
@@ -469,7 +476,22 @@ var element = document.getElementById('kilometrajepro');
 var maskOptions = {
   mask: '000000'
 };
-var mask = IMask(element, maskOptions);
+var maskKilometrajepro = IMask(element, maskOptions);
+maskKilometrajepro.on('accept', function () {
+    //let newkilo = maskKilometrajeing.value.toUpperCase().trim();
+    //let oldkilo = document.getElementById('kilometrajeantes').innerHTML;
+    let newkilo = parseInt(maskKilometrajepro.value || 0, 10);
+    let oldkilo = parseInt(document.getElementById('kilometrajeproantes').innerHTML || 0, 10);    
+    if (newkilo>=oldkilo) {
+        msgkilopro.innerHTML = (newkilo - oldkilo) + ' Km recorridos.';
+        msgkilopro.classList.remove('text-danger');
+        msgkilopro.classList.add('text-primary');
+    } else {
+        msgkilopro.innerHTML = 'Kilometraje no válido';
+        msgkilopro.classList.remove('text-primary');
+        msgkilopro.classList.add('text-danger');
+    }
+});  
 
 var maskIdConductor = IMask(
   document.getElementById('id_conductorpro'),
@@ -689,6 +711,15 @@ function seleccionarmodifica(placa, vehiculo, conductor, ruta, kilometraje, fech
                 return;
             }
         }
+        if (tp=="P") {
+            let newkilo = parseInt(document.getElementById('kilometrajepro').value || 0, 10);
+            let oldkilo = parseInt(document.getElementById('kilometrajeproantes').innerHTML || 0, 10);    
+            if (newkilo<oldkilo) {
+                alert("El KILOMETRAJE de salida NO PUEDE SER INFERIOR al ultimo kilometraje de ingreso");
+                return;
+            }
+        }
+
         $.ajax({
             url: '{{ route("transporte.grabamovimiento3") }}', 
             method: 'POST',
@@ -712,6 +743,7 @@ function seleccionarmodifica(placa, vehiculo, conductor, ruta, kilometraje, fech
                 } else {
                     $('#modalprograma').modal('hide');
                     document.getElementById('id_conductorpro').value="";
+                    document.getElementById('kilometrajeproantes').innerHTML = "";
                     document.getElementById('kilometrajepro').value="";
                     document.getElementById('rutapro').value="";
                     document.getElementById('textomostrar').innerHTML = `

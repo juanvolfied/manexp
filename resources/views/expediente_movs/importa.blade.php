@@ -260,6 +260,7 @@ function mostrarcarpetas(event) {
     document.getElementById("nropaquete").value=nropaq;
     document.getElementById("nropaqueteo").value=nropaq;
 
+                    scannedItems = [];
 
                     var registros = response.registros;
                     registros.forEach(function(registro, index) {
