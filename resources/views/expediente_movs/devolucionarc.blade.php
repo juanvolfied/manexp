@@ -234,12 +234,12 @@ document.getElementById("miFormulario").addEventListener("keydown", function(eve
     
 let scannedItems = []; // Array para almacenar los c�digos escaneados
 
-
 $(document).ready(function () {
-    $('#carpetas tbody input[type="checkbox"]').on('change', function () {
+    $('#carpetas tbody').on('change', 'input[type="checkbox"]', function () {
         obtenerSeleccionados();
     });
 });
+
 function obtenerSeleccionados() {
     scannedItems = [];
     document.querySelectorAll('#carpetas tbody input[type="checkbox"]:checked').forEach(function(checkbox) {
