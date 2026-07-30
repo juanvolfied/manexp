@@ -211,7 +211,7 @@
                         <div >
                         <!--<label for="tomo" style="display: inline-block; margin-right: 10px;"><b>TOMO</b></label>
                         <input type="text" id="tomo" name="tomo" value=0 maxlength="2" size="2" style="width:50px; display: inline-block;">-->
-                        <label for="tomo" style="display: inline-block; margin-right: 10px;"><b>Tomo</b></label>
+                        <label for="tomo" style="display: inline-block; margin-right: 10px;"><b>Fracción</b></label>
                         <input type="text" class="form-control form-control-sm" id="tomo" name="tomo" value=0 maxlength="2" size="2" style="width:30px; display: inline-block;" onfocus="this.select();">
                         </div>
                       </div>
@@ -292,7 +292,7 @@ observer.observe(mostrar, { childList: true, subtree: true });
 			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Nro Exp</th>
 			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Tipo</th>
 			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Fecha</th>
-			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Tomo</th>
+			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Fracción</th>
 			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Eliminar</th>
 		              </tr>
 		          </thead>

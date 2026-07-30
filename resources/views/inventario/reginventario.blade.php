@@ -231,7 +231,7 @@
 			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Nro Exp</th>
 			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Tipo</th>
 			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Fecha</th>
-			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Tomo</th>
+			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Fracción</th>
 			          <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Eliminar</th>
 		              </tr>
 		          </thead>
@@ -319,8 +319,8 @@
       </div>
       
       <div class="modal-body">
-        LA CARPETA FISCAL YA HA SIDO REGISTRADA, SI CORRESPONDE A UN NUEVO TOMO, DIGITE EL NUMERO DE TOMO Y PRESIONE CONTINUAR<br><br>
-        <label for="tomo_ing" style="display: inline-block; margin-right: 10px;"><b>Ingrese TOMO</b></label>
+        LA CARPETA FISCAL YA HA SIDO REGISTRADA, SI CORRESPONDE A UN NUEVA FRACCIÓN, DIGITE EL NUMERO DE FRACCIÓN Y PRESIONE CONTINUAR<br><br>
+        <label for="tomo_ing" style="display: inline-block; margin-right: 10px;"><b>Ingrese Fracción (Tomo)</b></label>
         <input type="text" name="tomo_ing" id="tomo_ing" class="form-control" maxlength="2" size="2" style="width:50px; display: inline-block;">
       </div>
       
