@@ -2402,6 +2402,94 @@ function isValidPdf(string $path): bool
         ]);        
     }
 
+    public function estadisticacarpetastp(Request $request)
+    {
+        $tipoing = $request->input('ingresopor', -1);
+        $lafechaini = $request->input('fechaini', date('Y-m-d'));
+        $lafechafin = $request->input('fechafin', date('Y-m-d'));
+        if ($tipoing>=0) {
+            $query = DB::table('mesacarpetasf_codbarras')
+                ->selectRaw('
+                    ingresopor,
+                    COUNT(*) AS total_registros,
+                    COALESCE(SUM(cantidad), 0) AS acumulado_cantidad
+                ')
+                ->whereBetween('fecha', [$lafechaini, $lafechafin]);
+                if ($tipoing != 0) {
+                    $query->where('ingresopor', $tipoing);
+                }                
+                $carpetastp = $query->groupBy('ingresopor')
+                ->orderBy('ingresopor')
+                ->get();
+        } else {
+            $carpetastp = null;
+        }
+        return view('mesapartes.estadisticacarpetastp', compact('carpetastp','lafechaini','lafechafin','tipoing'));
+    }
+    public function imprimirEstadisticaTp(Request $request)
+    {
+    $carpetasf = $request->input('carpetasf'); // array
+    $lafechaini   = $request->input('lafechaini');   // string
+    $lafechafin   = $request->input('lafechafin');   // string
+
+        $html1 = '
+            <style>
+                table { border-collapse: collapse; }
+                td { border: 1px solid #000; padding: 4px; }
+                thead tr { background-color: #d9d9d9; font-weight: bold; }
+                tbody tr:nth-child(odd) { background-color: #f2f2f2; }
+            </style>
+
+                <h4 style="text-align: center;">Estadística de Carpetas por Tp Ingreso del: '.$lafechaini.' al '.$lafechafin.'</h4>
+                <table id="tablacarpetassgf" class="table table-striped table-bordered" width=100% style="font-size: 10px;">
+                    <thead>
+                                    <tr>
+                                        <th>Ingreso Por</th>
+                                        <th>Total Registros</th>
+                                        <th>Carpetas Fiscales</th>
+                                    </tr>
+                    </thead>
+                    <tbody>';
+                        $ingresopor = [
+                            0 => '',
+                            1 => 'TURNO CORPORATIVA',
+                            2 => 'TURNO CERRO',
+                            3 => 'TURNO DESPACHO',
+                        ];
+                    foreach ($carpetasf as $index => $item) {
+                        $html1 .= '
+                        <tr>
+                            <td>'.$ingresopor[$item['ingresopor']].'</td>
+                            <td>'. number_format($item['total_registros']) .'</td>
+                            <td>'. number_format($item['acumulado_cantidad']) .'</td>
+                        </tr>';
+                    }
+
+        $html1 .= '
+                </tbody></table>';
+
+        $mpdf = new Mpdf([
+            'mode' => 'c',
+            'format' => 'A4-P',
+            'default_font_size' => 10,
+            'default_font' => 'Arial',
+            'margin_left' => 10,
+            'margin_right' => 10,
+            'margin_top' => 5,
+            'margin_bottom' => 3,
+            'margin_header' => 1,
+            'margin_footer' => 1
+        ]);        
+
+        $mpdf->WriteHTML($html1);
+
+        $pdfContent = $mpdf->Output('', 'S'); // 'S' = devuelve el contenido como string
+        return response($pdfContent, 200)
+        ->header('Content-Type', 'application/pdf')
+        ->header('Content-Disposition', 'inline; filename="valida.pdf"');
+
+    }    
+
     public function reporteCarpetasf01()
     {
         $carpetastcerro = DB::table('mesacarpetasf_codbarras')
