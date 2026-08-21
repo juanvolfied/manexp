@@ -30,6 +30,7 @@ function numeroAOrdinal($numero) {
 </head>
 <body>
 
+    <form id="miFormulario" autocomplete="off">
 
     <div class="container mt-4">
             <div class="row">            
@@ -39,6 +40,39 @@ function numeroAOrdinal($numero) {
                     <div class="card-title">Seguimiento de Registro de Inventario</div>
                   </div>
                   <div class="card-body table-responsive">
+
+                    <div class="row mb-2">
+                        <div class="col-md-2">
+                            <label for="nroinv" class="form-label"><b>Nro Inventario: </b></label>
+                            <input type="text" name="nroinv" id="nroinv" class="form-control" required
+                                value="{{ $nroinv ??  ''  }}">
+                        </div>
+                        <div class="col-md-1">
+                            <label for="nropaq" class="form-label"><b>Paquete: </b></label>
+                            <input type="text" name="nropaq" id="nropaq" class="form-control" required
+                                value="{{ $nropaq ??  ''  }}">
+                        </div>
+                        <div class="col-md-6">
+                                <label for="dependencia" class="form-label"><b>Dependencia: </b></label>
+                                <select name="dependencia" id="dependencia" class="" >
+                                    <option value="">Dependencia...</option>
+                                    @foreach ($dependencias as $datos)
+                                    <!--<option value="{{ $datos->id_dependencia }}">{{ $datos->descripcion }}</option>	-->		    
+                                    <option value="{{ $datos->id_dependencia }}" 
+                                        {{ ($depend ?? -1) == $datos->id_dependencia ? 'selected' : '' }}>
+                                        {{ $datos->descripcion }}
+                                    </option>	                                    
+                                    @endforeach
+                                </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <a href="#" onclick="buscadatos(event)" class="btn btn-primary w-100">
+                                <i class="fas fa-arrow-right me-1"></i> Continuar</a>
+                        </div>
+                    </div>        
+
+
+
 <!--        <h1 class="mb-4">Seguimiento de Registro de Inventario</h1>-->
 
         <!-- Tabla con clases Bootstrap -->
@@ -47,6 +81,8 @@ function numeroAOrdinal($numero) {
     @php
         $perfil = Auth::user()->perfil->descri_perfil;
     @endphp
+
+        @if(!empty($segdatos) && $segdatos->isNotEmpty())
 
         <table id="tablaseguimiento" class="table table-striped table-bordered">
             <thead class="thead-dark">
@@ -99,9 +135,23 @@ function numeroAOrdinal($numero) {
                 @endforeach
             </tbody>
         </table>
+        @elseif(($tipoing ?? -1) >= 0)
+            <!-- Mensaje solo si intentó consultar (tipoing >= 0) pero no hubo registros -->
+            <div class="alert alert-warning" role="alert">
+                No se encontraron registros para los filtros seleccionados.
+            </div>
+        @else
+            <!-- Estado inicial cuando tipoing es -1 -->
+            <div class="alert alert-info" role="alert">
+                Seleccione un tipo de ingreso para realizar la consulta.
+            </div>
+        @endif
+
+
         </span>
         
         <span class="d-inline d-md-none">
+        @if(!empty($segdatos) && $segdatos->isNotEmpty())
         <table id="tablaseguimiento2" class="table table-striped table-bordered">
             <thead class="thead-dark">
                 <tr>
@@ -130,6 +180,17 @@ function numeroAOrdinal($numero) {
                 @endforeach
             </tbody>
         </table>
+        @elseif(($tipoing ?? -1) >= 0)
+            <!-- Mensaje solo si intentó consultar (tipoing >= 0) pero no hubo registros -->
+            <div class="alert alert-warning" role="alert">
+                No se encontraron registros para los filtros seleccionados.
+            </div>
+        @else
+            <!-- Estado inicial cuando tipoing es -1 -->
+            <div class="alert alert-info" role="alert">
+                Seleccione un tipo de ingreso para realizar la consulta.
+            </div>
+        @endif
 
 @endauth
 
@@ -196,14 +257,32 @@ function numeroAOrdinal($numero) {
 </style>
 
 
+    </form>
 
 </body>
 </html>
 
 
 
-
+@section('scripts')
 <script>
+    $('#dependencia').selectize();
+</script>
+@endsection
+
+<script>    
+    function buscadatos() {
+        let nroinv = document.getElementById("nroinv").value;
+        let nropaq = document.getElementById("nropaq").value;
+        let depend = document.getElementById("dependencia").value;
+        if (nroinv=="" && nropaq=="" && depend==""){
+            alert("Ingrese la condición de busqueda");
+            return false;
+        }
+        window.location.href =
+            '{{ route("seginventario") }}?nroinv='+ nroinv +'&nropaq=' + nropaq + '&depend=' + depend;
+    }
+
 
 let scannedItems = []; 
 
@@ -308,7 +387,7 @@ var nroreg=0;
     $('#tablaseguimiento').DataTable({
       "pageLength": 10,  // Número de filas por página
       "lengthMenu": [10, 25, 50, 100],  // Opciones de paginación
-      "searching": true,  // Habilitar búsqueda
+      "searching": false,  // Habilitar búsqueda
       "ordering": true,   // Habilitar ordenación
       "info": true,       // Mostrar información de la tabla
       "autoWidth": false,  // Ajustar automáticamente el ancho de las columnas

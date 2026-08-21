@@ -1746,6 +1746,55 @@ function isValidPdf(string $path): bool
         }
 
     }
+    public function escritosporCarpetaFiscal(Request $request)
+    {
+        $carpetafiscal = $request->input('carpetafiscal', "");
+        if ($carpetafiscal!="") {
+
+            $query = DB::table('libroescritos')
+                ->leftJoin('personal', 'libroescritos.id_fiscal', '=', 'personal.id_personal')
+                ->select('libroescritos.*', 'personal.apellido_paterno','personal.apellido_materno','personal.nombres')
+                ->where('carpetafiscal', 'LIKE', '%'.$carpetafiscal.'%');
+/*                if (Auth::user()->personal->fiscal_asistente==="F" || Auth::user()->personal->fiscal_asistente==="A") {
+                    $query->where('libroescritos.id_dependencia', Auth::user()->personal->id_dependencia);
+                } 
+                if (Auth::user()->personal->fiscal_asistente==="F") {
+                    $query->where('libroescritos.despacho', Auth::user()->personal->despacho)
+                    ->where('libroescritos.id_fiscal', Auth::user()->personal->id_personal);
+                } 
+                if (Auth::user()->personal->fiscal_asistente==="A") {
+                    $query->where('libroescritos.despacho', Auth::user()->personal->despacho);
+                }*/
+            $escritosporcf = $query
+                //->orderBy('numero', 'desc')
+                ->orderBy('personal.apellido_paterno', 'asc')
+                ->orderBy('personal.apellido_materno', 'asc')
+                ->orderBy('personal.nombres', 'asc')
+                ->orderBy('fecharegistro', 'asc')
+                ->get();
+            
+            if ($escritosporcf->isNotEmpty()) {
+
+                $escritosporcf->transform(function ($doc) {
+                    $anio = substr($doc->fecharegistro, 0, 4); // "2025"
+                    $mes  = substr($doc->fecharegistro, 5, 2); // "09"
+
+                    $rutalow = storage_path("app/mesapartes/{$anio}/{$mes}/" . strtolower($doc->codescrito) . ".pdf");
+                    $ruta = storage_path("app/mesapartes/{$anio}/{$mes}/" . strtoupper($doc->codescrito) . ".pdf");
+                    if (file_exists($rutalow)) {
+                        rename($rutalow, $ruta);
+                    }
+                    $doc->existepdf = file_exists($ruta); // true o false
+                    return $doc;
+                });
+
+            }
+
+        } else {
+            $escritosporcf = null;
+        }
+        return view('mesapartes.escritosporcarpetafiscal', compact('escritosporcf','carpetafiscal'));
+    }
 
 
 

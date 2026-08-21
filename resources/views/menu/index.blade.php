@@ -303,7 +303,8 @@
         $menuActivo = request()->is('mesapartes', 'mesapartes/upload', 'mesapartes/comprimeescritospdf',
         'mesapartes/creacarpetasf','mesapartes/reportecarpetasf01','mesapartes/reportecarpetasf02',
         'mesapartes/consultacarpeta','mesapartes/estadisticacarpetastp');
-        $submenuActivo = request()->is('mesapartes/consultaintervalofechas', 'mesapartes/consultafiscal', 'mesapartes/consultafiltros', 'mesapartes/estadisticas');
+        $submenuActivo = request()->is('mesapartes/consultaintervalofechas', 'mesapartes/consultafiscal', 
+        'mesapartes/escritosporcarpetafiscal', 'mesapartes/consultafiltros', 'mesapartes/estadisticas');
     @endphp
     @if ($menumesapartes)
               <li class="nav-item {{ ($menuActivo || $submenuActivo) ? 'active submenu' : '' }}">
@@ -343,6 +344,11 @@
                           <li class="{{ request()->is('mesapartes/consultafiltros') ? 'active' : '' }}">
                             <a href="{{ route('mesapartes.consultafiltros') }}">
                               <span class="sub-item">Por C&oacute;digo / Descripci&oacute;n / Remitente</span>
+                            </a>
+                          </li>
+                          <li class="{{ request()->is('mesapartes/escritosporcarpetafiscal') ? 'active' : '' }}">
+                            <a href="{{ route('mesapartes.escritosporcarpetafiscal') }}">
+                              <span class="sub-item">Por Carpeta Fiscal</span>
                             </a>
                           </li>
                           <li class="{{ request()->is('mesapartes/estadisticas') ? 'active' : '' }}">

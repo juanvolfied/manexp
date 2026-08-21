@@ -402,32 +402,44 @@ class MenuController extends Controller
 
 
 
-    public function seguimientoInventario()
+    public function seguimientoInventario(Request $request)
     {
-        $usuario = auth()->user();
-        if ($usuario->perfil->descri_perfil === 'Inventario') {
-            $segdatos = DB::table('ubicacion_exp')
-            ->leftJoin('expediente', 'ubicacion_exp.id_expediente', '=', 'expediente.id_expediente')
-            ->leftJoin('usuarios', 'ubicacion_exp.id_usuario', '=', 'usuarios.id_usuario')
-            ->leftJoin('dependencia', 'ubicacion_exp.paq_dependencia', '=', 'dependencia.id_dependencia')
-            ->select('usuario', 'nro_inventario', 'archivo', 'anaquel', 'nro_paquete','serie', 'paq_dependencia', 'descripcion', 'despacho', DB::raw('count(*) as total'), DB::raw('MAX(expediente.id_expediente) as id_maximo'), DB::raw('MIN(ubicacion_exp.fecha_inventario) as fecha_inv'))
-            ->where('ubicacion_exp.id_usuario', $usuario->id_usuario)  // filtro para solo devolver lo del usuario
-            ->where('ubicacion_exp.nro_inventario','<>', '')  // filtro para solo devolver lo del usuario
-            ->groupBy('usuario', 'nro_inventario', 'archivo', 'anaquel', 'nro_paquete','serie', 'paq_dependencia', 'descripcion', 'despacho')
-            ->orderBy('id_maximo', 'desc')           
-            ->get();
+        $nroinv = $request->input('nroinv', "");
+        $nropaq = $request->input('nropaq', "");
+        $depend = $request->input('depend', "");
+        if ($nroinv!="" || $nropaq!="" || $depend!="") {
+            $usuario = auth()->user();
+
+            $query = DB::table('ubicacion_exp')
+                ->leftJoin('expediente', 'ubicacion_exp.id_expediente', '=', 'expediente.id_expediente')
+                ->leftJoin('usuarios', 'ubicacion_exp.id_usuario', '=', 'usuarios.id_usuario')
+                ->leftJoin('dependencia', 'ubicacion_exp.paq_dependencia', '=', 'dependencia.id_dependencia')
+                ->select('usuario', 'nro_inventario', 'archivo', 'anaquel', 'nro_paquete','serie', 'paq_dependencia', 'descripcion', 'despacho', DB::raw('count(*) as total'), DB::raw('MAX(expediente.id_expediente) as id_maximo'), DB::raw('MIN(ubicacion_exp.fecha_inventario) as fecha_inv'));
+
+                //->where('ubicacion_exp.nro_inventario','<>', '');
+                if ($usuario->perfil->descri_perfil === 'Inventario') {
+                    $query->where('ubicacion_exp.id_usuario', $usuario->id_usuario);
+                }
+                if ($nroinv!=""){
+                    $query->where('ubicacion_exp.nro_inventario', 'LIKE', '%' . $nroinv . '%');
+                }
+                if ($nropaq!=""){
+                    $query->where('ubicacion_exp.nro_paquete', $nropaq);
+                }
+                if ($depend!=""){
+                    $query->where('ubicacion_exp.paq_dependencia', $depend);
+                }
+                $segdatos = $query->groupBy('usuario', 'nro_inventario', 'archivo', 'anaquel', 'nro_paquete','serie', 'paq_dependencia', 'descripcion', 'despacho')
+                ->orderBy('id_maximo', 'desc')           
+                ->get();
         } else {
-            $segdatos = DB::table('ubicacion_exp')
-            ->leftJoin('expediente', 'ubicacion_exp.id_expediente', '=', 'expediente.id_expediente')
-            ->leftJoin('usuarios', 'ubicacion_exp.id_usuario', '=', 'usuarios.id_usuario')
-            ->leftJoin('dependencia', 'ubicacion_exp.paq_dependencia', '=', 'dependencia.id_dependencia')
-            ->where('ubicacion_exp.nro_inventario','<>', '')  // filtro para solo devolver lo del usuario
-            ->select('usuario', 'nro_inventario', 'archivo', 'anaquel', 'nro_paquete','serie', 'paq_dependencia', 'descripcion', 'despacho', DB::raw('count(*) as total'), DB::raw('MAX(expediente.id_expediente) as id_maximo'), DB::raw('MIN(ubicacion_exp.fecha_inventario) as fecha_inv'))
-            ->groupBy('usuario', 'nro_inventario', 'archivo', 'anaquel', 'nro_paquete','serie', 'paq_dependencia', 'descripcion', 'despacho')
-            ->orderBy('id_maximo', 'desc')           
-            ->get();
+            $segdatos = null;
         }
-        return view('inventario.seginventario', compact('segdatos'));
+        $dependencias = Dependencia::where('inventario', 'S')
+            ->orderBy('descripcion', 'asc')
+            ->get();
+
+        return view('inventario.seginventario', compact('segdatos','dependencias','nroinv','nropaq','depend'));
     }
     public function mostrarDetalle(Request $request)
     {

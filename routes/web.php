@@ -98,6 +98,8 @@ Route::get('/mesapartes/registrolibrosrv', [MesaController::class, 'nuevoEscrito
 Route::get('/mesapartes/registrolibrosv', [MesaController::class, 'nuevoEscritoV'])->name('mesapartes.libroescritosv');
 Route::get('/mesapartes/consultafiscal', [MesaController::class, 'consultarFiscal'])->name('mesapartes.consulta');
 Route::post('/mesapartes/consultafiscaldetalle', [MesaController::class, 'consultarFiscaldetalle'])->name('mesapartes.consultadetalle');
+Route::get('/mesapartes/escritosporcarpetafiscal', [MesaController::class, 'escritosporCarpetaFiscal'])->name('mesapartes.escritosporcarpetafiscal');
+
 Route::post('/mesapartes/store', [MesaController::class, 'store'])->name('mesapartes.store');
 Route::post('/mesapartes/storerv', [MesaController::class, 'storerv'])->name('mesapartes.storerv');
 Route::post('/mesapartes/storev', [MesaController::class, 'storetpv'])->name('mesapartes.storev');
