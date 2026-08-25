@@ -681,7 +681,13 @@ $mpdf->WriteHTML('</tbody></table>');
 
     public function consultarFiltros()
     {
-        return view('mesapartes.consultafiltros');
+        $segdetalle=null;
+        $codigo = "";
+        $descripcion = "";
+        $carpetafiscal = "";
+        $remitente = "";
+        $dependenciapolicial = "";
+        return view('mesapartes.consultafiltros',compact('segdetalle', 'codigo', 'descripcion','carpetafiscal', 'remitente', 'dependenciapolicial'));
     }
     public function consultarFiltrosdetalle(Request $request)
     {
@@ -746,6 +752,129 @@ $mpdf->WriteHTML('</tbody></table>');
         return view('mesapartes.consultafiltros',compact('segdetalle', 'codigo', 'descripcion','carpetafiscal', 'remitente', 'dependenciapolicial'));
 
     }
+    public function imprimirEscritosFiltros(Request $request)
+    {
+    $segdetalle = $request->input('segdetalle'); // array
+    $codigo = $request->input('codigo');
+    $descripcion = $request->input('descripcion');
+    $carpetafiscal = $request->input('carpetafiscal');
+    $dependenciapolicial = $request->input('dependenciapolicial');
+    $remitente = $request->input('remitente');
+    $cantidadRegistros = count($segdetalle);
+
+    $partes = [];
+    $partes[] = '    
+            <style>
+                table { border-collapse: collapse; width: 100%; font-size: 10px; }
+                td, th { border: 1px solid #000; padding: 4px; font-size: 11px; text-transform: none; }
+                thead tr { background-color: #d9d9d9; font-weight: bold; }
+                thead th { padding: 5px !important; font-size: 11px !important; }
+                tbody tr:nth-child(odd) { background-color: #f2f2f2; }
+                .center { text-align: center; }
+                .filtros { font-size: 12px; }            
+            </style>
+
+                <h4 style="text-align: center;">Consulta de Escritos por Filtros ('.$cantidadRegistros.' Registros)</h4>
+                <div style="font-size: 12px;">'. 
+
+                (($codigo!="") ? '<b>Filtro por código:</b> '.$codigo.'<br>' : '') .
+                (($descripcion!="") ? '<b>Filtro por Descripción:</b> '.$descripcion.'<br>' : '') .
+                (($carpetafiscal!="") ? '<b>Filtro por Carpeta Fiscal:</b> '.$carpetafiscal.'<br>' : '') .
+                (($dependenciapolicial!="") ? '<b>Filtro por Dep. policial:</b> '.$dependenciapolicial.'<br>' : '') .
+                (($remitente!="") ? '<b>Filtro por remitente:</b> '.$remitente : '')
+                                
+                .'</div>
+                <table id="tablacarpetassgf" class="table table-striped table-bordered" width=100% style="font-size: 10px;">
+                    <thead>
+                        <tr>
+                        <th>#</th>
+                        <th>Fecha</th>
+                        <th>C&oacute;digo</th>
+                        <th>Dependencia</th>
+                        <th>Despacho</th>
+                        <th>Fiscal</th>
+                        <th>Tipo</th>
+                        <th>Descripci&oacute;n</th>
+                        <th>Dependencia<br>Origen</th>
+                        <th>Remitente</th>
+                        <th>Carpeta<br>Fiscal</th>
+                        <th>Folios</th>
+                        <th>Usuario</th>
+                        </tr>
+                    </thead>
+                    <tbody>';
+                    $tipos = [
+                    'E'=> 'Escrito',
+                    'O'=> 'Oficio',
+                    'S'=> 'Solicitud',
+                    'C'=> 'Carta',
+                    'I'=> 'Invitación',
+                    'F'=> 'Informe',
+                    'Z'=> 'OTROS'
+                    ];
+                    $ordinales = [
+                        0 => '',
+                        1 => '1er',
+                        2 => '2do',
+                        3 => '3er',
+                        4 => '4to',
+                        5 => '5to',
+                        6 => '6to',
+                        7 => '7mo',
+                        8 => '8vo',
+                        9 => '9no',
+                        10 => '10mo',
+                        11 => '11er',
+                    ];    
+
+                    $filas = [];
+                    foreach ($segdetalle as $index => $item) {
+
+                    $tipoTexto = $tipos[$item['tipo']] ?? $item['tipo'];
+                    $despacho = $ordinales[$item['despacho']] ?? '';
+
+                        $filas[] = '
+                        <tr>
+                        <td>'. ($index + 1) .'</td>
+                        <td>'. $item['fecharegistro'].'</td>
+                        <td>'. $item['codescrito'].'</td>
+                        <td>'. $item['abreviado'].'</td>
+                        <td>'. $despacho .' DESPACHO</td>
+                        <td>'. $item['apellido_paterno'].' '. $item['apellido_materno'].' '. $item['nombres'].'</td>
+                        <td>'. $tipoTexto .'</td>
+                        <td>'. $item['descripcionescrito'].'</td>
+                        <td>'. $item['dependenciapolicial'].'</td>
+                        <td>'. $item['remitente'].'</td>
+                        <td>'. $item['carpetafiscal'].'</td>
+                        <td>'. $item['folios'].'</td>
+                        <td>'. $item['usuario'].'</td>
+                        </tr>';
+                    }
+        $partes[] = implode('', $filas);
+        $partes[] = '</tbody></table>';
+        $html1 = implode('', $partes);
+
+        $mpdf = new Mpdf([
+            'mode' => 'c',
+            'format' => 'A4-P',
+            'default_font_size' => 10,
+            'default_font' => 'Arial',
+            'margin_left' => 10,
+            'margin_right' => 10,
+            'margin_top' => 5,
+            'margin_bottom' => 3,
+            'margin_header' => 1,
+            'margin_footer' => 1
+        ]);        
+
+        $mpdf->WriteHTML($html1);
+
+        $pdfContent = $mpdf->Output('', 'S'); // 'S' = devuelve el contenido como string
+        return response($pdfContent, 200)
+        ->header('Content-Type', 'application/pdf')
+        ->header('Content-Disposition', 'inline; filename="valida.pdf"');
+
+    }    
 
     public function estadisticas()
     {
@@ -1767,10 +1896,11 @@ function isValidPdf(string $path): bool
                 }*/
             $escritosporcf = $query
                 //->orderBy('numero', 'desc')
-                ->orderBy('personal.apellido_paterno', 'asc')
+                /*->orderBy('personal.apellido_paterno', 'asc')
                 ->orderBy('personal.apellido_materno', 'asc')
                 ->orderBy('personal.nombres', 'asc')
-                ->orderBy('fecharegistro', 'asc')
+                ->orderBy('fecharegistro', 'asc')*/
+                ->orderBy('codescrito', 'asc')
                 ->get();
             
             if ($escritosporcf->isNotEmpty()) {
@@ -1795,6 +1925,89 @@ function isValidPdf(string $path): bool
         }
         return view('mesapartes.escritosporcarpetafiscal', compact('escritosporcf','carpetafiscal'));
     }
+    public function imprimirEscritosporCF(Request $request)
+    {
+    $escritos = $request->input('escritos'); // array
+    $carpfisc = $request->input('carpfisc');
+    $cantidadRegistros = count($escritos);
+
+        $html1 = '
+            <style>
+                table { border-collapse: collapse; }
+                td { border: 1px solid #000; padding: 4px; }
+                th { border: 1px solid #000; padding: 4px; }
+                thead tr { background-color: #d9d9d9; font-weight: bold; }
+                tbody tr:nth-child(odd) { background-color: #f2f2f2; }
+            </style>
+
+                <h4 style="text-align: center;">Escritos por Carpeta Fiscal que contienen: '.$carpfisc.' ('.$cantidadRegistros.' Registros)</h4>
+                <table id="tablacarpetassgf" class="table table-striped table-bordered" width=100% style="font-size: 10px;">
+                    <thead>
+                                    <tr>
+                                        <th style="padding: 5px 5px!important; font-size:12px !important; text-transform:none;">C&oacute;digo</th>
+                                        <th style="padding: 5px 5px!important; font-size:12px !important; text-transform:none;">Fecha</th>
+                                        <th style="padding: 5px 5px!important; font-size:12px !important; text-transform:none;">Fiscal</th>
+                                        <th style="padding: 5px 5px!important; font-size:12px !important; text-transform:none;">Tipo</th>
+                                        <th style="padding: 5px 5px!important; font-size:12px !important; text-transform:none;">Descripci&oacute;n</th>
+                                        <th style="padding: 5px 5px!important; font-size:12px !important; text-transform:none;">Dependencia Origen</th>
+                                        <th style="padding: 5px 5px!important; font-size:12px !important; text-transform:none;">Remitente</th>
+                                        <th style="padding: 5px 5px!important; font-size:12px !important; text-transform:none;">Carpeta Fiscal</th>			      
+                                        <th style="padding: 5px 5px!important; font-size:12px !important; text-transform:none;">Folios</th>
+                                    </tr>
+                    </thead>
+                    <tbody>';
+                    $tipos = [
+                    'E'=> 'Escrito',
+                    'O'=> 'Oficio',
+                    'S'=> 'Solicitud',
+                    'C'=> 'Carta',
+                    'I'=> 'Invitación',
+                    'F'=> 'Informe',
+                    'Z'=> 'OTROS'
+                    ];
+
+                    foreach ($escritos as $index => $item) {
+
+                    $tipoTexto = $tipos[$item['tipo']] ?? $item['tipo'];
+
+                        $html1 .= '
+                        <tr>
+                        <td style="font-size:12px !important; text-transform:none;">'. $item['codescrito'].'</td>
+                        <td style="font-size:12px !important; text-transform:none;">'. $item['fecharegistro'].'</td>
+                        <td style="font-size:12px !important; text-transform:none;">'. $item['apellido_paterno'].' '. $item['apellido_materno'].' '. $item['nombres'].'</td>
+                        <td style="font-size:12px !important; text-transform:none;">'. $tipoTexto .'</td>
+                        <td style="font-size:12px !important; text-transform:none;">'. $item['descripcion'].'</td>
+                        <td style="font-size:12px !important; text-transform:none;">'. $item['dependenciapolicial'].'</td>
+                        <td style="font-size:12px !important; text-transform:none;">'. $item['remitente'].'</td>
+                        <td style="font-size:12px !important; text-transform:none;">'. $item['carpetafiscal'].'</td>			      
+                        <td style="font-size:12px !important; text-transform:none;">'. $item['folios'].'</td>
+                        </tr>';
+                    }
+
+        $html1 .= '
+                </tbody></table>';
+
+        $mpdf = new Mpdf([
+            'mode' => 'c',
+            'format' => 'A4-P',
+            'default_font_size' => 10,
+            'default_font' => 'Arial',
+            'margin_left' => 10,
+            'margin_right' => 10,
+            'margin_top' => 5,
+            'margin_bottom' => 3,
+            'margin_header' => 1,
+            'margin_footer' => 1
+        ]);        
+
+        $mpdf->WriteHTML($html1);
+
+        $pdfContent = $mpdf->Output('', 'S'); // 'S' = devuelve el contenido como string
+        return response($pdfContent, 200)
+        ->header('Content-Type', 'application/pdf')
+        ->header('Content-Disposition', 'inline; filename="valida.pdf"');
+
+    }    
 
 
 

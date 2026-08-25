@@ -99,6 +99,7 @@ Route::get('/mesapartes/registrolibrosv', [MesaController::class, 'nuevoEscritoV
 Route::get('/mesapartes/consultafiscal', [MesaController::class, 'consultarFiscal'])->name('mesapartes.consulta');
 Route::post('/mesapartes/consultafiscaldetalle', [MesaController::class, 'consultarFiscaldetalle'])->name('mesapartes.consultadetalle');
 Route::get('/mesapartes/escritosporcarpetafiscal', [MesaController::class, 'escritosporCarpetaFiscal'])->name('mesapartes.escritosporcarpetafiscal');
+Route::post('/mesapartes/imprimirescritosporcf', [MesaController::class, 'imprimirEscritosporCF'])->name('mesapartes.imprimirescritosporcf');
 
 Route::post('/mesapartes/store', [MesaController::class, 'store'])->name('mesapartes.store');
 Route::post('/mesapartes/storerv', [MesaController::class, 'storerv'])->name('mesapartes.storerv');
@@ -115,6 +116,7 @@ Route::get('/mesapartes/consultafiltros', [MesaController::class, 'consultarFilt
 Route::get('/mesapartes/calendarcargos', [MesaController::class, 'calendarCargos']);
 
 Route::post('/mesapartes/consultafiltrosdetalle', [MesaController::class, 'consultarFiltrosdetalle'])->name('mesapartes.consultafiltrosdetalle');
+Route::post('/mesapartes/imprimirescritosfiltros', [MesaController::class, 'imprimirEscritosFiltros'])->name('mesapartes.imprimirescritosfiltros');
 
 Route::get('/mesapartes/estadisticas', [MesaController::class, 'estadisticas'])->name('mesapartes.estadisticas');
 Route::get('/mesapartes/estadisticasdetalle', [MesaController::class, 'estadisticasdetalle'])->name('mesapartes.estadisticasdetalle');

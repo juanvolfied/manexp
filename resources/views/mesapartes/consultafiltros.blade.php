@@ -87,10 +87,15 @@ function numeroAOrdinal($numero) {
                 </div>
 
             <!-- Botón -->
-            <div class="col-md-4 mt-4 text-end">
-                <a href="#" onclick="mostrarescritos(event)" class="btn btn-primary">Mostrar Escritos</a>
+            <div class="col-md-2 mt-4 ">
+                <a href="#" onclick="mostrarescritos(event)" class="btn btn-primary">Consultar</a>
             </div>
-
+            @if(!empty($segdetalle) && $segdetalle->isNotEmpty())
+            <div class="col-md-2 mt-4 text-end">
+                <!--<a href="#" onclick="mostrarescritos(event)" class="btn " style="background-color: #6c757d; color: white;" id="btnimprimir">Imprimir</a>-->
+                <button id="botonimprimir" type="button" onclick="imprimirpdf()" class="btn  " style="background-color: #6c757d; color: white; width:120px;" id="btnimprimir"><i class="fas fa-print me-1"></i> Imprimir</button>
+            </div>
+            @endif
             </div>
 
 
@@ -268,6 +273,46 @@ $(document).ready(function() {
 
 
 <script>
+    async function imprimirpdf() { 
+        const segdetalle = @json($segdetalle);
+        const codigo = "{{ $codigo }}"; 
+        const descripcion = "{{ $descripcion }}"; 
+        const carpetafiscal = "{{ $carpetafiscal }}"; 
+        const dependenciapolicial = "{{ $dependenciapolicial }}"; 
+        const remitente = "{{ $remitente }}";         
+
+        const loader = document.getElementById('loader');
+        loader.style.display = 'block'; 
+
+        try {
+            const response = await fetch("{{ route('mesapartes.imprimirescritosfiltros') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ 
+                    segdetalle: segdetalle,
+                    codigo: codigo,
+                    descripcion: descripcion,
+                    carpetafiscal: carpetafiscal,
+                    dependenciapolicial: dependenciapolicial,
+                    remitente: remitente
+                })
+            });
+    
+            loader.style.display = 'none';
+
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            document.getElementById('pdfViewer').src = url;
+            new bootstrap.Modal(document.getElementById('pdfModal')).show();
+
+        } catch (error) {
+            console.error(error);
+            alert('Ocurrió un error generando el PDF.');
+        }
+    }    
 function generapdf(event) {
     event.preventDefault();
 
