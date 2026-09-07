@@ -47,7 +47,7 @@
 
 
     <div class="mt-2">
-        <spam><b>La observación puede ser editada haciendo doble click</b></spam>
+        <span id="observaedita"><b>La observación puede ser editada haciendo doble click</b></span>
         <table id="scanned-list" class="table table-striped table-sm">
             <thead class="thead-dark">
                 <tr>
@@ -194,6 +194,10 @@
 
     </form>
 
+@php
+    $perfil = optional(Auth::user()->perfil)->descri_perfil;
+    $puedeEditar = in_array($perfil, ['Admin', 'Inventario', 'Archivo']);
+@endphp
 
 <style>
   .custom-modal-height {
@@ -224,8 +228,13 @@
 @endsection
 
 @section('scripts')
-
 <script>
+if (!@json($puedeEditar)) {
+    $('#observaedita').css('display', 'none'); 
+} else {
+    $('#observaedita').css('display', 'inline');
+}     
+
 function mostrarcarpetas(event) {
             const tableBody = $('#scanned-list tbody');
             const tableBodycel = $('#scanned-listcel tbody');
@@ -268,15 +277,23 @@ function mostrarcarpetas(event) {
                             <td style="font-size:12px; padding: 5px 10px !important;">${registro.id_dependencia}</td>
                             <td style="font-size:12px; padding: 5px 10px !important;">${registro.ano_expediente}</td>
                             <td style="font-size:12px; padding: 5px 10px !important;">${registro.nro_expediente}</td>
-                            <td style="font-size:12px; padding: 5px 10px !important;">${registro.id_tipo}</td>  
-                            <td style="font-size:12px; padding: 5px 10px !important;" 
-                            class="editable-cell" 
-                            ondblclick="abrirModalEdicion(this)" 
-                            data-id="${registro.id_expediente}"
-                            title="Doble clic para editar">
-            <span class="obs-text">${registro.observacion || ''}</span>
-            <i class="fas fa-pencil-alt edit-icon"></i>
-                            </td>  
+                            <td style="font-size:12px; padding: 5px 10px !important;">${registro.id_tipo}</td>
+                            
+                            @if($puedeEditar)
+                                <td style="font-size:12px; padding: 5px 10px !important;" 
+                                class="editable-cell" 
+                                ondblclick="abrirModalEdicion(this)" 
+                                data-id="${registro.id_expediente}"
+                                title="Doble clic para editar">
+                <span class="obs-text">${registro.observacion || ''}</span>
+                <i class="fas fa-pencil-alt edit-icon"></i>
+                                </td>
+                            @else
+                                <td style="font-size:12px; padding: 5px 10px !important;">
+                                    <span class="obs-text">${registro.observacion || ''}</span>
+                                </td>
+                            @endif
+
                             <td style="font-size:12px; padding: 5px 10px !important;">
                             <a href="#" onclick="mostrardetalle('${registro.id_expediente}', event)" title="Ver detalle"><i class="fas fa-search"></i></a> 
                             </td>
