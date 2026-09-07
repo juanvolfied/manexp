@@ -258,7 +258,8 @@ Route::post('/expediente-busca', [ExpedienteController::class, 'buscaExpediente'
 Route::get('/expediente-seg', [ExpedienteController::class, 'seguimiento'])->name('expediente.seguimiento');
 Route::post('/expediente-bus', [ExpedienteController::class, 'buscaseguimiento'])->name('expediente.buscacarpetas');
 Route::post('/expediente-det', [ExpedienteController::class, 'detalleseguimiento'])->name('expediente.segdetalle');
-
+Route::post('/expediente-obs', [ExpedienteController::class, 'updateObservacionAjax'])
+    ->name('observaciones.updateAjax');
 
 
 Route::get('/internamiento-lista', [ExpedienteController::class, 'indexinternamiento'])->name('internamiento.index');

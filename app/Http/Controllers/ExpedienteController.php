@@ -367,12 +367,16 @@ class ExpedienteController extends Controller
     }
     public function buscaseguimiento(Request $request)
     {
+        $id_dependencia = $request->input('id_dependencia');    
         $ano_expediente = $request->input('ano_expediente');    
         $nro_expediente = $request->input('nro_expediente');    
         $exactMatch = $request->boolean('exactMatch'); 
 
         $query = DB::table('expediente')
             ->select('expediente.*');
+        if (!empty($id_dependencia)) {
+            $query->where('expediente.id_dependencia', 'like', "%{$id_dependencia}%");
+        }
         if (!empty($ano_expediente)) {
             $query->where('expediente.ano_expediente', $ano_expediente);
         }
@@ -443,7 +447,17 @@ class ExpedienteController extends Controller
         }
 
     }
-
+public function updateObservacionAjax(Request $request)
+{
+    $expediente = Expedientes::findOrFail($request->input('id_expediente'));
+    $expediente->observacion = $request->input('observacion');
+    $expediente->save();
+    return response()->json([
+        'success' => true,
+        'message' => 'Observación actualizada',
+        'data' => $expediente
+    ]);
+}
 
 
 

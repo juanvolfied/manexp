@@ -268,7 +268,7 @@
 
 
     @php
-        $menubusqueda = in_array($perfil, ['Admin', 'Inventario','Archivo','Despacho']);
+        $menubusqueda = in_array($perfil, ['Admin', 'Inventario','Archivo','Despacho','Despacho Fiscal DF','Despacho Fiscal Sede']);
         $menuActivo = request()->is('expediente-seg', 'otro');
     @endphp
     @if ($menubusqueda)
@@ -290,13 +290,6 @@
                 </div>
               </li>
     @endif <!--menubusqueda-->
-
-
-
-
-
-    
-
 
     @php
         $menumesapartes = in_array($perfil, ['Admin','mesapartes','MesaPartesAdmin']);
@@ -482,8 +475,10 @@
 
 
     @php
-        $menuescritos = in_array($perfil, ['Admin','Despacho']);
-        $menuActivo = request()->is('mesapartes/consultaescritos', 'agenda/solicitarvehiculo', 'otro');
+        $menuescritos = in_array($perfil, ['Admin','Despacho','Despacho Fiscal Sede']);
+        $menuActivo = request()->is('mesapartes/consultaescritos', 
+        'mesapartes/consultaintervalofechas', 'mesapartes/consultafiltros',
+        'mesapartes/escritosporcarpetafiscal', 'otro');
     @endphp
     @if ($menuescritos)
               <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
@@ -500,9 +495,34 @@
                         <span class="sub-item">Consulta de escritos</span>
                       </a>
                     </li>
+
+        @if(in_array($perfil, ['Despacho Fiscal Sede']))
+                    <li class="{{ request()->is('mesapartes/consultaintervalofechas') ? 'active' : '' }}">
+                      <a href="{{ route('mesapartes.consultaintervalo') }}">
+                        <span class="sub-item">Por intervalo de fechas</span>
+                      </a>
+                    </li>
+                    <li class="{{ request()->is('mesapartes/consultafiltros') ? 'active' : '' }}">
+                      <a href="{{ route('mesapartes.consultafiltros') }}">
+                        <span class="sub-item">Por C&oacute;digo / Descripci&oacute;n / Remitente</span>
+                      </a>
+                    </li>
+                    <li class="{{ request()->is('mesapartes/escritosporcarpetafiscal') ? 'active' : '' }}">
+                      <a href="{{ route('mesapartes.escritosporcarpetafiscal') }}">
+                        <span class="sub-item">Por Carpeta Fiscal</span>
+                      </a>
+                    </li>
+        @endif
+                    
                   </ul>
                 </div>
               </li>
+    @endif <!--menuescritos-->
+    @php
+        $menuagenda = in_array($perfil, ['Admin','Despacho']);
+        $menuActivo = request()->is('agenda/solicitarvehiculo', 'otro');
+    @endphp
+    @if ($menuagenda)
               <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
                 <a data-bs-toggle="collapse" href="#agendatra">
                   <i class="fas fa-file"></i>
@@ -520,7 +540,7 @@
                   </ul>
                 </div>
               </li>
-    @endif <!--menuescritos-->
+    @endif <!--menuagenda-->
 
 
 

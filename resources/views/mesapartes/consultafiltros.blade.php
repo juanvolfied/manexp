@@ -27,11 +27,14 @@ function numeroAOrdinal($numero) {
             <div class="card-title">Consulta de escritos por C&oacute;digo / Descripci&oacute;n / Remitente</div>
         </div>            
         <div class="card-body">
+            <div class="alert alert-info text-primary fw-bold text-uppercase" >
+                Seleccione el filtro e ingrese parte del código o descripción a buscar.
+            </div>          
             <div class="row g-3 align-items-center">
 
                 <!-- Filtro 1 -->
                 <div class="col-md-4">
-                    <label class="form-label"><b>Filtro por c&oacute;digo</b></label>
+                    <label class="form-label"><b>Filtro por c&oacute;digo de barras</b></label>
                     <div class="input-group">
                         <div class="input-group-text">
                             <input class="form-check-input mt-0" type="checkbox" id="check1" style="border: 2px solid #007bff; box-shadow: 0 0 3px rgba(0,123,255,0.5);" {{ !empty($codigo) ? 'checked' : '' }}>
@@ -52,7 +55,7 @@ function numeroAOrdinal($numero) {
                 </div>
 
                 <div class="col-md-4">
-                    <label class="form-label"><b>Filtro por Carpeta Fiscal</b></label>
+                    <label class="form-label"><b>Filtro por Carpeta Fiscal <x style="color:#ff0000;">(501-2026-12345)</x></b></label>
                     <div class="input-group">
                         <div class="input-group-text">
                             <input class="form-check-input mt-0" type="checkbox" id="check5" style="border: 2px solid #007bff; box-shadow: 0 0 3px rgba(0,123,255,0.5);" {{ !empty($carpetafiscal) ? 'checked' : '' }}>
@@ -97,7 +100,6 @@ function numeroAOrdinal($numero) {
             </div>
             @endif
             </div>
-
 
         </div>
     </div>

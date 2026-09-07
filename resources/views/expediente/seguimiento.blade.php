@@ -11,7 +11,16 @@
 
     <form id="form-filtros" class="row g-3" autocomplete="off">
         @csrf
+            <div class="alert alert-info text-primary fw-bold" >
+                IINGRESE AL MENOS UN CAMPO DE BUSQUEDA [Código: 501 / 502 / etc] [Año: 2024 / 2025 / etc] [Expediente: 100 / 1234 / etc].
+            </div>          
         
+        <div class="col-md-1">
+            <label for="codi" class="form-label"><b>Código</b></label>
+            <div class="d-flex align-items-center gap-2">
+                <input type="text" id="codi" name="codi" class="form-control text-center" maxlength="8" style="width: 80px;" >
+            </div>
+        </div>
         <div class="col-md-1">
             <label for="dependencia" class="form-label"><b>A&ntilde;o</b></label>
             <div class="d-flex align-items-center gap-2">
@@ -27,7 +36,7 @@
         <div class="col-md-2 align-center">
             <div class="form-check form-switch ms-2">
                 <input class="form-check-input" type="checkbox" id="exactMatch" name="exactMatch" style="width: 50px; height:20px;">
-                <label class="form-check-label text-primary" for="exactMatch" ><b>Busca A&ntilde;o y Nro exactos</b></label>
+                <label class="form-check-label text-primary" for="exactMatch" ><b>Nro Expediente exacto</b></label>
             </div>
         </div>
         <div class="col-md-2 d-flex align-items-center">
@@ -35,10 +44,10 @@
         </div> 
 
 
-    </form>
 
 
-    <div class="mt-5">
+    <div class="mt-2">
+        <spam><b>La observación puede ser editada haciendo doble click</b></spam>
         <table id="scanned-list" class="table table-striped table-sm">
             <thead class="thead-dark">
                 <tr>
@@ -47,6 +56,7 @@
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">A&ntilde;o</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Nro expediente</th>			      
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Tipo</th>
+                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Observación</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Ver Detalle</th>
                 </tr>
             </thead>
@@ -139,6 +149,52 @@
   </div>
 </div>
 
+
+
+<div class="modal fade" id="modalObservacion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit me-2"></i>Editar Observación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="registroId">
+                <div class="mb-3">
+                    <label for="nuevaObservacion" class="form-label">Observación: (Max. 150 caracteres)</label>
+                    <textarea id="nuevaObservacion" class="form-control" rows="4" maxlength="150"
+                        placeholder="Escribe las observaciones..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" id="btnGuardar" onclick="guardarObservacion()">
+                    <i class="fas fa-save me-1"></i><span id="btnTexto">Guardar</span>
+                    <span id="btnSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+    <div id="toastNotif" class="toast align-items-center text-white bg-success border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body" id="toastMsg">
+                <i class="fas fa-check-circle me-2"></i>Guardado correctamente
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+    </form>
+
+
 <style>
   .custom-modal-height {
     height: 60vh; /* 60% del alto de la pantalla */
@@ -148,7 +204,23 @@
     flex: 1 1 auto;   /* Hace que crezca en el espacio disponible */
   }
 </style>
-
+<style>
+    .editable-cell {
+        cursor: pointer;
+        position: relative;
+    }
+    
+    .editable-cell .edit-icon {
+        opacity: 0;
+        transition: opacity 0.2s;
+        margin-left: 8px;
+        color: #6c757d;
+    }
+    
+    .editable-cell:hover .edit-icon {
+        opacity: 1;
+    }
+</style>
 @endsection
 
 @section('scripts')
@@ -161,11 +233,12 @@ function mostrarcarpetas(event) {
             tableBodycel.empty(); // Limpiar la tabla antes de volver a renderizarla
 
     if (event) event.preventDefault(); // Previene recarga
+    const codi = document.getElementById('codi').value;
     const ano = document.getElementById('ano').value;
     const nroexp = document.getElementById('nroexp').value;
     const exactMatch = document.getElementById('exactMatch').checked;
-    if ( ano=="" && nroexp=="" ) {
-        alert ("EL NRO DE EXPEDIENTE NO ESTA INGRESADO CORRECTAMENTE");
+    if ( codi=="" && ano=="" && nroexp=="" ) {
+        alert ("INGRESE ALGUN CAMPO DE BUSQUEDA");
         return false;
     }
 
@@ -174,6 +247,7 @@ function mostrarcarpetas(event) {
         method: 'POST',
         data: {
             _token: '{{ csrf_token() }}',
+            id_dependencia: codi,
             ano_expediente: ano,
             nro_expediente: nroexp,
             exactMatch: exactMatch
@@ -194,7 +268,15 @@ function mostrarcarpetas(event) {
                             <td style="font-size:12px; padding: 5px 10px !important;">${registro.id_dependencia}</td>
                             <td style="font-size:12px; padding: 5px 10px !important;">${registro.ano_expediente}</td>
                             <td style="font-size:12px; padding: 5px 10px !important;">${registro.nro_expediente}</td>
-                            <td style="font-size:12px; padding: 5px 10px !important;">${registro.id_tipo}</td>                        
+                            <td style="font-size:12px; padding: 5px 10px !important;">${registro.id_tipo}</td>  
+                            <td style="font-size:12px; padding: 5px 10px !important;" 
+                            class="editable-cell" 
+                            ondblclick="abrirModalEdicion(this)" 
+                            data-id="${registro.id_expediente}"
+                            title="Doble clic para editar">
+            <span class="obs-text">${registro.observacion || ''}</span>
+            <i class="fas fa-pencil-alt edit-icon"></i>
+                            </td>  
                             <td style="font-size:12px; padding: 5px 10px !important;">
                             <a href="#" onclick="mostrardetalle('${registro.id_expediente}', event)" title="Ver detalle"><i class="fas fa-search"></i></a> 
                             </td>
@@ -225,6 +307,98 @@ function mostrarcarpetas(event) {
     });
 
 }
+let celdaActual = null; // Referencia a la celda que se está editando
+let filaActual = null;  // Referencia a la fila completa
+
+function abrirModalEdicion(celda) {
+    celdaActual = celda;
+    filaActual = celda.closest('tr');
+    const id = celda.dataset.id;
+    const spanTexto = celda.querySelector('.obs-text');
+    const textoActual = spanTexto ? spanTexto.innerText.trim() : '';
+    
+    //const textoLimpio = textoActual === 'Sin observaciones' ? '' : textoActual;
+    const textoLimpio = textoActual;
+    document.getElementById('registroId').value = id;
+    document.getElementById('nuevaObservacion').value = textoLimpio;
+    const modal = new bootstrap.Modal(document.getElementById('modalObservacion'));
+    modal.show();    
+    document.getElementById('modalObservacion').addEventListener('shown.bs.modal', function () {
+        document.getElementById('nuevaObservacion').focus();
+    }, { once: true });
+}
+
+function guardarObservacion() {
+    const idexp = $('#registroId').val();
+    const nuevoTexto = $('#nuevaObservacion').val().trim();
+    const btnGuardar = $('#btnGuardar');
+    const btnTexto = $('#btnTexto');
+    const btnSpinner = $('#btnSpinner');
+    
+    // Estado de carga
+    btnGuardar.prop('disabled', true);
+    btnTexto.text('Guardando...');
+    btnSpinner.removeClass('d-none');
+
+    $.ajax({
+        url: '{{ route("observaciones.updateAjax") }}', 
+        method: 'POST', 
+        data: {
+            _token: '{{ csrf_token() }}', 
+            id_expediente: idexp,
+            observacion: nuevoTexto
+        },
+        success: function(response) {
+            if (response.success) {
+                $(celdaActual).find('.obs-text').text(nuevoTexto || '');
+                $(filaActual).addClass('table-success');
+                setTimeout(function() {
+                    $(filaActual).removeClass('table-success');
+                }, 1200);
+                const modalEl = document.getElementById('modalObservacion');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                modal.hide();
+                mostrarToast('Observación actualizada correctamente', 'success');
+            } else {
+                mostrarToast('Error: ' + (response.message || 'No se pudo guardar'), 'danger');
+            }
+        },
+        error: function(xhr) {
+            console.error('Error AJAX:', xhr);
+            let errorMsg = 'Error de conexión';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMsg = xhr.responseJSON.message;
+            } else if (xhr.status === 419) {
+                errorMsg = 'Sesión expirada. Recarga la página.';
+            } else if (xhr.status === 405) {
+                errorMsg = 'Método no permitido. Verifica la ruta.';
+            }
+            mostrarToast(errorMsg, 'danger');
+        },
+        complete: function() {
+            btnGuardar.prop('disabled', false);
+            btnTexto.text('Guardar');
+            btnSpinner.addClass('d-none');
+        }
+    });
+}
+
+// ============================================
+// 3. MOSTRAR NOTIFICACIÓN TOAST
+// ============================================
+function mostrarToast(mensaje, tipo = 'success') {
+    const toast = document.getElementById('toastNotif');
+    const toastMsg = document.getElementById('toastMsg');
+    
+    // Cambiar color según el tipo
+    toast.className = `toast align-items-center text-white bg-${tipo} border-0`;
+    toastMsg.innerHTML = `<i class="fas fa-${tipo === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>${mensaje}`;
+    
+    const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
+    bsToast.show();
+}
+
+
 function mostrardetalle(idexp, event) {
             const tableBody = $('#detalleexp tbody');
             const tableBodycel = $('#detalleexpcel tbody');
