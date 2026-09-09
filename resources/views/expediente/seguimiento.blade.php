@@ -12,7 +12,7 @@
     <form id="form-filtros" class="row g-3" autocomplete="off">
         @csrf
             <div class="alert alert-info text-primary fw-bold" >
-                IINGRESE AL MENOS UN CAMPO DE BUSQUEDA [Código: 501 / 502 / etc] [Año: 2024 / 2025 / etc] [Expediente: 100 / 1234 / etc].
+                INGRESE AL MENOS UN CAMPO DE BUSQUEDA [Código: 501 / 502 / etc] [Año: 2024 / 2025 / etc] [Carpeta: 100 / 1234 / etc].
             </div>          
         
         <div class="col-md-1">
@@ -28,7 +28,7 @@
             </div>
         </div>
         <div class="col-md-2" >
-            <label for="dependencia" class="form-label"><b>Nro Expediente</b></label>
+            <label for="dependencia" class="form-label"><b>Nro Carpeta</b></label>
             <div class="d-flex align-items-center gap-2">
                 <input type="text" id="nroexp" name="nroexp" class="form-control text-center" maxlength="6" style="width: 80px;" >
             </div>
@@ -36,7 +36,7 @@
         <div class="col-md-2 align-center">
             <div class="form-check form-switch ms-2">
                 <input class="form-check-input" type="checkbox" id="exactMatch" name="exactMatch" style="width: 50px; height:20px;">
-                <label class="form-check-label text-primary" for="exactMatch" ><b>Nro Expediente exacto</b></label>
+                <label class="form-check-label text-primary" for="exactMatch" ><b>Nro Carpeta exacta</b></label>
             </div>
         </div>
         <div class="col-md-2 d-flex align-items-center">
@@ -54,7 +54,7 @@
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">C&oacute;digo Barras</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Dependencia</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">A&ntilde;o</th>
-                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Nro expediente</th>			      
+                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Nro Carpeta</th>			      
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Tipo</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Observación</th>
                     <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Ver Detalle</th>

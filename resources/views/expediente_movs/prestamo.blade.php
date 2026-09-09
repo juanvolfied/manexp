@@ -620,6 +620,11 @@ document.getElementById("grabarBtn").addEventListener("click", function(event) {
     if (event) event.preventDefault(); // Previene recarga
     if (scannedItems.length > 0) {
         event.preventDefault();  // Prevenir el comportamiento por defecto
+
+        const btn = this;
+        if (btn.disabled) return;
+        btn.disabled = true;
+        btn.innerText = "Guardando...";        
         document.getElementById("miFormulario2").submit();
     } else {
         document.getElementById('messageErr').innerHTML = '<b>No puedes realizar préstamo, ingrese carpetas fiscales</b>';
