@@ -114,6 +114,7 @@ Route::post('/mesapartes/anular/{codescrito}', [MesaController::class, 'anularEs
 
 Route::get('/mesapartes/consultafiltros', [MesaController::class, 'consultarFiltros'])->name('mesapartes.consultafiltros');
 Route::get('/mesapartes/calendarcargos', [MesaController::class, 'calendarCargos']);
+Route::get('/mesapartes/consultacargosfiscal', [MesaController::class, 'consultaCargosFiscal'])->name('mesapartes.consultacargosfiscal');
 
 Route::post('/mesapartes/consultafiltrosdetalle', [MesaController::class, 'consultarFiltrosdetalle'])->name('mesapartes.consultafiltrosdetalle');
 Route::post('/mesapartes/imprimirescritosfiltros', [MesaController::class, 'imprimirEscritosFiltros'])->name('mesapartes.imprimirescritosfiltros');

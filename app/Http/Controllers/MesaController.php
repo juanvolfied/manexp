@@ -451,6 +451,50 @@ class MesaController extends Controller
 
     }
 
+
+
+
+    public function consultaCargosFiscal()
+    {
+        $query = DB::table('personal')
+        ->leftJoin('dependencia', 'personal.id_dependencia', '=', 'dependencia.id_dependencia')
+        ->select(
+            'personal.id_personal',
+            'personal.apellido_paterno',
+            'personal.apellido_materno',
+            'personal.nombres',
+            'personal.id_dependencia',
+            'personal.despacho',
+            'dependencia.descripcion',
+            'dependencia.abreviado'
+        )
+        ->where('fiscal_asistente', 'F');
+            if (Auth::user()->personal->fiscal_asistente==="F") {
+                $query
+                ->where('personal.id_dependencia', Auth::user()->personal->id_dependencia)
+                ->where('personal.despacho', Auth::user()->personal->despacho)
+                ->where('personal.id_personal', Auth::user()->personal->id_personal);
+            } 
+            if (Auth::user()->personal->fiscal_asistente==="A") {
+                $query
+                ->where('personal.id_dependencia', Auth::user()->personal->id_dependencia)
+                ->where('personal.despacho', Auth::user()->personal->despacho);
+            }
+        $fiscales = $query
+        ->orderBy('apellido_paterno', 'asc') 
+        ->orderBy('apellido_materno', 'asc') 
+        ->orderBy('nombres', 'asc') 
+        ->get();
+
+
+        return view('mesapartes.consultacargosfiscal', compact('fiscales'));
+    }
+
+
+
+
+
+
     public function consultarIntervalo()
     {
         return view('mesapartes.consultaintervalofecha');

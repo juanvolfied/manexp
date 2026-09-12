@@ -478,7 +478,7 @@
         $menuescritos = in_array($perfil, ['Admin','Despacho','Despacho Fiscal Sede']);
         $menuActivo = request()->is('mesapartes/consultaescritos', 
         'mesapartes/consultaintervalofechas', 'mesapartes/consultafiltros',
-        'mesapartes/escritosporcarpetafiscal', 'otro');
+        'mesapartes/escritosporcarpetafiscal', 'mesapartes/consultacargosfiscal', 'otro');
     @endphp
     @if ($menuescritos)
               <li class="nav-item {{ $menuActivo ? 'active submenu' : '' }}">
@@ -510,6 +510,11 @@
                     <li class="{{ request()->is('mesapartes/escritosporcarpetafiscal') ? 'active' : '' }}">
                       <a href="{{ route('mesapartes.escritosporcarpetafiscal') }}">
                         <span class="sub-item">Por Carpeta Fiscal</span>
+                      </a>
+                    </li>
+                    <li class="{{ request()->is('mesapartes/consultacargosfiscal') ? 'active' : '' }}">
+                      <a href="{{ route('mesapartes.consultacargosfiscal') }}">
+                        <span class="sub-item">Consulta de Cargos por escritos Entregados</span>
                       </a>
                     </li>
         @endif
