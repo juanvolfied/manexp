@@ -505,7 +505,7 @@ class MesaController extends Controller
         $fechafin = $request->input('fechafin');    
         $chksindigi = $request->input('chksindigi');    
 
-        $segdetalle = DB::table('libroescritos')
+         $query  = DB::table('libroescritos')
         ->leftJoin('personal', 'libroescritos.id_fiscal', '=', 'personal.id_personal')
         ->leftJoin('dependencia', 'libroescritos.id_dependencia', '=', 'dependencia.id_dependencia')
         ->leftJoin('usuarios', 'libroescritos.id_usuario', '=', 'usuarios.id_usuario')
@@ -527,7 +527,19 @@ class MesaController extends Controller
             'usuarios.usuario'
         )
         ->whereDate('fecharegistro', '>=', $fechaini)
-        ->whereDate('fecharegistro', '<=', $fechafin)
+        ->whereDate('fecharegistro', '<=', $fechafin);
+            if (Auth::user()->personal->fiscal_asistente==="F") {
+                $query
+                ->where('personal.id_dependencia', Auth::user()->personal->id_dependencia)
+                ->where('personal.despacho', Auth::user()->personal->despacho)
+                ->where('personal.id_personal', Auth::user()->personal->id_personal);
+            } 
+            if (Auth::user()->personal->fiscal_asistente==="A") {
+                $query
+                ->where('personal.id_dependencia', Auth::user()->personal->id_dependencia)
+                ->where('personal.despacho', Auth::user()->personal->despacho);
+            }
+        $segdetalle = $query    
         ->orderBy('codescrito', 'asc') 
         ->get();
 
