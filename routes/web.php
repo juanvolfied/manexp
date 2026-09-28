@@ -293,6 +293,7 @@ Route::get('/prestamo', [SolicitudCarpetasController::class, 'indexPrestamo'])->
 Route::get('/prestamo/create', [SolicitudCarpetasController::class, 'prestamo'])->name('prestamo.create');
 Route::post('/prestamo/graba', [SolicitudCarpetasController::class, 'grabaPrestamo'])->name('prestamo.grabaprestamo');
 Route::get('/prestamo/doc', [SolicitudCarpetasController::class, 'prestamodoc'])->name('prestamo.doc');
+Route::get('/prestamo/consulta', [SolicitudCarpetasController::class, 'consultaCarpetasPrestadas'])->name('consultacarpetasprestadas');
 
 Route::get('/devolucionarc', [SolicitudCarpetasController::class, 'devolucionarc'])->name('devolucionarc');
 Route::post('/devolucionarc/graba', [SolicitudCarpetasController::class, 'grabaDevolucionarc'])->name('devolucionarc.grabadevolucionarc');

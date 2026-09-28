@@ -1014,6 +1014,25 @@ class SolicitudCarpetasController extends Controller
 
 
     }
+    public function consultaCarpetasPrestadas()
+    {
+        $carpetasprestadas = DB::table('ubicacion_exp')
+        ->leftJoin('personal', 'ubicacion_exp.fiscalprestamo', '=', 'personal.id_personal')
+        ->leftJoin('dependencia', 'ubicacion_exp.paq_dependencia', '=', 'dependencia.id_dependencia')
+        ->where('ubicacion_exp.estado','P')
+        ->where('ubicacion_exp.activo','S')
+        ->select('ubicacion_exp.*', 'personal.apellido_paterno','personal.apellido_materno','personal.nombres','dependencia.abreviado') 
+        ->orderBy('fecha_movimiento', 'desc') 
+        ->orderBy('hora_movimiento', 'desc') 
+        ->orderBy('ano_mov', 'desc') 
+        ->orderBy('nro_mov', 'desc') 
+        ->get();
+        return view('expediente_movs.consultacarpetasprestadas',compact('carpetasprestadas'));
+    }
+
+
+
+
 
     public function prestamo()
     {
@@ -1317,10 +1336,12 @@ class SolicitudCarpetasController extends Controller
 
             foreach ($scannedItems as $item) {
                 $codbar = $item['codbarras'];
-                $dep_exp=substr($codbar,0,11);
-                $ano_exp=substr($codbar,11,4);
-                $nro_exp=substr($codbar,15,6);
-                $tip_exp=substr($codbar,21,4);
+
+                $dep_exp=$item['dependencia'];
+                $ano_exp=$item['ano'];
+                $nro_exp=$item['nroexpediente'];
+                $tip_exp=$item['tipo'];
+
                 $dep_exp = (int) $dep_exp; 
                 $id_exp = $item['id_expediente'];
                 $fispres = $item['fiscalprestamo'];
