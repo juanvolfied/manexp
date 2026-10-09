@@ -120,6 +120,11 @@
                         <span class="sub-item">Seguimiento</span>
                       </a>
                     </li>
+                    <li class="{{ request()->is('consultaubicaciones') ? 'active' : '' }}" >
+                      <a href="{{ route('consultaubicaciones') }}">
+                        <span class="sub-item">Consulta Ubicaciones por Despacho</span>
+                      </a>
+                    </li>
                     <li class="{{ request()->is('grafico') ? 'active' : '' }}" >
                       <a href="{{ route('grafico') }}">
                         <span class="sub-item">Gr&aacute;fico de Avance</span>

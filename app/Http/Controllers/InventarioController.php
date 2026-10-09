@@ -21,6 +21,33 @@ class InventarioController extends Controller
     }
 
 
+    public function consultaUbicaciones(Request $request)
+    {
+        $dependencias = DB::table('dependencia')
+            ->select('dependencia.*')
+            ->where('activo', 'S')
+            ->where('inventario', 'S')
+            ->orderBy('descripcion', 'asc')
+            ->get();
+            
+        $depend = $request->input('depend', "");
+        $despac = $request->input('despac', "");
+        if ($depend=="" && $despac=="") {
+            $segdatos = null;
+        } else {
+            $query = DB::table('ubicacion_exp')
+                ->select('archivo', 'anaquel', 'nro_paquete', DB::raw('count(*) as total'), DB::raw('MIN(ubicacion_exp.fecha_inventario) as fecha_inv'));
+                    $query->where('ubicacion_exp.paq_dependencia', $depend);
+                    $query->where('ubicacion_exp.despacho', $despac);
+                $segdatos = $query->groupBy('archivo', 'anaquel', 'nro_paquete')
+                ->orderBy('archivo', 'asc')           
+                ->get();
+        }
+
+        return view('inventario.consultaubicaciones', compact('segdatos','dependencias','depend','despac'));
+    }
+
+
     public function mostrarVistaGrafico()
     {
 //        $usuarios = Usuarios::all(); // O lo que uses para listar usuarios

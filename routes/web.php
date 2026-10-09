@@ -74,9 +74,8 @@ Route::post('/expediente-inve', [MenuController::class, 'grabainventarioExpedien
 Route::post('/eliminar-item', [MenuController::class, 'eliminarItem'])->name('elimina.item');
 Route::get('/inventariov2', [MenuController::class, 'nuevoExpedientev2'])->name('inventariov2');
 Route::get('/inventariov3', [MenuController::class, 'nuevoExpedientev3'])->name('inventariov3');
-
-
 Route::get('/seguimiento', [MenuController::class, 'seguimientoInventario'])->name('seginventario');
+
 //Route::get('/detalle/{nro_inv}', [MenuController::class, 'mostrarDetalle'])->name('seguimiento.detalle');
 Route::post('/seguimiento', [MenuController::class, 'mostrarDetalle'])->name('seguimiento.detalle');
 Route::get('/grafico', [InventarioController::class, 'mostrarVistaGrafico'])->name('grafico');
@@ -86,6 +85,7 @@ Route::get('/graficopie-fecha', [InventarioController::class, 'graficoPieFecha']
 
 Route::get('/validainventario', [InventarioController::class, 'validaInventario'])->name('validainventario');
 Route::post('/validaimprime', [InventarioController::class, 'validaImprime'])->name('validaimprime');
+Route::get('/consultaubicaciones', [InventarioController::class, 'consultaUbicaciones'])->name('consultaubicaciones');
 
 
 
