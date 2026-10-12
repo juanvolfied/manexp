@@ -725,6 +725,9 @@ document.getElementById('codbarras').addEventListener('input', function () {
             }
         }
 
+        let btnGrabar = document.getElementById("btngrabar");
+        btnGrabar.disabled = true;
+        btnGrabar.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Guardando...';        
         $.ajax({
             url: '{{ route("mesapartes.grabacarpeta") }}', 
             method: 'POST',
@@ -802,6 +805,11 @@ document.getElementById('codbarras').addEventListener('input', function () {
                             console.error('Error en la petici�n:', xhr.status);
                             alert('Hubo un error al grabar.');
                         }
+            },
+            complete: function() {
+                // 2. Restaurar el botón en caso de error o si te quedas en la misma vista
+                btnGrabar.disabled = false;
+                btnGrabar.innerHTML = '<i class="fas fa-save me-1"></i> Guardar Carpeta';
             }
 
         });
