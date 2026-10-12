@@ -36,7 +36,10 @@ class InventarioController extends Controller
             $segdatos = null;
         } else {
             $query = DB::table('ubicacion_exp')
-                ->select('archivo', 'anaquel', 'nro_paquete', DB::raw('count(*) as total'), DB::raw('MIN(ubicacion_exp.fecha_inventario) as fecha_inv'));
+                ->select('archivo', 'anaquel', 'nro_paquete',
+                DB::raw('GROUP_CONCAT(DISTINCT ano_expediente ORDER BY ano_expediente ASC SEPARATOR ", ") as ano_expediente'),
+                DB::raw('count(*) as total'), 
+                DB::raw('MIN(ubicacion_exp.fecha_inventario) as fecha_inv'));
                     $query->where('ubicacion_exp.paq_dependencia', $depend);
                     $query->where('ubicacion_exp.despacho', $despac);
                 $segdatos = $query->groupBy('archivo', 'anaquel', 'nro_paquete')

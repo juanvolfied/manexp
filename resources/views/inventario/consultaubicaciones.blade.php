@@ -94,6 +94,7 @@ function numeroAOrdinal($numero) {
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;" align="center">Archivo</th>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;" align="center">Anaquel</th>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;" align="center">Nro Paquete</th>
+                    <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;" align="center">Año Carpeta</th>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;" align="center">Total Carpetas</th>
                     <th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;" align="center">Fec. Inventario</th>
                     <!--<th style="padding: 5px 10px!important; font-size: 12px !important; text-transform:none;" align="center">Ver Detalle</th>-->
@@ -113,6 +114,7 @@ function numeroAOrdinal($numero) {
                         </td>
                         <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $datos->anaquel}}</td>
                         <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $datos->nro_paquete}}</td>
+                        <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $datos->ano_expediente}}</td>
                         <td style="padding: 5px 10px!important; font-size: 12px !important;" align="center">{{ $datos->total}}</td>
                         <td style="padding: 5px 10px!important; font-size: 12px !important;" align="center">{{ $datos->fecha_inv}}</td>
                         <!--<td style="padding: 5px 10px!important; font-size: 12px !important;" align="center">{{ $depend}} {{ $despac}}</td>-->
