@@ -45,22 +45,11 @@
                           <label for="archivo"><b>Archivo:</b></label>
 			  <select name="archivo" id="archivo" class="form-select form-control-sm" >
 			    <option value=""></option>
-			    <option value="1">Archivo 001</option>
-			    <option value="2">Archivo 002</option>
-			    <option value="3">Archivo 003</option>
-			    <option value="4">Archivo 004</option>
-			    <option value="5">Archivo 005</option>
-			    <option value="6">Archivo 006</option>
-			    <option value="7">Archivo 007</option>
-			    <option value="8">Archivo 008</option>
-			    <option value="9">Archivo 009</option>
-			    <option value="10">Archivo 010</option>
-			    <option value="11">Archivo 011</option>
-			    <option value="12">Archivo 012</option>
-			    <option value="99">Archivo de Gesti&oacute;n 1</option>
-			    <option value="92">Archivo de Gesti&oacute;n 2</option>
-			    <option value="93">Archivo de Gesti&oacute;n 3</option>
-			    <option value="94">Archivo de Gesti&oacute;n 4</option>
+                @foreach(config('listas.listatipoarchivo') as $valor => $texto)
+                    <option value="{{ $valor }}">
+                        {{ $texto }}
+                    </option>
+                @endforeach
 			  </select>
                         </div>
                       </div>
@@ -102,18 +91,11 @@
                           <label for="despacho"><b>Despacho:</b></label>
 			  <select name="despacho" id="despacho" class="form-select form-control-sm" >
 			    <option value=""></option>
-			    <option value="0">DESPACHO</option>
-			    <option value="1">1er. DESPACHO</option>
-			    <option value="2">2do. DESPACHO</option>
-			    <option value="3">3er. DESPACHO</option>
-			    <option value="4">4to. DESPACHO</option>
-			    <option value="5">5to. DESPACHO</option>
-			    <option value="6">6to. DESPACHO</option>
-			    <option value="7">7mo. DESPACHO</option>
-			    <option value="8">8vo. DESPACHO</option>
-			    <option value="9">9no. DESPACHO</option>
-			    <option value="10">10mo. DESPACHO</option>
-			    <option value="11">11er. DESPACHO</option>
+                @foreach(config('listas.listadespachos') as $valor => $texto)
+                    <option value="{{ $valor }}">
+                        {{ $texto }}
+                    </option>
+                @endforeach
 			  </select>
                         </div>
                       </div>
@@ -156,22 +138,11 @@
                           <table width="100%"><tr><td width="100px;"><b>Archivo:</b></td><td>
                             <select name="datarch" id="datarch" class="form-select form-control-sm" >
                               <option value=""></option>
-                              <option value="1">Archivo 001</option>
-                              <option value="2">Archivo 002</option>
-                              <option value="3">Archivo 003</option>
-                              <option value="4">Archivo 004</option>
-                              <option value="5">Archivo 005</option>
-                              <option value="6">Archivo 006</option>
-                              <option value="7">Archivo 007</option>
-                              <option value="8">Archivo 008</option>
-                              <option value="9">Archivo 009</option>
-                              <option value="10">Archivo 010</option>
-                              <option value="11">Archivo 011</option>
-                              <option value="12">Archivo 012</option>
-                              <option value="99">Archivo de Gesti&oacute;n 1</option>
-                              <option value="92">Archivo de Gesti&oacute;n 2</option>
-                              <option value="93">Archivo de Gesti&oacute;n 3</option>
-                              <option value="94">Archivo de Gesti&oacute;n 4</option>
+                              @foreach(config('listas.listatipoarchivo') as $valor => $texto)
+                                  <option value="{{ $valor }}">
+                                      {{ $texto }}
+                                  </option>
+                              @endforeach
                             </select>                          
                           </td></tr></table>
                       </div>
@@ -214,18 +185,11 @@
 
 			  <select name="datdesp" id="datdesp" class="form-select form-control-sm" >
 			    <option value=""></option>
-			    <option value="0">DESPACHO</option>
-			    <option value="1">1er. DESPACHO</option>
-			    <option value="2">2do. DESPACHO</option>
-			    <option value="3">3er. DESPACHO</option>
-			    <option value="4">4to. DESPACHO</option>
-			    <option value="5">5to. DESPACHO</option>
-			    <option value="6">6to. DESPACHO</option>
-			    <option value="7">7mo. DESPACHO</option>
-			    <option value="8">8vo. DESPACHO</option>
-			    <option value="9">9no. DESPACHO</option>
-			    <option value="10">10mo. DESPACHO</option>
-			    <option value="11">11er. DESPACHO</option>
+                @foreach(config('listas.listadespachos') as $valor => $texto)
+                    <option value="{{ $valor }}">
+                        {{ $texto }}
+                    </option>
+                @endforeach
 			  </select>
 
                           </td></tr></table>

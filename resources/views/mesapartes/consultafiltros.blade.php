@@ -1,25 +1,10 @@
 @extends('menu.index') 
 
 @section('content')
-<?php
-function numeroAOrdinal($numero) {
-    $ordinales = [
-        0 => '',
-        1 => '1er',
-        2 => '2do',
-        3 => '3er',
-        4 => '4to',
-        5 => '5to',
-        6 => '6to',
-        7 => '7mo',
-        8 => '8vo',
-        9 => '9no',
-        10 => '10mo',
-        11 => '11er',
-    ];    
-    return $ordinales[$numero] ?? $numero . 'º';
-}
-?>
+@php
+    $listadespachos = config('listas.listadespachos');
+@endphp
+
 <form id="form-filtros" action="{{ route('mesapartes.consultafiltrosdetalle') }}" method="POST" class="row g-3" autocomplete="off">
     @csrf
     <div class="card " style="margin-bottom:5px;">
@@ -159,7 +144,7 @@ function numeroAOrdinal($numero) {
                         <td style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">{{ $item->fecharegistro }}</td>
                         <td style="padding: 5px 5px!important; font-size:11px !important; text-transform:none; border-left: 4px solid #ffc107 !important; font-weight: bold !important;">{{ $item->codescrito }}</td>
                         <td style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">{{ $item->abreviado }}</td>
-                        <td style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">{{ numeroAOrdinal($item->despacho) }} DESPACHO</td>
+                        <td style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">{{ $listadespachos[ $item->despacho ] ?? '' }} </td>
                         <td style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">{{ $item->apellido_paterno }} {{ $item->apellido_materno }} {{ $item->nombres }}</td>
                         <td style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">{{ $tipoTexto }}</td>
                         <td style="padding: 5px 5px!important; font-size:11px !important; text-transform:none;">{{ $item->descripcionescrito }}</td>
@@ -353,23 +338,6 @@ function mostrarescritos(event) {
     document.getElementById('form-filtros').submit();
 }
 
-function numeroAOrdinal(numero) {
-    const ordinales = {
-        1: '1er',
-        2: '2do',
-        3: '3er',
-        4: '4to',
-        5: '5to',
-        6: '6to',
-        7: '7mo',
-        8: '8vo',
-        9: '9no',
-        10: '10mo',
-        11: '11er'
-    };
-
-    return ordinales[numero] || numero + ' ';
-}
 </script>
 
 <script>

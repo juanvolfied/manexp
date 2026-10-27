@@ -105,6 +105,8 @@
 @section('scripts')
 
 <script>
+    const listaDespachos = @json(config('listas.listadespachos'));
+
 function generapdf(event) {
     event.preventDefault();
 
@@ -197,8 +199,7 @@ function mostrarescritos(event) {
                             <td style="font-size:11px; padding: 5px 5px !important;">${registro.fecharegistro || ''}</td>
                             <td style="font-size:11px; padding: 5px 5px !important; border-left: 4px solid #ffc107 !important; font-weight: bold !important;">${registro.codescrito || ''}</td>
                             <td style="font-size:11px; padding: 5px 5px !important;">${registro.abreviado || ''}</td>
-                            <td style="font-size:11px; padding: 5px 5px !important;">
-                            ${registro.despacho ? numeroAOrdinal(registro.despacho) : ''} DESPACHO
+                            <td style="font-size:11px; padding: 5px 5px !important;">${listaDespachos[registro.despacho] ?? ''}</td>
                             <td style="font-size:11px; padding: 5px 5px !important;">${registro.apellido_paterno || ''} ${registro.apellido_materno || ''} ${registro.nombres || ''}</td>
                             <td style="font-size:11px; padding: 5px 5px !important;">${tipoTexto || ''}</td>
                             <td style="font-size:11px; padding: 5px 5px !important;">${registro.descripcionescrito || ''}</td>
@@ -270,24 +271,6 @@ function mostrarescritos(event) {
             alert('Ocurrió un error generando el PDF.');
         }
     }
-
-function numeroAOrdinal(numero) {
-    const ordinales = {
-        1: '1er',
-        2: '2do',
-        3: '3er',
-        4: '4to',
-        5: '5to',
-        6: '6to',
-        7: '7mo',
-        8: '8vo',
-        9: '9no',
-        10: '10mo',
-        11: '11er'
-    };
-
-    return ordinales[numero] || numero + ' ';
-}
 </script>
 
 <script>

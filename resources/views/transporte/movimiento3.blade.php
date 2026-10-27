@@ -553,6 +553,7 @@ var maskIdConductorpro = IMask(
   { mask: '00000000' } 
 );
 
+    const listaDespachos = @json(config('listas.listadespachos'));
 
   const iddependencia = @json($personal->pluck('id_dependencia', 'id_personal'));
   const descdependencia = @json($personal->pluck('descripcion', 'id_personal'));
@@ -576,33 +577,10 @@ var maskIdConductorpro = IMask(
     });
 
     function muestradatopro(id) {
-        $('#descdependenciapro').text(numeroAOrdinal(despacho[id]) + " DESPACHO - " + descdependencia[id]);
-        //$('#despacho').text(numeroAOrdinal(despacho[id]) + " DESPACHO");
+        $('#descdependenciapro').text((listaDespachos[despacho[id]] ?? '') + " - " + descdependencia[id]);
         $('#id_dependenciapro').val(iddependencia[id]);
         $('#despachopro').val(despacho[id]);
     }
-    function numeroAOrdinal(numero) {
-        const ordinales = {
-            1: '1er',
-            2: '2do',
-            3: '3er',
-            4: '4to',
-            5: '5to',
-            6: '6to',
-            7: '7mo',
-            8: '8vo',
-            9: '9no',
-            10: '10mo',
-            11: '11er'
-        };
-        if (numero==0){
-            return ' ';
-        } else {
-            return ordinales[numero] || numero + ' ';
-        }
-    }      
-
-
 
     const conductores = @json($conductores);
     const inputConductor = document.getElementById('id_conductorpro');

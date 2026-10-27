@@ -5,10 +5,8 @@
 //    $estados = ['G' => 'Generado', 'E' => 'Enviado', 'R' => 'Recepcionado', 'Z' => 'RECHAZADO'];
     $estados = ['G' => 'Generado', 'E' => 'Enviado', 'D' => 'Devuelto'];
 
-function numeroAOrdinal($numero) {
-    $ordinales = [0 => '',1 => '1er',2 => '2do',3 => '3er',4 => '4to',5 => '5to',6 => '6to',7 => '7mo',8 => '8vo',9 => '9no',10 => '10mo',11 => '11er',];
-    return $ordinales[$numero] ?? $numero . 'º';
-}
+    $listadespachos = config('listas.listadespachos');
+
 @endphp
 <form id="miFormulario" autocomplete="off">
     @csrf  <!-- Este campo incluir� el token CSRF autom�ticamente -->
@@ -50,7 +48,7 @@ function numeroAOrdinal($numero) {
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ str_pad($p->nro_mov, 5, '0', STR_PAD_LEFT) }}-{{ $p->ano_mov }}-{{ $p->tipo_mov == 'GI' ? 'I' : $p->tipo_mov }} </td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->apellido_paterno }} {{ $p->apellido_materno }} {{ $p->nombres }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->abreviado }}</td>
-                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ numeroAOrdinal($p->despacho) }} DESPACHO</td>
+                    <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $listadespachos[ $p->despacho ] ?? '' }} </td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->cantidad_exp }}</td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important; {{ $p->estado_mov == 'E' ? 'color:blue;' : ($p->estado_mov == 'D' ? 'color:green;' : '') }}"><b>{{ $estados[$p->estado_mov] ?? $p->estado_mov }}</b></td>
                     <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $p->fechahora_movimiento }}</td>

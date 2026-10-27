@@ -285,6 +285,8 @@
 
 @section('scripts')
 <script>
+    const listaDespachos = @json(config('listas.listadespachos'));
+
   const iddependencia = @json($fiscales->pluck('id_dependencia', 'id_personal'));
   const descdependencia = @json($fiscales->pluck('descripcion', 'id_personal'));
   const despacho = @json($fiscales->pluck('despacho', 'id_personal'));
@@ -355,32 +357,10 @@
     }    
 
     function muestradato(id) {
-        $('#descdependencia').text(numeroAOrdinal(despacho[id]) + " DESPACHO - " + descdependencia[id]);
-        //$('#despacho').text(numeroAOrdinal(despacho[id]) + " DESPACHO");
+        $('#descdependencia').text((listaDespachos[despacho[id]] ?? '') + " - " + descdependencia[id]);
         $('#id_dependencia').val(iddependencia[id]);
         $('#despacho').val(despacho[id]);
     }
-    function numeroAOrdinal(numero) {
-        const ordinales = {
-            1: '1er',
-            2: '2do',
-            3: '3er',
-            4: '4to',
-            5: '5to',
-            6: '6to',
-            7: '7mo',
-            8: '8vo',
-            9: '9no',
-            10: '10mo',
-            11: '11er'
-        };
-        if (numero==0){
-            return ' ';
-        } else {
-            return ordinales[numero] || numero + ' ';
-        }
-    }        
-
 </script>
 
 <script>

@@ -1,7 +1,6 @@
 @extends('menu.index') 
 
 @section('content')
-
     <!--<h2 class="mb-4">Seguimiento de Expedientes</h2>-->
     <div class="card">
         <div class="card-header">
@@ -63,25 +62,6 @@
             <tbody style="font-size:12px;" >
             </tbody>
         </table>        
-        <!--
-        <table id="scanned-list" class="table table-striped table-sm">
-            <thead class="thead-dark">
-                <tr>
-                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Fecha Movimiento</th>
-                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Ubicacion</th>
-                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Tipo Ubicacion</th>
-                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Dependencia</th>			      
-                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Despacho</th>
-                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Archivo</th>
-                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Anaquel</th>
-                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Nro Paquete</th>
-                    <th style="padding: 5px 10px!important; font-size:12px !important; text-transform:none;">Activo</th>
-                </tr>
-            </thead>
-            <tbody style="font-size:12px;" >
-            </tbody>
-        </table>        
--->
     </div>
 
         </div>
@@ -229,6 +209,9 @@
 
 @section('scripts')
 <script>
+const listaDespachos = @json(config('listas.listadespachos'));
+
+
 if (!@json($puedeEditar)) {
     $('#observaedita').css('display', 'none'); 
 } else {
@@ -491,7 +474,9 @@ const textoArchivo2 = archivos2[registro.archivo] ?? `Archivo ${String(registro.
                             <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">
                             ${registro.abreviado} ${(registro.estado === 'P' && registro.fiscalprestamo) ? `<br>${registro.apellido_paterno} ${registro.apellido_materno} ${registro.nombres}` : ''}
                             </td>
-                            <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">${numeroAOrdinal(registro.despacho)} DESPACHO</td>                        
+                            <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">
+                            ${listaDespachos[registro.despacho] ?? ''}
+                            </td>                        
                             <td style="font-size:12px; padding: 5px 5px !important; ${estiloExtra}">
                             ${textoArchivo2}
                             </td>
@@ -534,23 +519,6 @@ function verPdf(file) {
     const url = `/manexp/public/oficioprestamo/${file}?t=${Date.now()}`;
     document.getElementById('framePdf').src = url;
     $('#modalPdf').modal('show');
-}
-function numeroAOrdinal(numero) {
-    const ordinales = {
-        1: '1er',
-        2: '2do',
-        3: '3er',
-        4: '4to',
-        5: '5to',
-        6: '6to',
-        7: '7mo',
-        8: '8vo',
-        9: '9no',
-        10: '10mo',
-        11: '11er'
-    };
-
-    return ordinales[numero] || numero + ' ';
 }
 </script>
 @endsection

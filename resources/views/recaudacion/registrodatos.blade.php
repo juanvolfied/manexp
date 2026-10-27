@@ -1,12 +1,7 @@
 @extends('menu.index')
 
 @section('content')
-<?php
-function numeroAOrdinal($numero) {
-    $ordinales = [0 => '',1 => '1er',2 => '2do',3 => '3er',4 => '4to',5 => '5to',6 => '6to',7 => '7mo',8 => '8vo',9 => '9no',10 => '10mo',11 => '11er',];
-    return $ordinales[$numero] ?? $numero . 'º';
-}
-?>
+
     @if(session('messageErr'))
         <div id="messageErr" class="alert alert-danger text-danger" style="transition: opacity 0.5s ease;"><b>{{ session('messageErr') }}</b></div>
     @else

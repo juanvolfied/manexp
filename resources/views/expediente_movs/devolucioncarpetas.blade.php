@@ -1,25 +1,10 @@
 @extends('menu.index')
 
 @section('content')
-<?php
-function numeroAOrdinal($numero) {
-    $ordinales = [
-        0 => '',
-        1 => '1er',
-        2 => '2do',
-        3 => '3er',
-        4 => '4to',
-        5 => '5to',
-        6 => '6to',
-        7 => '7mo',
-        8 => '8vo',
-        9 => '9no',
-        10 => '10mo',
-        11 => '11er',
-    ];    
-    return $ordinales[$numero] ?? $numero . 'º';
-}    
-?>  
+@php
+    $listadespachos = config('listas.listadespachos');
+@endphp
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -73,26 +58,10 @@ function numeroAOrdinal($numero) {
                     </div>
                     <div class="row">
                       <div class="col-md-12 col-lg-12">
-                          <table width="100%"><tr><td width="100px;"><b>Despacho:</b></td><td id="datanaq">{{ numeroAOrdinal($guiacab->despacho) }} DESPACHO</td></tr></table>
+                          <table width="100%"><tr><td width="100px;"><b>Despacho:</b></td><td id="datanaq">{{ $listadespachos[ $guiacab->despacho ] ?? '' }} </td></tr></table>
                       </div>
                     </div>
                     
-<!--
-                    <div class="row" style="background-color:#F2F5A9;">
-                      <div class="col-md-6 col-lg-6">
-                        <div class="form-group">
-                          <label for="codbarras"><b>C&oacute;digo de Barras</b></label>
-                          <input type="text" class="form-control" name="codbarras" id="codbarras" placeholder="C&oacute;digo de Barras" autofocus/>
-                        </div>
-                      </div>
-                      <div class="col-md-6 col-lg-6">
-                        <div class="form-group">
-                          <br>
-                        </div>
-                      </div>
-
-                    </div>
--->
         <!-- Tabla con clases Bootstrap -->
         <table id="tabladetalle" class="table table-striped table-bordered">
             <thead class="thead-dark">

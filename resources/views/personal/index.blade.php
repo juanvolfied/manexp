@@ -2,27 +2,10 @@
 
 @section('content')
 @php
+    $listadespachos = config('listas.listadespachos');
+    
     $tipocargo = ['F' => 'Fiscal', 'A' => 'Asistente', 'C' => 'Coordinador', '' => 'OTROS'];
 @endphp
-<?php
-function numeroAOrdinal($numero) {
-    $ordinales = [
-        0 => '',
-        1 => '1er',
-        2 => '2do',
-        3 => '3er',
-        4 => '4to',
-        5 => '5to',
-        6 => '6to',
-        7 => '7mo',
-        8 => '8vo',
-        9 => '9no',
-        10 => '10mo',
-        11 => '11er',
-    ];    
-    return $ordinales[$numero] ?? $numero . '';
-}
-?>
 
 <!--<div class="container mt-4">
     <h2 class="mb-4">Lista de Personal</h2>-->
@@ -63,7 +46,7 @@ function numeroAOrdinal($numero) {
                     <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->apellido_materno }}</td>
                     <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->nombres }}</td>
                     <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->descripcion }}</td>
-                    <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ numeroAOrdinal($p->despacho) }} DESPACHO</td>
+                    <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $listadespachos[ $p->despacho ] ?? '' }}</td>
                     <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->activo }}</td>
                     <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $tipocargo[$p->fiscal_asistente] ?? $p->fiscal_asistente }}</td>
                     <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->cargo }}</td>

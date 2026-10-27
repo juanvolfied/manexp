@@ -14,23 +14,9 @@
 </head>
 <body>
 <?php
-function numeroAOrdinal($numero) {
-    $ordinales = [
-        0 => '',
-        1 => '1er',
-        2 => '2do',
-        3 => '3er',
-        4 => '4to',
-        5 => '5to',
-        6 => '6to',
-        7 => '7mo',
-        8 => '8vo',
-        9 => '9no',
-        10 => '10mo',
-        11 => '11er',
-    ];    
-    return $ordinales[$numero] ?? $numero . 'º';
-}    
+
+$listadespachos = config('listas.listadespachos');
+
 ?>
 <div style='position: absolute; top:  250px; left: 20px;' >
 <!--<div style="float: left; transform: rotate(-90deg); transform-origin: left top; width: 200px; margin-right: 20px;">-->
@@ -51,7 +37,7 @@ function numeroAOrdinal($numero) {
     <div style='padding-left:30px;'><br><table align='center'><tr><td><b>INVENTARIO DE TRANSFERENCIA DE CARPETAS FISCALES </b></td></tr></table>
 	<table style='font-size:9pt;'><tr><td><b>1. PROCEDENCIA:</b></td><td>{{ $regcab->descripcion }}</td></tr>
 	<tr><td><b>2. FISCAL: </b></td><td>{{ $regcab->apellido_paterno }} {{ $regcab->apellido_materno }} {{ $regcab->nombres }}</td></tr>
-	<tr><td><b>3. DESPACHO FISCAL: </b></td><td>{{ numeroAOrdinal($regcab->despacho) }} DESPACHO</td></tr>
+	<tr><td><b>3. DESPACHO FISCAL: </b></td><td>{{ $listadespachos[ $regcab->despacho ] ?? '' }} </td></tr>
 	<!--<tr><td><b>4. FECHA: </b></td><td>{{ $regcab->fechahora_movimiento }}</td></tr></table><br></div>-->
 	<tr><td><b>4. FECHA: </b></td><td>{{ \Carbon\Carbon::parse($regcab->fechahora_movimiento)->translatedFormat('d \d\e F \d\e Y') }}</td></tr></table><br></div>
 

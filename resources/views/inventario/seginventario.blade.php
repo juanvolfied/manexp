@@ -1,26 +1,9 @@
 @extends('menu.index')
 
 @section('content')
-
-<?php
-function numeroAOrdinal($numero) {
-    $ordinales = [
-        0 => '',
-        1 => '1er',
-        2 => '2do',
-        3 => '3er',
-        4 => '4to',
-        5 => '5to',
-        6 => '6to',
-        7 => '7mo',
-        8 => '8vo',
-        9 => '9no',
-        10 => '10mo',
-        11 => '11er',
-    ];    
-    return $ordinales[$numero] ?? $numero . 'º';
-}
-?>
+@php
+    $listadespachos = config('listas.listadespachos');
+@endphp
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -123,7 +106,7 @@ function numeroAOrdinal($numero) {
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->nro_paquete}}</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->serie}}</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->descripcion}}</td>
-                        <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ numeroAOrdinal($datos->despacho) }} Despacho</td>
+                        <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $listadespachos[ $datos->despacho ] ?? '' }} </td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;" align="center">{{ $datos->total}}</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;" align="center">{{ $datos->fecha_inv}}</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;" align="center">

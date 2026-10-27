@@ -1,22 +1,6 @@
-<?php
-function numeroAOrdinal($numero) {
-    $ordinales = [
-        0 => '',
-        1 => '1er',
-        2 => '2do',
-        3 => '3er',
-        4 => '4to',
-        5 => '5to',
-        6 => '6to',
-        7 => '7mo',
-        8 => '8vo',
-        9 => '9no',
-        10 => '10mo',
-        11 => '11er',
-    ];    
-    return $ordinales[$numero] ?? $numero . 'º';
-}
-?>
+@php
+    $listadespachos = config('listas.listadespachos');
+@endphp
 
 <div class="row">
     <div class="col-md-4 col-lg-4">
@@ -35,7 +19,7 @@ function numeroAOrdinal($numero) {
             @error('fiscal') <div class="text-danger">{{ $message }}</div> @enderror
         </div>
         <div class="form-group" style="padding:5px;font-size:12px; color:blue;" id="descdependencia">
-            {{ isset($libroescritos) ? (numeroAOrdinal($libroescritos->despacho) . " DESPACHO - " . $libroescritos->descridependencia) : '' }}
+            {{ isset($libroescritos) ? (($listadespachos[ $libroescritos->despacho ] ?? '')  . " - " . $libroescritos->descridependencia) : '' }}
         </div>
         <input type="hidden" id="id_dependencia" name="id_dependencia" value="{{ old('id_dependencia', $libroescritos->id_dependencia ?? '') }}">
         <input type="hidden" id="despacho" name="despacho" value="{{ old('despacho', $libroescritos->despacho ?? '') }}">
@@ -130,6 +114,8 @@ function numeroAOrdinal($numero) {
 
 @section('scripts')
 <script>
+    const listaDespachos = @json(config('listas.listadespachos'));
+
   const iddependencia = @json($fiscales->pluck('id_dependencia', 'id_personal'));
   const descdependencia = @json($fiscales->pluck('descripcion', 'id_personal'));
   const despacho = @json($fiscales->pluck('despacho', 'id_personal'));
@@ -194,31 +180,10 @@ function numeroAOrdinal($numero) {
 
 
     function muestradato(id) {
-        $('#descdependencia').text(numeroAOrdinal(despacho[id]) + " DESPACHO - " + descdependencia[id]);
-        //$('#despacho').text(numeroAOrdinal(despacho[id]) + " DESPACHO");
+        $('#descdependencia').text((listaDespachos[despacho[id]] ?? '') + " - " + descdependencia[id]);
         $('#id_dependencia').val(iddependencia[id]);
         $('#despacho').val(despacho[id]);
     }
-    function numeroAOrdinal(numero) {
-        const ordinales = {
-            1: '1er',
-            2: '2do',
-            3: '3er',
-            4: '4to',
-            5: '5to',
-            6: '6to',
-            7: '7mo',
-            8: '8vo',
-            9: '9no',
-            10: '10mo',
-            11: '11er'
-        };
-        if (numero==0){
-            return ' ';
-        } else {
-            return ordinales[numero] || numero + ' ';
-        }
-    }        
 </script>
 
 

@@ -1,33 +1,8 @@
-<?php
-function numeroAOrdinal($numero) {
-    $ordinales = [
-        0 => '',
-        1 => '1er',
-        2 => '2do',
-        3 => '3er',
-        4 => '4to',
-        5 => '5to',
-        6 => '6to',
-        7 => '7mo',
-        8 => '8vo',
-        9 => '9no',
-        10 => '10mo',
-        11 => '11er',
-    ];    
-    return $ordinales[$numero] ?? $numero . 'º';
-}
-?>
-<!--
-<div class="row">
-    <div class="col-md-4 col-lg-4">
-        <div class="form-group" style="padding:5px;">
-            <label for="codbarras" class="form-label"><b>Carpeta Fiscal</b></label>
-            <input type="text" id="codbarras" name="codbarras" class="form-control form-control-sm" maxlength="25" style="width:250px;" onkeydown="verificarEnter(event)" value="{{ old('codbarras', $carpetassgf->carpetafiscal ?? '') }}">
-            @error('codbarras') <div class="text-danger"><b>{{ $message }}</b></div> @enderror
-        </div>
-    </div>
-</div>
--->
+@php
+    $listadespachos = config('listas.listadespachos');
+@endphp
+
+
                     <div class="row" id="codigoverificar">
                       <div class="col-md-4 col-lg-4">
                         <div class="form-group border p-3 rounded shadow-sm bg-light">
@@ -120,18 +95,12 @@ function numeroAOrdinal($numero) {
             <label for="despacho"><b>Despacho:</b></label>
             <select name="despacho" id="despacho" class="form-select form-control-sm" >
                 <option value="" {{ old('despacho', $carpetassgf->despacho ?? null) === null ? 'selected' : '' }}></option>
-                <option value="0" {{ (string) old('despacho', $carpetassgf->despacho ?? null) === '0' ? 'selected' : '' }}>DESPACHO</option>
-                <option value="1" {{ old('despacho', $carpetassgf->despacho ?? '') == 1 ? 'selected' : '' }}>1er. DESPACHO</option>
-                <option value="2" {{ old('despacho', $carpetassgf->despacho ?? '') == 2 ? 'selected' : '' }}>2do. DESPACHO</option>
-                <option value="3" {{ old('despacho', $carpetassgf->despacho ?? '') == 3 ? 'selected' : '' }}>3er. DESPACHO</option>
-                <option value="4" {{ old('despacho', $carpetassgf->despacho ?? '') == 4 ? 'selected' : '' }}>4to. DESPACHO</option>
-                <option value="5" {{ old('despacho', $carpetassgf->despacho ?? '') == 5 ? 'selected' : '' }}>5to. DESPACHO</option>
-                <option value="6" {{ old('despacho', $carpetassgf->despacho ?? '') == 6 ? 'selected' : '' }}>6to. DESPACHO</option>
-                <option value="7" {{ old('despacho', $carpetassgf->despacho ?? '') == 7 ? 'selected' : '' }}>7mo. DESPACHO</option>
-                <option value="8" {{ old('despacho', $carpetassgf->despacho ?? '') == 8 ? 'selected' : '' }}>8vo. DESPACHO</option>
-                <option value="9" {{ old('despacho', $carpetassgf->despacho ?? '') == 9 ? 'selected' : '' }}>9no. DESPACHO</option>
-                <option value="10" {{ old('despacho', $carpetassgf->despacho ?? '') == 10 ? 'selected' : '' }}>10mo. DESPACHO</option>
-                <option value="11" {{ old('despacho', $carpetassgf->despacho ?? '') == 11 ? 'selected' : '' }}>11er. DESPACHO</option>
+                @foreach(config('listas.listadespachos') as $valor => $texto)
+                    <option value="{{ $valor }}" 
+                        {{ (string) old('despacho', $carpetassgf->despacho ?? '') === (string) $valor ? 'selected' : '' }}>
+                        {{ $texto }}
+                    </option>
+                @endforeach
             </select>
             @error('despacho') <div class="text-danger"><b>{{ $message }}</b></div> @enderror
         </div>
@@ -186,7 +155,7 @@ function numeroAOrdinal($numero) {
                         <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->carpetafiscal }}</td>
                         <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $carpetaFormateada }}</td>
                         <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->abreviado }}</td>
-                        <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ numeroAOrdinal($p->despacho) . " DESPACHO" }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $listadespachos[ $p->despacho ] ?? '' }}</td>
                         <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->fechahora_registro }}</td>
                         <!--<td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->apellido_paterno }} {{ $p->apellido_materno }} {{ $p->nombres }}</td>-->
                     </tr>

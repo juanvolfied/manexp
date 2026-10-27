@@ -15,26 +15,9 @@
 </head>
 <body>
 
-<?php
-function numeroAOrdinal($numero) {
-    $ordinales = [
-        0 => '',
-        1 => '1er',
-        2 => '2do',
-        3 => '3er',
-        4 => '4to',
-        5 => '5to',
-        6 => '6to',
-        7 => '7mo',
-        8 => '8vo',
-        9 => '9no',
-        10 => '10mo',
-        11 => '11er',
-    ];    
-    return $ordinales[$numero] ?? $numero . 'º';
-}
-?>
 @php
+    $listadespachos = config('listas.listadespachos');
+
     $tipos = [
     'E' => 'Escrito',
     'O' => 'Oficio',
@@ -55,7 +38,7 @@ function numeroAOrdinal($numero) {
 <div style="font-size:12px;">    
 
 <b>FISCAL :</b> {{ $datosfiscal->apellido_paterno ?? '' }} {{ $datosfiscal->apellido_materno ?? '' }} {{ $datosfiscal->nombres ?? '' }}
-<br>{{ $abreviado ?? '' }} - {{ numeroAOrdinal($despacho) ?? '' }} DESPACHO
+<br>{{ $abreviado ?? '' }} - {{ $listadespachos[ $despacho ] ?? '' }}
 <br><b>FECHA :</b> {{ $fechareg }} <br><br>
     <table id="scanned-list" class="table table-striped table-sm" border=1 style="width:100%; border-collapse: collapse;">
         <thead class="thead-dark" style="font-size:10px;">

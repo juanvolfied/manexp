@@ -1,26 +1,9 @@
 @extends('menu.index')
 
 @section('content')
-<?php
-function numeroAOrdinal($numero) {
-    $ordinales = [
-        0 => '',
-        1 => '1er',
-        2 => '2do',
-        3 => '3er',
-        4 => '4to',
-        5 => '5to',
-        6 => '6to',
-        7 => '7mo',
-        8 => '8vo',
-        9 => '9no',
-        10 => '10mo',
-        11 => '11er',
-    ];    
-    return $ordinales[$numero] ?? $numero . 'º';
-}
-?>
 @php
+    $listadespachos = config('listas.listadespachos');
+
     $tipos = [
     'E' => 'Escrito',
     'O' => 'Oficio',
@@ -105,7 +88,7 @@ function numeroAOrdinal($numero) {
                     <tr>
                         <td style="padding: 5px 5px!important; font-size: 11px !important; border-left: 4px solid #ffc107 !important; font-weight: bold !important;">{{ $p->codescrito }}</td>
                         <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->abreviado }}</td>
-                        <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ numeroAOrdinal($p->despacho) . " DESPACHO" }}</td>
+                        <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $listadespachos[ $p->despacho ] ?? '' }}</td>
                         <td style="padding: 5px 5px!important; font-size: 11px !important;">{{ $p->apellido_paterno ." ". $p->apellido_materno ." ". $p->nombres }}</td>
                         <td style="padding: 5px 5px!important; font-size: 11px !important;">
                             {{ $tipos[$p->tipo] ?? $p->tipo }}

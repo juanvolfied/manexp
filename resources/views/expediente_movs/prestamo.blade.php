@@ -1,13 +1,8 @@
 @extends('menu.index')
 
 @section('content')
-<?php
-function numeroAOrdinal($numero) {
-    $ordinales = [0 => '',1 => '1er',2 => '2do',3 => '3er',4 => '4to',5 => '5to',6 => '6to',7 => '7mo',8 => '8vo',9 => '9no',10 => '10mo',11 => '11er',];
-    return $ordinales[$numero] ?? $numero . 'º';
-}
-?>
-    <!-- Mostrar el mensaje de �xito o error -->
+
+<!-- Mostrar el mensaje de �xito o error -->
     <form action="{{ route('prestamo.grabaprestamo') }}"
       method="POST" id="miFormulario2" enctype="multipart/form-data" autocomplete="off">
 
@@ -87,8 +82,6 @@ document.getElementById('archivo').addEventListener('change', function () {
                         <div class="form-group" style="padding:5px;">
                             <div id="dependencia"></div>
                             <div id="despacho"></div>                            
-                            <!--<b>DEPENDENCIA : </b> {{ optional($fiscal)->descripcion }}<br>
-                            <b>DESPACHO : </b> {{ numeroAOrdinal(Auth::user()->personal->despacho) }} DESPACHO-->
                         </div>
                       </div>
                     </div>
@@ -309,6 +302,8 @@ document.getElementById('archivo').addEventListener('change', function () {
 
 @section('scripts')
 <script>
+    const listaDespachos = @json(config('listas.listadespachos'));
+    
     var selectizeFiscal = $('#fiscal').selectize({
         onChange: function(value) {
 
@@ -323,30 +318,12 @@ document.getElementById('archivo').addEventListener('change', function () {
             var item = this.options[value];
 
             $('#dependencia').html('<b>DEPENDENCIA:</b> ' + (item.descripcion || ''));
-            $('#despacho').html('<b>DESPACHO:</b> ' + numeroAOrdinal(item.despacho) + ' Despacho');
+            $('#despacho').html('<b>DESPACHO:</b> ' + (listaDespachos[item.despacho] ?? ''));            
             $('#coddependencia').val( (item.id_dependencia || ''));
             $('#coddespacho').val( (item.despacho || ''));
         }
     })[0].selectize;    
 
-    function numeroAOrdinal(numero) {
-        const ordinales = {
-            0: ' ',
-            1: '1er',
-            2: '2do',
-            3: '3er',
-            4: '4to',
-            5: '5to',
-            6: '6to',
-            7: '7mo',
-            8: '8vo',
-            9: '9no',
-            10: '10mo',
-            11: '11er'
-        };
-
-        return ordinales[numero] || numero ;
-    }
 </script>
 
 
