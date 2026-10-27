@@ -210,6 +210,7 @@
 @section('scripts')
 <script>
 const listaDespachos = @json(config('listas.listadespachos'));
+const listatipoarchivo = @json(config('listas.listatipoarchivo'));
 
 
 if (!@json($puedeEditar)) {
@@ -439,22 +440,15 @@ function mostrardetalle(idexp, event) {
                         datoreg=dependencia+"-"+ano+"-"+nroexpediente+"-"+tipo;
                     }
                     const estiloExtra = index === 0 ? 'font-weight:bold; color:green;' : '';
-const archivos = {
-    99: 'Archivo Gestión 1',
-    92: 'Archivo Gestión 2',
-    93: 'Archivo Gestión 3',
-    94: 'Archivo Gestión 4',
-};
 
-const textoArchivo = archivos[registro.archivo] ?? `Archivo ${String(registro.archivo).padStart(3, '0')}`;                
+const textoArchivo = listatipoarchivo[registro.archivo] ?? '';                
 const archivos2 = {
     99: 'AG 1',
     92: 'AG 2',
     93: 'AG 3',
     94: 'AG 4',
 };
-
-const textoArchivo2 = archivos2[registro.archivo] ?? `Archivo ${String(registro.archivo).padStart(3, '0')}`;                
+const textoArchivo2 = archivos2[registro.archivo] ?? (listatipoarchivo[registro.archivo] ?? '');                
 
 
                     tableBody.append(`

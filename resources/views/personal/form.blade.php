@@ -66,18 +66,12 @@
                           <label for="despacho"><b>Despacho:</b></label>
 <select name="despacho" id="despacho" class="form-select">
     <option value=""></option>
-    <option value="0" {{ old('despacho', $personal->despacho ?? '') == '0' ? 'selected' : '' }}>DESPACHO</option>
-    <option value="1" {{ old('despacho', $personal->despacho ?? '') == '1' ? 'selected' : '' }}>1er. DESPACHO</option>
-    <option value="2" {{ old('despacho', $personal->despacho ?? '') == '2' ? 'selected' : '' }}>2do. DESPACHO</option>
-    <option value="3" {{ old('despacho', $personal->despacho ?? '') == '3' ? 'selected' : '' }}>3er. DESPACHO</option>
-    <option value="4" {{ old('despacho', $personal->despacho ?? '') == '4' ? 'selected' : '' }}>4to. DESPACHO</option>
-    <option value="5" {{ old('despacho', $personal->despacho ?? '') == '5' ? 'selected' : '' }}>5to. DESPACHO</option>
-    <option value="6" {{ old('despacho', $personal->despacho ?? '') == '6' ? 'selected' : '' }}>6to. DESPACHO</option>
-    <option value="7" {{ old('despacho', $personal->despacho ?? '') == '7' ? 'selected' : '' }}>7mo. DESPACHO</option>
-    <option value="8" {{ old('despacho', $personal->despacho ?? '') == '8' ? 'selected' : '' }}>8vo. DESPACHO</option>
-    <option value="9" {{ old('despacho', $personal->despacho ?? '') == '9' ? 'selected' : '' }}>9no. DESPACHO</option>
-    <option value="10" {{ old('despacho', $personal->despacho ?? '') == '10' ? 'selected' : '' }}>10mo. DESPACHO</option>
-    <option value="11" {{ old('despacho', $personal->despacho ?? '') == '11' ? 'selected' : '' }}>11er. DESPACHO</option>
+    @foreach(config('listas.listadespachos') as $valor => $texto)
+        <option value="{{ $valor }}" 
+            {{ (string) old('despacho', $personal->despacho ?? '') === (string) $valor ? 'selected' : '' }}>
+            {{ $texto }}
+        </option>
+    @endforeach
 </select>
                         </div>
                       </div>

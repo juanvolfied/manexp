@@ -78,18 +78,11 @@
                           <label for="despacho"><b>Despacho:</b></label>
                             <select name="despacho" id="despacho" class="form-select form-control" >
                                 <option value=""></option>
-                                <option value="0">DESPACHO</option>
-                                <option value="1">1er. DESPACHO</option>
-                                <option value="2">2do. DESPACHO</option>
-                                <option value="3">3er. DESPACHO</option>
-                                <option value="4">4to. DESPACHO</option>
-                                <option value="5">5to. DESPACHO</option>
-                                <option value="6">6to. DESPACHO</option>
-                                <option value="7">7mo. DESPACHO</option>
-                                <option value="8">8vo. DESPACHO</option>
-                                <option value="9">9no. DESPACHO</option>
-                                <option value="10">10mo. DESPACHO</option>
-                                <option value="11">11er. DESPACHO</option>
+                @foreach(config('listas.listadespachos') as $valor => $texto)
+                    <option value="{{ $valor }}">
+                        {{ $texto }}
+                    </option>
+                @endforeach
                             </select>
                         </div>
                       </div>

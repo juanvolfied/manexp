@@ -3,7 +3,9 @@
 @section('content')
 @php
     $listadespachos = config('listas.listadespachos');
+    $listatipoarchivo = config('listas.listatipoarchivo');
 @endphp
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -94,13 +96,7 @@
     @endif
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->nro_inventario}}</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">
-{{ [
-    99 => 'Archivo Gestión 1',
-    92 => 'Archivo Gestión 2',
-    93 => 'Archivo Gestión 3',
-    94 => 'Archivo Gestión 4',
-][$datos->archivo] ?? 'Archivo ' . str_pad($datos->archivo, 3, '0', STR_PAD_LEFT) }}
-
+                            {{ $listatipoarchivo[ $datos->archivo ] ?? '' }}
                         </td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->anaquel}}</td>
                         <td style="padding: 5px 10px!important; font-size: 11px !important;">{{ $datos->nro_paquete}}</td>

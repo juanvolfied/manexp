@@ -1,7 +1,9 @@
 @extends('menu.index')
 
 @section('content')
-
+@php
+    $listatipoarchivo = config('listas.listatipoarchivo');
+@endphp
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -85,13 +87,7 @@
                 @foreach ($segdatos as $datos)
                     <tr>
                         <td style="padding: 5px 10px!important; font-size: 12px !important;">
-{{ [
-    99 => 'Archivo Gestión 1',
-    92 => 'Archivo Gestión 2',
-    93 => 'Archivo Gestión 3',
-    94 => 'Archivo Gestión 4',
-][$datos->archivo] ?? 'Archivo ' . str_pad($datos->archivo, 3, '0', STR_PAD_LEFT) }}
-
+                            {{ $listatipoarchivo[ $datos->archivo ] ?? '' }}
                         </td>
                         <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $datos->anaquel}}</td>
                         <td style="padding: 5px 10px!important; font-size: 12px !important;">{{ $datos->nro_paquete}}</td>
